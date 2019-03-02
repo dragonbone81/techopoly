@@ -1,4 +1,4 @@
-export default [
+const tiles = [
     {
         name: "ENIAC",
         position: 0,
@@ -55,7 +55,7 @@ export default [
         type: "property",
     },
     {
-        name: "Chance",
+        name: "Equity",
         position: 7,
         type: "chance",
     },
@@ -145,7 +145,7 @@ export default [
         type: "property",
     },
     {
-        name: "Community Chest",
+        name: "Stock Options",
         position: 17,
         type: "chest",
     },
@@ -289,7 +289,7 @@ export default [
         type: "property",
     },
     {
-        name: "Community Chest",
+        name: "Stock Options",
         position: 33,
         type: "chest",
     },
@@ -312,7 +312,7 @@ export default [
         type: "rr",
     },
     {
-        name: "Chance",
+        name: "Equity",
         position: 36,
         type: "chance",
     },
@@ -328,7 +328,7 @@ export default [
         type: "property",
     },
     {
-        name: "Lux Tax",
+        name: "Tax Evasion",
         position: 38,
         type: "lux-tax",
     },
