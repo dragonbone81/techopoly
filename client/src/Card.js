@@ -5,8 +5,8 @@ import tiles from './monopoly';
 
 class Card extends Component {
     getCardColor = () => {
-        if (this.props.store.gameTiles[this.props.position].owned) {
-            return this.props.store.players[this.props.store.gameTiles[this.props.position].currentPlayer].color
+        if (this.props.store.gameTilesID[this.props.position].owned) {
+            return this.props.store.players[this.props.store.gameTilesID[this.props.position].player].color
         } else {
             return "grey"
         }

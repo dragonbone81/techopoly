@@ -7,6 +7,8 @@ const port = process.env.PORT || 3001;
 const server = app.listen(port, () => console.log("Server Started!"));
 const io = require('socket.io')(server);
 const game = require("./game");
+const client = require("./db_connection");
+
 
 app.use(morgan('short'));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -21,3 +23,4 @@ io.on('connection', (socket) => {
     // console.log(io.sockets.sockets);
     game.game(socket, io);
 });
+client.then((client) => console.log(client));

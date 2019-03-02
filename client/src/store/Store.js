@@ -14,25 +14,44 @@ class Store {
     socket = io("http://localhost:3001/");
     players = [
         {id: 1, position: 0, money: 1500, color: 'red'},
-        {id: 2, position: 25, money: 1500, color: 'blue'},
+        {id: 2, position: 0, money: 1500, color: 'blue'},
     ];
-    turn = 0;
-    
+    player = JSON.parse(localStorage.getItem("player")).id;
     currentPlayer = 0;
     turnState = "START";
     dice = [0, 0];
+    gameTilesID = tiles.map((el) => {
+        const simple = {name: el.name};
+        if (el.cost) {
+            simple.bought = false;
+            simple.player = null;
+        }
+        return simple;
+    });
     gameTiles = tiles;
     mousedOverTile = 0;
     buyProcessStarted = false;
     connectToGame = (game_id, username) => {
         console.log(game_id, username);
         this.socket.emit('game_join', {username, game_id});
+        this.socket.emit('get_game_info', {game_id});
     };
 
     constructor() {
-        this.connectToGame(0, 'test');
+        this.socket.on("game_info", (data) => {
+            this.setGameInfo(data.game_info, data.player_info);
+            this.changeCurrentPlayer(data.current_player);
+        });
+        this.connectToGame(1, 'test');
     }
 
+    setGameInfo = (gameInfo, playerInfo) => {
+        this.gameTilesID = gameInfo;
+        this.players = playerInfo;
+    }
+    changeCurrentPlayer = (player) => {
+        this.currentPlayer = player;
+    };
     setMousedOverTile = (tile) => {
         this.mousedOverTile = tile;
         console.log(this.mousedOverTile)
@@ -47,19 +66,26 @@ class Store {
         console.log(this.diceSum)
     };
     buyProperty = () => {
-        const tile = this.gameTiles[this.thisPlayer.position];
-        if (!tile.owned && tile.cost) {
+        const tile = this.gameTilesID[this.thisPlayer.position];
+        if (!tile.owned && this.gameTiles[this.thisPlayer.position].cost) {
             tile.owned = true;
-            tile.player = this.currentPlayer;
+            tile.player = this.player;
             const player = this.thisPlayer;
             player.money -= tile.cost;
             this.players[this.currentPlayer] = player;
-            this.gameTiles[this.thisPlayer.position] = tile;
+            this.gameTilesID[this.thisPlayer.position] = tile;
         }
     };
     endTurn = () => {
         this.turnState = "NOT_TURN";
-        this.currentPlayer = this.circularAdd(this.currentPlayer, 1, this.players.length - 1);
+        const newCurrentPlayer = this.circularAdd(this.currentPlayer, 1, this.players.length - 1);
+        this.socket.emit('end_turn', {
+            game_id: 1,
+            id: this.player,
+            next_player: newCurrentPlayer,
+            game_info: this.gameTilesID,
+            player_info: this.players,
+        });
     };
     buyPrompt = (playerBuys) => {
         if (playerBuys) {
@@ -73,7 +99,8 @@ class Store {
         this.rollDice();
         this.players[this.currentPlayer].position = this.circularAdd(this.players[this.currentPlayer].position, this.diceSum, 39);
         this.clearMousedOverTile();
-        if (!this.playerTile.owned && this.playerTile.cost) {
+        console.log(this.playerTile)
+        if (!this.playerTile.owned && this.playerGameTile.cost) {
             this.buyProcessStarted = true;
         } else {
             this.endTurn();
@@ -90,7 +117,7 @@ class Store {
     };
 
     get thisPlayersTurn() {
-        return this.turn === this.currentPlayer;
+        return this.player === this.currentPlayer;
     };
 
     get diceSum() {
@@ -98,7 +125,7 @@ class Store {
     }
 
     get thisPlayer() {
-        return this.players[this.currentPlayer];
+        return this.players[this.player];
     }
 
     get positions() {
@@ -106,19 +133,25 @@ class Store {
     };
 
     get playerTile() {
+        return this.gameTilesID[this.thisPlayer.position];
+    }
+
+    get playerGameTile() {
         return this.gameTiles[this.thisPlayer.position];
     }
 
     get mousedOverTileInfo() {
-        return this.gameTiles[this.mousedOverTile];
+        return this.gameTilesID[this.mousedOverTile];
     };
 }
 
 decorate(Store, {
     players: observable,
     player: observable,
+    currentPlayer: observable,
     turn: observable,
     gameTiles: observable,
+    gameTilesID: observable,
     turnState: observable,
     mousedOverTile: observable,
     buyProcessStarted: observable,
@@ -135,6 +168,8 @@ decorate(Store, {
     setMousedOverTile: action,
     rollAndMove: action,
     buyPrompt: action,
+    changeCurrentPlayer: action,
+    setGameInfo: action,
 });
 
 export default new Store();
