@@ -1,20 +1,17 @@
 import React, {Component} from 'react';
 import {observer, inject} from 'mobx-react';
+import Player from './Player';
 
 class Card extends Component {
     render() {
-        let className = "";
-        if (this.props.vertical) {
-            className = "game-tile vertical";
-        } else {
-            className = "game-tile";
-        }
-        if (this.props.edge) {
-            className = "game-tile edge";
-        }
         return (
-            <div className={className}>
-                Card
+            <div className="game-tile">
+                {this.props.store.positions.includes(this.props.position) ?
+                    <Player/>
+                    :
+                    null
+                }
+                <div>{this.props.position}</div>
             </div>
         );
     }

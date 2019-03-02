@@ -6,6 +6,8 @@
     /*width: 900px;*/
     /*height: 900px;*/
     position: absolute;
+    /*pointer-events: none;*/
+    z-index: 1;
     /*left: 200px;*/
     /*top: 200px;*/
     top: 70px;
