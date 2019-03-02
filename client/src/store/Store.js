@@ -1,5 +1,6 @@
 import {decorate, configure, observable, action, computed, runInAction} from 'mobx'
 import tiles from '../monopoly';
+import io from 'socket.io-client';
 
 configure({enforceActions: "observed"});
 const turnState = [
@@ -10,17 +11,28 @@ const turnState = [
 ];
 
 class Store {
+    socket = io("http://localhost:3001/");
     players = [
         {id: 1, position: 0, money: 1500, color: 'red'},
         {id: 2, position: 25, money: 1500, color: 'blue'},
     ];
     turn = 0;
-    player = 0;
+    
+    currentPlayer = 0;
     turnState = "START";
     dice = [0, 0];
     gameTiles = tiles;
     mousedOverTile = 0;
     buyProcessStarted = false;
+    connectToGame = (game_id, username) => {
+        console.log(game_id, username);
+        this.socket.emit('game_join', {username, game_id});
+    };
+
+    constructor() {
+        this.connectToGame(0, 'test');
+    }
+
     setMousedOverTile = (tile) => {
         this.mousedOverTile = tile;
         console.log(this.mousedOverTile)
@@ -38,16 +50,16 @@ class Store {
         const tile = this.gameTiles[this.thisPlayer.position];
         if (!tile.owned && tile.cost) {
             tile.owned = true;
-            tile.player = this.player;
+            tile.player = this.currentPlayer;
             const player = this.thisPlayer;
             player.money -= tile.cost;
-            this.players[this.player] = player;
+            this.players[this.currentPlayer] = player;
             this.gameTiles[this.thisPlayer.position] = tile;
         }
     };
     endTurn = () => {
         this.turnState = "NOT_TURN";
-        this.player = this.circularAdd(this.player, 1, this.players.length - 1);
+        this.currentPlayer = this.circularAdd(this.currentPlayer, 1, this.players.length - 1);
     };
     buyPrompt = (playerBuys) => {
         if (playerBuys) {
@@ -59,7 +71,8 @@ class Store {
     rollAndMove = () => {
         this.turnState = "BUY";
         this.rollDice();
-        this.players[this.player].position = this.circularAdd(this.players[this.player].position, this.diceSum, 39);
+        this.players[this.currentPlayer].position = this.circularAdd(this.players[this.currentPlayer].position, this.diceSum, 39);
+        this.clearMousedOverTile();
         if (!this.playerTile.owned && this.playerTile.cost) {
             this.buyProcessStarted = true;
         } else {
@@ -77,7 +90,7 @@ class Store {
     };
 
     get thisPlayersTurn() {
-        return this.turn === this.player;
+        return this.turn === this.currentPlayer;
     };
 
     get diceSum() {
@@ -85,7 +98,7 @@ class Store {
     }
 
     get thisPlayer() {
-        return this.players[this.player];
+        return this.players[this.currentPlayer];
     }
 
     get positions() {
