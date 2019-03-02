@@ -1,11 +1,11 @@
 const tiles = [
     {
-        name: "Go",
+        name: "ENIAC",
         position: 0,
         type: "go",
     },
     {
-        name: "Mediterranean",
+        name: "Visa",
         cost: 60,
         upgrade: 50,
         position: 1,
@@ -16,12 +16,12 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Community Chest",
+        name: "Stock Options",
         position: 2,
         type: "chest",
     },
     {
-        name: "Baltic",
+        name: "Capitol One",
         cost: 60,
         upgrade: 50,
         position: 3,
@@ -37,14 +37,14 @@ const tiles = [
         type: "income-tax",
     },
     {
-        name: "Reading Railroad",
+        name: "Microsoft",
         cost: 200,
         base_rent: 25,
         position: 5,
         type: "rr",
     },
     {
-        name: "Oriental",
+        name: "Arista",
         cost: 100,
         upgrade: 50,
         position: 6,
@@ -60,7 +60,7 @@ const tiles = [
         type: "chance",
     },
     {
-        name: "Vermont",
+        name: "HPE",
         cost: 100,
         upgrade: 50,
         position: 8,
@@ -71,7 +71,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Connecticut",
+        name: "Cisco",
         cost: 120,
         upgrade: 50,
         position: 9,
@@ -87,7 +87,7 @@ const tiles = [
         type: "jail",
     },
     {
-        name: "Charles",
+        name: "Dropbox",
         cost: 140,
         upgrade: 100,
         position: 11,
@@ -98,14 +98,14 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Electric",
+        name: "SpaceX",
         cost: 150,
         position: 12,
         group: "utility",
         type: "utility",
     },
     {
-        name: "States",
+        name: "Box",
         cost: 140,
         upgrade: 100,
         position: 13,
@@ -116,7 +116,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Virginia",
+        name: "Slack",
         cost: 160,
         upgrade: 100,
         position: 14,
@@ -127,14 +127,14 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Penn Railroad",
+        name: "Facebook",
         cost: 200,
         base_rent: 25,
         position: 15,
         type: "rr",
     },
     {
-        name: "James",
+        name: "Twitch",
         cost: 180,
         upgrade: 100,
         position: 16,
@@ -150,7 +150,7 @@ const tiles = [
         type: "chest",
     },
     {
-        name: "Tennessee",
+        name: "Youtube",
         cost: 180,
         upgrade: 100,
         position: 18,
@@ -161,7 +161,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "New York",
+        name: "Netflix",
         cost: 200,
         upgrade: 100,
         position: 19,
@@ -172,12 +172,12 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Free Parking",
+        name: "PTO",
         position: 20,
         type: "parking",
     },
     {
-        name: "Kentucky",
+        name: "Square",
         cost: 220,
         upgrade: 150,
         position: 21,
@@ -188,12 +188,12 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Chance",
+        name: "Equity",
         position: 22,
         type: "chance",
     },
     {
-        name: "Indiana",
+        name: "Atlassian",
         cost: 220,
         upgrade: 150,
         position: 23,
@@ -204,7 +204,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Illinois",
+        name: "Twilio",
         cost: 240,
         upgrade: 150,
         position: 24,
@@ -215,14 +215,14 @@ const tiles = [
         type: "property",
     },
     {
-        name: "BO Railroad",
+        name: "Amazon",
         cost: 200,
         base_rent: 25,
         position: 25,
         type: "rr",
     },
     {
-        name: "Atlantic",
+        name: "LinkedIn",
         cost: 260,
         upgrade: 150,
         position: 26,
@@ -233,7 +233,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Ventnor",
+        name: "Pintrest",
         cost: 260,
         upgrade: 150,
         position: 27,
@@ -244,14 +244,14 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Water",
+        name: "Tesla",
         cost: 150,
         position: 28,
         group: "utility",
         type: "utility",
     },
     {
-        name: "Marvin",
+        name: "Snap",
         cost: 280,
         upgrade: 150,
         position: 29,
@@ -267,7 +267,7 @@ const tiles = [
         type: "go-to-jail",
     },
     {
-        name: "Pacific",
+        name: "Lyft",
         cost: 300,
         upgrade: 200,
         position: 31,
@@ -278,7 +278,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "North Carolina",
+        name: "Uber",
         cost: 300,
         upgrade: 200,
         position: 32,
@@ -294,7 +294,7 @@ const tiles = [
         type: "chest",
     },
     {
-        name: "Pennsylvania",
+        name: "Airbnb",
         cost: 320,
         upgrade: 200,
         position: 34,
@@ -305,7 +305,7 @@ const tiles = [
         type: "property",
     },
     {
-        name: "Short Railroad",
+        name: "Google",
         cost: 200,
         base_rent: 25,
         position: 35,
@@ -317,7 +317,7 @@ const tiles = [
         type: "chance",
     },
     {
-        name: "Park Place",
+        name: "Workday",
         cost: 350,
         upgrade: 200,
         position: 37,
@@ -333,7 +333,7 @@ const tiles = [
         type: "lux-tax",
     },
     {
-        name: "Boardwalk",
+        name: "Salesforce",
         cost: 400,
         upgrade: 200,
         position: 39,
