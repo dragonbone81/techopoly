@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {observer, inject} from 'mobx-react';
 import Player from './Player';
+import tiles from './monopoly';
 
 class Card extends Component {
     render() {
@@ -11,7 +12,8 @@ class Card extends Component {
                     :
                     null
                 }
-                <div>{this.props.position}</div>
+                {/*<div>{this.props.position}</div>*/}
+                <div>{tiles[this.props.position].name}</div>
             </div>
         );
     }
