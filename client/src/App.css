@@ -17,6 +17,14 @@
     background-color: aqua;
 }
 
+.red {
+    border: 1px solid red;
+}
+
+.blue {
+    border: 1px solid blue;
+}
+
 .main-row-here {
     position: relative;
 }
@@ -25,7 +33,7 @@
     height: 70px;
     width: 70px;
     background-color: beige;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
 }
 
 .edge {

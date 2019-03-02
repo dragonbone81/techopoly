@@ -4,9 +4,19 @@ import Player from './Player';
 import tiles from './monopoly';
 
 class Card extends Component {
+    getCardColor = () => {
+        if (this.props.store.gameTiles[this.props.position].owned) {
+            return this.props.store.players[this.props.store.gameTiles[this.props.position].player].color
+        } else {
+            return "grey"
+        }
+    };
+
     render() {
         return (
-            <div className="game-tile">
+            <div style={{border: `1px solid ${this.getCardColor()}`}} className="game-tile"
+                 onMouseLeave={this.props.store.clearMousedOverTile}
+                 onMouseEnter={() => this.props.store.setMousedOverTile(this.props.position)}>
                 {this.props.store.positions.includes(this.props.position) ?
                     <Player/>
                     :

@@ -1,4 +1,4 @@
-const tiles = [
+export default [
     {
         name: "ENIAC",
         position: 0,

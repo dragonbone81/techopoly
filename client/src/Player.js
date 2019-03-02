@@ -5,7 +5,7 @@ class Player extends Component {
     render() {
         return (
             <div>
-                Player
+                <b>Player</b>
             </div>
         );
     }
