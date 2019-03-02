@@ -1,39 +1,44 @@
-.main{
-    min-width: 1500px;
+.main {
+    /*min-width: 1300px;*/
 }
+
 .main-view {
     /*width: 900px;*/
     /*height: 900px;*/
     position: absolute;
-    left: 200px;
-    top: 200px;
-    width: 900px;
-    height: 900px;
+    /*left: 200px;*/
+    /*top: 200px;*/
+    top: 70px;
+    left: 70px;
+    width: 630px;
+    height: 630px;
     background-color: aqua;
 }
-.main-row-here{
+
+.main-row-here {
     position: relative;
 }
 
 .game-tile {
-    height: 200px;
-    width: 100px;
+    height: 70px;
+    width: 70px;
     background-color: beige;
     border: 1px solid black;
 }
 
 .edge {
-    height: 200px;
-    width: 200px;
+    /*height: calc((1000px / 13) * 1.5);*/
+    /*width: calc((1000px / 13) * 1.5);*/
     background-color: aquamarine;
 }
 
 .vertical {
-    height: 100px;
-    width: 200px;
+    /*height: calc((1000px / 13) * 2);*/
+    /*width: calc((1000px / 13) * 2);*/
     background-color: darkgreen;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
 }
-.main-box{
-    max-width: 1300px;
+
+.main-box {
+    width: 770px;
 }

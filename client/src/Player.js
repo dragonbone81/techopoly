@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {observer, inject} from 'mobx-react';
 
-class Card extends Component {
+class Player extends Component {
     render() {
         let className = "";
         if (this.props.vertical) {
@@ -13,11 +13,11 @@ class Card extends Component {
             className = "game-tile edge";
         }
         return (
-            <div className={className}>
-                Card
+            <div>
+                Player
             </div>
         );
     }
 }
 
-export default inject("store")(observer(Card));
+export default inject("store")(observer(Player));
