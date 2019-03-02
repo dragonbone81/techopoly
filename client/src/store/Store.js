@@ -12,11 +12,9 @@ const turnState = [
 
 class Store {
     socket = io("http://localhost:3001/");
-    players = [
-        {id: 1, position: 0, money: 1500, color: 'red'},
-        {id: 2, position: 0, money: 1500, color: 'blue'},
-    ];
-    player = JSON.parse(localStorage.getItem("player")).id;
+    players = [];
+    username = null;
+    player = 0;
     currentPlayer = 0;
     turnState = "START";
     dice = [0, 0];
@@ -31,23 +29,41 @@ class Store {
     gameTiles = tiles;
     mousedOverTile = 0;
     buyProcessStarted = false;
-    connectToGame = (game_id, username) => {
-        console.log(game_id, username);
-        this.socket.emit('game_join', {username, game_id});
-        this.socket.emit('get_game_info', {game_id});
+    connectToGame = (game_name, username) => {
+        this.socket.emit('game_join', {username, game_name});
+        this.socket.emit('get_game_info', {game_name});
     };
 
     constructor() {
         this.socket.on("game_info", (data) => {
-            this.setGameInfo(data.game_info, data.player_info);
+            console.log(data);
+            this.setGameInfo(data.game_info, data.player_info, data.game_name);
             this.changeCurrentPlayer(data.current_player);
         });
-        this.connectToGame(1, 'test');
+        // this.connectToGame(1, 'test');
     }
 
-    setGameInfo = (gameInfo, playerInfo) => {
+    newGame = (game_name, username) => {
+        this.socket.emit("create_game", {
+            game_name: game_name,
+            player_info: [{username: username, position: 0, money: 1500, color: 'red'}],
+            game_info: this.gameTilesID,
+        })
+    };
+    joinGame = (game_name, username) => {
+        // this.socket.emit("join_game", {
+        //     game_name: game_name,
+        //     username: username,
+        // })
+        this.username = username;
+        this.connectToGame(game_name, username);
+    };
+    setGameInfo = (gameInfo, playerInfo, game_name) => {
+        console.log(playerInfo);
         this.gameTilesID = gameInfo;
         this.players = playerInfo;
+        this.player = playerInfo.findIndex(el => el.username === this.username);
+        this.game_name = game_name;
     }
     changeCurrentPlayer = (player) => {
         this.currentPlayer = player;
@@ -80,7 +96,7 @@ class Store {
         this.turnState = "NOT_TURN";
         const newCurrentPlayer = this.circularAdd(this.currentPlayer, 1, this.players.length - 1);
         this.socket.emit('end_turn', {
-            game_id: 1,
+            game_name: this.game_name,
             id: this.player,
             next_player: newCurrentPlayer,
             game_info: this.gameTilesID,
@@ -143,6 +159,14 @@ class Store {
     get mousedOverTileInfo() {
         return this.gameTilesID[this.mousedOverTile];
     };
+
+    get inGame() {
+        if (this.players.findIndex(el => el.username === this.username) === -1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
 decorate(Store, {
@@ -152,6 +176,7 @@ decorate(Store, {
     turn: observable,
     gameTiles: observable,
     gameTilesID: observable,
+    game_name: observable,
     turnState: observable,
     mousedOverTile: observable,
     buyProcessStarted: observable,
@@ -159,6 +184,7 @@ decorate(Store, {
     diceSum: computed,
     thisPlayersTurn: computed,
     thisPlayer: computed,
+    inGame: computed,
     mousedOverTileInfo: computed,
     playerTile: computed,
     rollDice: action,
@@ -170,6 +196,7 @@ decorate(Store, {
     buyPrompt: action,
     changeCurrentPlayer: action,
     setGameInfo: action,
+    joinGame: action,
 });
 
 export default new Store();
