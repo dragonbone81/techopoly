@@ -11,6 +11,7 @@ const turnState = [
 ];
 
 class Store {
+    mainView = "properties";
     socket = io("http://localhost:3001/");
     players = [];
     username = null;
@@ -29,7 +30,7 @@ class Store {
         return simple;
     });
     gameTiles = tiles;
-    mousedOverTile = 0;
+    mousedOverTile = null;
     buyProcessStarted = false;
     connectToGame = (game_name, username) => {
         console.log(game_name)
@@ -99,7 +100,7 @@ class Store {
         console.log(this.mousedOverTile)
     };
     clearMousedOverTile = () => {
-        this.mousedOverTile = this.thisPlayer.position;
+        this.mousedOverTile = null;
         console.log(this.mousedOverTile)
     };
     rollDice = () => {
@@ -153,7 +154,6 @@ class Store {
                 return this.playerGameTile.rent[0] * 2;
                 // if()
             }
-            console.log(ownsAll)
         }
     };
     moveHere = (where) => {
@@ -194,13 +194,17 @@ class Store {
             this.endTurn();
         } else if (this.playerTile.owned && this.playerGameTile.cost && this.playerTile.player !== this.username) {
             console.log("paying the other player")
-            // let cost =
-            this.calcCostRent();
+            let cost = this.calcCostRent();
+            this.players[this.playerTile.player].money += cost;
+            this.players[this.currentPlayer].money -= cost;
+            this.endTurn();
         } else {
             this.endTurn();
         }
     };
-
+    mortgageProp = (property) => {
+        this.gameTilesID[property].mortaged = true;
+    };
     circularAdd = (val, num, max) => {
         if (val + num > max) {
             num = num - (max - val);
@@ -234,9 +238,24 @@ class Store {
         return this.gameTiles[this.thisPlayer.position];
     }
 
-    get mousedOverTileInfo() {
-        return this.gameTilesID[this.mousedOverTile];
+    get mousedOverTileIDInfo() {
+        return this.gameTilesID[this.mousedOverTile] || null;
     };
+
+    get mousedOverTileInfo() {
+        return this.gameTiles[this.mousedOverTile] || null;
+    };
+
+    get playersProperties() {
+        return this.gameTilesID.filter((el, i) => {
+            if (el.player === this.player) {
+                return {...el, ...this.gameTiles[i]}
+            }
+        })
+            .sort((a, b) => {
+                return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
+            })
+    }
 
     get inGame() {
         if (this.players.findIndex(el => el.username === this.username) === -1) {
@@ -264,6 +283,7 @@ decorate(Store, {
     thisPlayer: computed,
     inGame: computed,
     mousedOverTileInfo: computed,
+    mousedOverTileIDInfo: computed,
     playerTile: computed,
     rollDice: action,
     takeTurn: action,
@@ -274,6 +294,7 @@ decorate(Store, {
     rollAndMove: action,
     setUsername: action,
     buyPrompt: action,
+    mortgageProp: action,
     changeCurrentPlayer: action,
     setGameInfo: action,
     joinGame: action,

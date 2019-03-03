@@ -33,6 +33,9 @@
     height: 70px;
     width: 70px;
     background-color: beige;
+    background-size: contain !important;
+    background-repeat: no-repeat;
+    background-position: 50%;
     /*border: 1px solid black;*/
 }
 
