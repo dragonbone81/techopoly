@@ -14,7 +14,8 @@ class Card extends Component {
 
     render() {
         return (
-            <div style={{border: `1px solid ${this.getCardColor()}`}} className="game-tile"
+            <div onClick={() => this.props.store.moveHere(this.props.position)}
+                 style={{border: `1px solid ${this.getCardColor()}`}} className="game-tile"
                  onMouseLeave={this.props.store.clearMousedOverTile}
                  onMouseEnter={() => this.props.store.setMousedOverTile(this.props.position)}>
                 {this.props.store.positions.includes(this.props.position) ?

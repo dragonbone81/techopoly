@@ -24,10 +24,10 @@ const game = (socket, io) => {
                 {game_name: input.game_name},
                 {}
             );
-            if (game.password !== input.password) {
-                console.log('asd');
-                return;
-            }
+            // if (game.password !== input.password) {
+            //     console.log('asd');
+            //     return;
+            // }
             console.log(game)
             if (game.player_info.findIndex(el => el.username === input.username) === -1) {
                 await (await client).updateOne(
@@ -58,6 +58,7 @@ const game = (socket, io) => {
             {game_name: input.game_name},
             {}
         );
+        console.log(game)
         socket.emit("game_info", game);
     });
     socket.on('end_turn', async (input) => {

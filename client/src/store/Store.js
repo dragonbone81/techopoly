@@ -21,8 +21,10 @@ class Store {
     gameTilesID = tiles.map((el) => {
         const simple = {name: el.name};
         if (el.cost) {
-            simple.bought = false;
+            simple.owned = false;
             simple.player = null;
+            simple.type = el.type;
+            simple.group = el.group;
         }
         return simple;
     });
@@ -38,8 +40,11 @@ class Store {
     constructor() {
         this.socket.on("game_info", (data) => {
             console.log(data);
-            this.setGameInfo(data.game_info, data.player_info, data.game_name);
-            this.changeCurrentPlayer(data.current_player);
+            if (data) {
+                this.setGameInfo(data.game_info, data.player_info, data.game_name);
+                this.changeCurrentPlayer(data.current_player);
+            }
+
         });
         const lastGame = JSON.parse(localStorage.getItem("last_game"));
         if (lastGame) {
@@ -56,7 +61,16 @@ class Store {
         await this.socket.emit("create_game", {
             game_name: game_name,
             player_info: [{username: username, position: 0, money: 1500, color: 'red'}],
-            game_info: this.gameTilesID,
+            game_info: tiles.map((el) => {
+                const simple = {name: el.name};
+                if (el.cost) {
+                    simple.owned = false;
+                    simple.player = null;
+                    simple.type = el.type;
+                    simple.group = el.group;
+                }
+                return simple;
+            }),
             password,
         });
         this.joinGame(game_name, username, password);
@@ -95,11 +109,12 @@ class Store {
     };
     buyProperty = () => {
         const tile = this.gameTilesID[this.thisPlayer.position];
-        if (!tile.owned && this.gameTiles[this.thisPlayer.position].cost) {
+        const gamesTiles = this.gameTiles[this.thisPlayer.position]
+        if (!tile.owned && gamesTiles.cost) {
             tile.owned = true;
             tile.player = this.player;
             const player = this.thisPlayer;
-            player.money -= tile.cost;
+            player.money -= gamesTiles.cost;
             this.players[this.currentPlayer] = player;
             this.gameTilesID[this.thisPlayer.position] = tile;
         }
@@ -122,6 +137,48 @@ class Store {
         this.buyProcessStarted = false;
         this.endTurn();
     };
+    calcCostRent = () => {
+        console.log("hey", this.playerGameTile)
+        if (this.playerGameTile.type === "rr") {
+            let numOwns = this.gameTilesID.filter(el => el.type === "rr" && el.player === this.playerTile.player).length;
+            let rent = this.playerGameTile.base_rent * Math.pow(2, numOwns);
+            console.log(rent);
+            return rent;
+        } else if (this.playerGameTile.type === "property") {
+            console.log('here')
+            let ownsAll = this.gameTilesID.filter(el => el.group === this.playerGameTile.group && el.player !== this.playerTile.player).length === 0;
+            if (!ownsAll) {
+                return this.playerGameTile.rent[0];
+            } else {
+                return this.playerGameTile.rent[0] * 2;
+                // if()
+            }
+            console.log(ownsAll)
+        }
+    };
+    moveHere = (where) => {
+        this.turnState = "BUY";
+        this.rollDice();
+        this.players[this.currentPlayer].position = where;
+        this.clearMousedOverTile();
+        console.log(this.playerTile)
+        if (!this.playerTile.owned && this.playerGameTile.cost) {
+            this.buyProcessStarted = true;
+        } else if (this.playerGameTile.type === "income-tax") {
+            const player = this.thisPlayer;
+            player.money -= player.money * .10;
+            this.players[this.currentPlayer] = player;
+            this.endTurn();
+        } else if (this.playerTile.owned && this.playerGameTile.cost && this.playerTile.player !== this.username) {
+            console.log("paying the other player")
+            let cost = this.calcCostRent();
+            this.players[this.playerTile.player].money += cost;
+            this.players[this.currentPlayer].money -= cost;
+            this.endTurn();
+        } else {
+            this.endTurn();
+        }
+    }
     rollAndMove = () => {
         this.turnState = "BUY";
         this.rollDice();
@@ -130,6 +187,15 @@ class Store {
         console.log(this.playerTile)
         if (!this.playerTile.owned && this.playerGameTile.cost) {
             this.buyProcessStarted = true;
+        } else if (this.playerGameTile.type === "income-tax") {
+            const player = this.thisPlayer;
+            player.money -= player.money * .10;
+            this.players[this.currentPlayer] = player;
+            this.endTurn();
+        } else if (this.playerTile.owned && this.playerGameTile.cost && this.playerTile.player !== this.username) {
+            console.log("paying the other player")
+            // let cost =
+            this.calcCostRent();
         } else {
             this.endTurn();
         }
@@ -202,6 +268,7 @@ decorate(Store, {
     rollDice: action,
     takeTurn: action,
     buyProperty: action,
+    moveHere: action,
     clearMousedOverTile: action,
     setMousedOverTile: action,
     rollAndMove: action,
