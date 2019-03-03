@@ -52,21 +52,23 @@ class Store {
     setUsername = (username) => {
         this.username = username;
     }
-    newGame = (game_name, username) => {
-        this.socket.emit("create_game", {
+    newGame = async (game_name, username, password) => {
+        await this.socket.emit("create_game", {
             game_name: game_name,
             player_info: [{username: username, position: 0, money: 1500, color: 'red'}],
             game_info: this.gameTilesID,
-        })
+            password,
+        });
+        this.joinGame(game_name, username, password);
     };
-    joinGame = (game_name, username) => {
+    joinGame = (game_name, username, password) => {
         // this.socket.emit("join_game", {
         //     game_name: game_name,
         //     username: username,
         // })
         this.username = username;
-        localStorage.setItem("last_game", JSON.stringify({game_name, username}));
-        this.connectToGame(game_name, username);
+        localStorage.setItem("last_game", JSON.stringify({game_name, username, password}));
+        this.connectToGame(game_name, username, password);
     };
     setGameInfo = (gameInfo, playerInfo, game_name) => {
         console.log(playerInfo);

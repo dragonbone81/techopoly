@@ -7,6 +7,7 @@ const game = (socket, io) => {
                 game_name: input.game_name,
                 player_info: input.player_info,
                 game_info: input.game_info,
+                password: input.password,
                 current_player: 0,
             }
         );
@@ -23,6 +24,10 @@ const game = (socket, io) => {
                 {game_name: input.game_name},
                 {}
             );
+            if (game.password !== input.password) {
+                console.log('asd');
+                return;
+            }
             console.log(game)
             if (game.player_info.findIndex(el => el.username === input.username) === -1) {
                 await (await client).updateOne(
