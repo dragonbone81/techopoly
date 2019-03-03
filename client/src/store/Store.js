@@ -30,6 +30,7 @@ class Store {
     mousedOverTile = 0;
     buyProcessStarted = false;
     connectToGame = (game_name, username) => {
+        console.log(game_name)
         this.socket.emit('game_join', {username, game_name});
         this.socket.emit('get_game_info', {game_name});
     };
@@ -40,9 +41,17 @@ class Store {
             this.setGameInfo(data.game_info, data.player_info, data.game_name);
             this.changeCurrentPlayer(data.current_player);
         });
-        // this.connectToGame(1, 'test');
+        const lastGame = JSON.parse(localStorage.getItem("last_game"));
+        if (lastGame) {
+            console.log(lastGame)
+            this.setUsername(lastGame.username);
+            this.connectToGame(lastGame.game_name, lastGame.username);
+        }
     }
 
+    setUsername = (username) => {
+        this.username = username;
+    }
     newGame = (game_name, username) => {
         this.socket.emit("create_game", {
             game_name: game_name,
@@ -56,6 +65,7 @@ class Store {
         //     username: username,
         // })
         this.username = username;
+        localStorage.setItem("last_game", JSON.stringify({game_name, username}));
         this.connectToGame(game_name, username);
     };
     setGameInfo = (gameInfo, playerInfo, game_name) => {
@@ -193,6 +203,7 @@ decorate(Store, {
     clearMousedOverTile: action,
     setMousedOverTile: action,
     rollAndMove: action,
+    setUsername: action,
     buyPrompt: action,
     changeCurrentPlayer: action,
     setGameInfo: action,

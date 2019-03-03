@@ -23,6 +23,7 @@ const game = (socket, io) => {
                 {game_name: input.game_name},
                 {}
             );
+            console.log(game)
             if (game.player_info.findIndex(el => el.username === input.username) === -1) {
                 await (await client).updateOne(
                     {game_name: input.game_name},
