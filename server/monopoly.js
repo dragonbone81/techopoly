@@ -435,8 +435,9 @@ const cards = [
         position: 24
     },
     {
-        name: "Advance to St. Dropbox",
-        type: "chance"
+        name: "Advance to Dropbox",
+        type: "chance",
+        position: 11
         //if you pass Go
     },
     {
@@ -474,11 +475,13 @@ const cards = [
     },
     {
         name: "Take a trip to Microsoft. If you pass 'GO', collect $200",
-        type: "chance"
+        type: "chance",
+        position: 5
     },
     {
         name: "Take a walk to Salesforce. Advance token to Salesforce.",
-        type: "chance"
+        type: "chance",
+        position: 39
     },
     {
         name: "You have been elected Chairman of the Board. Pay each player $50.",
@@ -493,8 +496,9 @@ const cards = [
         type: "chance"
     },
     {
-        name: "Advance to 'GO'. Colect $200",
-        type: "chest"
+        name: "Advance to 'ENIAC'. Colect $200",
+        type: "chest",
+        position: 0
     },
     {
         name: "Bank error in your favor. Collect $200",
@@ -514,7 +518,8 @@ const cards = [
     },
     {
         name: "Go to Jail",
-        type: "chest"
+        type: "chest",
+        position: 10
     },
     {
         name: "Grand Opera Night - Collect $50 from every player for opening night seats",
@@ -560,9 +565,6 @@ const cards = [
         name: "You inherit $100",
         type: "chest"
     },
-    {
-        name: "",
-        type: "chest"
-    },
+
 
 ];
