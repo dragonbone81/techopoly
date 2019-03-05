@@ -4,7 +4,7 @@ import {observer, inject} from 'mobx-react';
 class ViewProperties extends Component {
     render() {
         return (
-            <div className="d-flex flex-column">
+            <div className="props d-flex flex-column">
                 <u>My Properties:</u>
                 <div className="d-flex flex-row justify-content-between">
                     <div>Name</div>

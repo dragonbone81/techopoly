@@ -32,14 +32,6 @@ class MainView extends Component {
                     </div>
                     :
                     <div>
-                        {this.props.store.mainView === "properties" &&
-                        <ViewProperties/>
-                        }
-                        {this.props.store.thisPlayersTurn &&
-                        (this.props.store.turnState !== "BUY" ?
-                            <button type="button" onClick={this.props.store.rollAndMove}
-                                    className="btn btn-primary">roll</button> : null)
-                        }
                         {this.props.store.thisPlayersTurn && this.props.store.buyProcessStarted &&
                         <div>
                             <div>Buy Tile</div>
@@ -47,19 +39,14 @@ class MainView extends Component {
                             <button onClick={() => this.props.store.buyPrompt(false)}>no</button>
                         </div>
                         }
-                        {/*<div>*/}
-                            {/*{this.props.store.gameTilesID.map((el, i) => {*/}
-                                {/*return {...el, id: i}*/}
-                            {/*}).filter(el => el.player === this.props.store.player).map(el => {*/}
-                                {/*return <div key={el.name}>*/}
-                                    {/*{el.name}*/}
-                                    {/*{!el.mortaged &&*/}
-                                    {/*<button onClick={() => this.props.store.mortgageProp(el.id)}>mortgage</button>*/}
-                                    {/*}*/}
-
-                                {/*</div>*/}
-                            {/*})}*/}
-                        {/*</div>*/}
+                        {this.props.store.thisPlayersTurn &&
+                        (this.props.store.turnState !== "BUY" ?
+                            <button type="button" onClick={this.props.store.rollAndMove}
+                                    className="btn btn-primary">roll</button> : null)
+                        }
+                        {this.props.store.mainView === "properties" &&
+                        <ViewProperties/>
+                        }
                     </div>
                 }
             </div>

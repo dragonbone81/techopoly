@@ -13,8 +13,12 @@
     top: 70px;
     left: 70px;
     width: 630px;
-    height: 630px;
+    max-height: 630px;
     background-color: aqua;
+}
+
+.props {
+    overflow-y: auto;
 }
 
 .red {
