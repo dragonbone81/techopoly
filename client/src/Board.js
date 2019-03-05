@@ -3,12 +3,23 @@ import Card from "./Card";
 import MainView from "./MainView";
 import "./App.css";
 import {inject, observer} from "mobx-react";
+import {withRouter} from 'react-router-dom';
 
 class Board extends Component {
+    componentDidMount() {
+        const gameName = this.props.match.params.game_name;
+        const username = localStorage.getItem("username");
+        console.log(gameName, username)
+        this.props.store.setGameName(gameName);
+        this.props.store.setUsername(username);
+        this.props.store.connectToGame();
+        console.log(gameName);
+    }
+
     render() {
         return (
             this.props.store.inGame ? <div className="d-flex flex-column main-box">
-                    <MainView/>
+                    {/*<MainView/>*/}
                     <div className="d-flex flex-row">
                         <Card position={20}/>
                         <Card position={21}/>
@@ -78,4 +89,4 @@ class Board extends Component {
     }
 }
 
-export default inject("store")(observer(Board));
+export default withRouter(inject("store")(observer(Board)));

@@ -36,7 +36,7 @@
 .game-tile {
     height: 70px;
     width: 70px;
-    background-color: beige;
+    /*background-color: beige;*/
     background-size: contain !important;
     background-repeat: no-repeat;
     background-position: 50%;

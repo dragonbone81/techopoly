@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import {observer, inject} from 'mobx-react';
 import Player from './Player';
-import tiles from './monopoly';
+
+// import tiles from '../../server/monopoly';
 
 class Card extends Component {
     getCardColor = () => {
-        if (this.props.store.gameTilesID[this.props.position].owned) {
-            return this.props.store.players[this.props.store.gameTilesID[this.props.position].player].color
+        if (this.props.store.game.board[this.props.position].owned) {
+            return this.props.store.game.player_info[this.props.store.game.board[this.props.position].player].color
         } else {
             return "grey"
         }
@@ -16,7 +17,7 @@ class Card extends Component {
         return (
             <div onClick={() => this.props.store.moveHere(this.props.position)}
                  style={{
-                     backgroundImage: `url(${tiles[this.props.position].url})`,
+                     backgroundImage: `url(${this.props.store.game.board[this.props.position].url})`,
                      border: `1px solid ${this.getCardColor()}`
                  }} className="game-tile"
                  onMouseLeave={this.props.store.clearMousedOverTile}
@@ -27,7 +28,7 @@ class Card extends Component {
                     null
                 }
                 {/*<div>{this.props.position}</div>*/}
-                <div>{tiles[this.props.position].name}</div>
+                {/*<div>{this.props.store.game.board[this.props.position].name}</div>*/}
             </div>
         );
     }

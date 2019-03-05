@@ -1,5 +1,5 @@
 import {decorate, configure, observable, action, computed, runInAction} from 'mobx'
-import tiles from '../monopoly';
+// import tiles from '../../../server/monopoly';
 import io from 'socket.io-client';
 
 configure({enforceActions: "observed"});
@@ -14,45 +14,51 @@ class Store {
     mainView = "properties";
     socket = io("http://localhost:3001/");
     players = [];
-    username = null;
+    username = "";
     player = 0;
     currentPlayer = 0;
     turnState = "START";
     dice = [0, 0];
-    gameTilesID = tiles.map((el) => {
-        const simple = {name: el.name};
-        if (el.cost) {
-            simple.owned = false;
-            simple.player = null;
-            simple.type = el.type;
-            simple.group = el.group;
-        }
-        return simple;
-    });
-    gameTiles = tiles;
+    // gameTilesID = tiles.map((el) => {
+    //     const simple = {name: el.name};
+    //     if (el.cost) {
+    //         simple.owned = false;
+    //         simple.player = null;
+    //         simple.type = el.type;
+    //         simple.group = el.group;
+    //     }
+    //     return simple;
+    // });
+    gameTilesID = [];
+    // gameTiles = tiles;
+    gameTiles = [];
     mousedOverTile = null;
     buyProcessStarted = false;
-    connectToGame = (game_name, username) => {
-        console.log(game_name)
-        this.socket.emit('game_join', {username, game_name});
-        this.socket.emit('get_game_info', {game_name});
+    game_name = "";
+    game = {};
+    setGameName = (game_name) => {
+        this.game_name = game_name
+    }
+    connectToGame = () => {
+        this.socket.emit('game_join', {username: this.username, game_name: this.game_name});
+        this.socket.emit('get_game_info', {game_name: this.game_name});
     };
 
     constructor() {
         this.socket.on("game_info", (data) => {
             console.log(data);
             if (data) {
-                this.setGameInfo(data.game_info, data.player_info, data.game_name);
-                this.changeCurrentPlayer(data.current_player);
+                this.setGameInfo(data);
+                // this.changeCurrentPlayer(data.current_player);
             }
 
         });
-        const lastGame = JSON.parse(localStorage.getItem("last_game"));
-        if (lastGame) {
-            console.log(lastGame)
-            this.setUsername(lastGame.username);
-            this.connectToGame(lastGame.game_name, lastGame.username);
-        }
+        // const lastGame = JSON.parse(localStorage.getItem("last_game"));
+        // if (lastGame) {
+        //     console.log(lastGame)
+        //     this.setUsername(lastGame.username);
+        //     this.connectToGame(lastGame.game_name, lastGame.username);
+        // }
     }
 
     setUsername = (username) => {
@@ -62,19 +68,20 @@ class Store {
         await this.socket.emit("create_game", {
             game_name: game_name,
             player_info: [{username: username, position: 0, money: 1500, color: 'red'}],
-            game_info: tiles.map((el) => {
-                const simple = {name: el.name};
-                if (el.cost) {
-                    simple.owned = false;
-                    simple.player = null;
-                    simple.type = el.type;
-                    simple.group = el.group;
-                }
-                return simple;
-            }),
+            // game_info: tiles.map((el) => {
+            //     const simple = {name: el.name};
+            //     if (el.cost) {
+            //         simple.owned = false;
+            //         simple.player = null;
+            //         simple.type = el.type;
+            //         simple.group = el.group;
+            //     }
+            //     return simple;
+            // }),
+            // game_info: [],
             password,
         });
-        this.joinGame(game_name, username, password);
+        // this.joinGame(game_name, username, password);
     };
     joinGame = (game_name, username, password) => {
         // this.socket.emit("join_game", {
@@ -85,12 +92,13 @@ class Store {
         localStorage.setItem("last_game", JSON.stringify({game_name, username, password}));
         this.connectToGame(game_name, username, password);
     };
-    setGameInfo = (gameInfo, playerInfo, game_name) => {
-        console.log(playerInfo);
-        this.gameTilesID = gameInfo;
-        this.players = playerInfo;
-        this.player = playerInfo.findIndex(el => el.username === this.username);
-        this.game_name = game_name;
+    setGameInfo = (data) => {
+        this.game = data
+        // console.log(playerInfo);
+        // this.gameTilesID = gameInfo;
+        // this.players = playerInfo;
+        // this.player = playerInfo.findIndex(el => el.username === this.username);
+        // this.game_name = game_name;
     }
     changeCurrentPlayer = (player) => {
         this.currentPlayer = player;
@@ -258,16 +266,21 @@ class Store {
     }
 
     get inGame() {
-        if (this.players.findIndex(el => el.username === this.username) === -1) {
+        if (!this.game.player_info) {
+            return false;
+        } else if (this.game.player_info.findIndex(el => el.username === this.username) === -1) {
             return false;
         } else {
-            return true;
+            return true
         }
+        // console.log(this.game.player_info.findIndex(el => el.username === this.username) === -1);
+        // return false;
     }
 }
 
 decorate(Store, {
     players: observable,
+    game: observable,
     player: observable,
     currentPlayer: observable,
     turn: observable,
@@ -298,6 +311,7 @@ decorate(Store, {
     changeCurrentPlayer: action,
     setGameInfo: action,
     joinGame: action,
+    setGameName: action,
 });
 
 export default new Store();

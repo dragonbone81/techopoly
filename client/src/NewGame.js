@@ -22,12 +22,16 @@ class NewGame extends Component {
                        placeholder="password"/>
                 <button onClick={() => {
                     this.props.store.newGame(this.state.name, this.state.username, this.state.password);
-                    this.props.history.push("/");
+                    console.log(this.state.username);
+                    localStorage.setItem("username", this.state.username);
+                    this.props.history.push(`/game/${this.state.name}`);
                 }}>New Game
                 </button>
                 <button onClick={() => {
                     this.props.store.joinGame(this.state.name, this.state.username, this.state.password);
-                    this.props.history.push("/");
+                    console.log(this.state.username);
+                    localStorage.setItem("username", this.state.username);
+                    this.props.history.push(`/game/${this.state.name}`);
                 }}>Join
                 </button>
             </div>

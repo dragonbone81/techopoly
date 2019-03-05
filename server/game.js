@@ -1,13 +1,22 @@
 const client = require("./db_connection");
+const board = require("./monopoly");
 
 const game = (socket, io) => {
     socket.on("create_game", async (input) => {
+        const newBoard = board.map(tile => {
+            return {
+                ...tile,
+                owned: false,
+                player: null,
+            }
+        });
         const game = await (await client).insertOne(
             {
                 game_name: input.game_name,
                 player_info: input.player_info,
-                game_info: input.game_info,
-                password: input.password,
+                board: newBoard,
+                // game_info: input.game_info,
+                // password: input.password,
                 current_player: 0,
             }
         );

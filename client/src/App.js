@@ -7,7 +7,7 @@ class App extends Component {
     render() {
         return (
             <Switch>
-                <Route exact path="/" component={
+                <Route exact path="/game/:game_name" component={
                     () => <div className="main">
                         <Board/>
                     </div>
