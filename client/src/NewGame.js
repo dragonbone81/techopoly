@@ -10,6 +10,10 @@ class NewGame extends Component {
         password: "",
     }
 
+    componentDidMount() {
+        localStorage.removeItem("username");
+    }
+
     render() {
 
         return (
@@ -21,16 +25,14 @@ class NewGame extends Component {
                 <input onChange={({target}) => this.setState({password: target.value})} value={this.state.password}
                        placeholder="password"/>
                 <button onClick={() => {
+                    this.props.store.connectedFromNew();
                     this.props.store.newGame(this.state.name, this.state.username, this.state.password);
-                    console.log(this.state.username);
-                    localStorage.setItem("username", this.state.username);
                     this.props.history.push(`/game/${this.state.name}`);
                 }}>New Game
                 </button>
                 <button onClick={() => {
-                    this.props.store.joinGame(this.state.name, this.state.username, this.state.password);
-                    console.log(this.state.username);
-                    localStorage.setItem("username", this.state.username);
+                    this.props.store.connectedFromNew();
+                    this.props.store.connectToGame(this.state.name, this.state.username, this.state.password);
                     this.props.history.push(`/game/${this.state.name}`);
                 }}>Join
                 </button>

@@ -4,10 +4,10 @@ import io from 'socket.io-client';
 
 configure({enforceActions: "observed"});
 const turnState = [
-    "START",
-    "BUY",
-    "END",
-    "NOT_TURN"
+    "NOT_TURN",
+    "ROLLING",
+    "ENDED_ROLL",
+    "ACTIONS",
 ];
 
 class Store {
@@ -17,91 +17,80 @@ class Store {
     username = "";
     player = 0;
     currentPlayer = 0;
-    turnState = "START";
+    turnState = "NOT_TURN";
     dice = [0, 0];
-    // gameTilesID = tiles.map((el) => {
-    //     const simple = {name: el.name};
-    //     if (el.cost) {
-    //         simple.owned = false;
-    //         simple.player = null;
-    //         simple.type = el.type;
-    //         simple.group = el.group;
-    //     }
-    //     return simple;
-    // });
     gameTilesID = [];
-    // gameTiles = tiles;
     gameTiles = [];
     mousedOverTile = null;
     buyProcessStarted = false;
     game_name = "";
     game = {};
-    setGameName = (game_name) => {
-        this.game_name = game_name
-    }
-    connectToGame = () => {
-        this.socket.emit('game_join', {username: this.username, game_name: this.game_name});
-        this.socket.emit('get_game_info', {game_name: this.game_name});
+    connectedFromNewPage = false;
+    connectedFromNew = () => {
+        this.connectedFromNewPage = true;
+    };
+    connectToGame = (game_name, username) => {
+        this.socket.emit('join_game', {username: username, game_name: game_name});
+        this.setUsername(username);
+        localStorage.setItem("username", username);
+    };
+
+    startTurn = () => {
+        this.rollDice();
+        this.movePlayer();
+        this.checkTile();
+    };
+    checkTile = () => {
+        const tile = this.game.board[this.getPlayer.position];
+        console.log(tile.type);
+        if (tile.owned) {
+            // this.payOwner();
+            this.turnState = "END_OF_TURN";
+        } else if (!tile.owned && tile.type === "property") {
+            this.turnState = "BUY_TILE";
+        }
+        // console.log(tile);
+    };
+    movePlayer = () => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].position = this.circularAdd(this.game.player_info[playerIndex].position, this.diceSum, 39);
+        this.socket.emit("move", {
+            game_name: this.game.game_name,
+            username: this.username,
+            new_position: this.game.player_info[playerIndex].position,
+            player_index: playerIndex,
+        });
     };
 
     constructor() {
         this.socket.on("game_info", (data) => {
-            console.log(data);
+            console.log("game info", data);
             if (data) {
                 this.setGameInfo(data);
-                // this.changeCurrentPlayer(data.current_player);
             }
 
         });
-        // const lastGame = JSON.parse(localStorage.getItem("last_game"));
-        // if (lastGame) {
-        //     console.log(lastGame)
-        //     this.setUsername(lastGame.username);
-        //     this.connectToGame(lastGame.game_name, lastGame.username);
-        // }
+        this.socket.on("player_moved", data => {
+            this.setGameInfo(data);
+        })
     }
 
     setUsername = (username) => {
         this.username = username;
-    }
-    newGame = async (game_name, username, password) => {
-        await this.socket.emit("create_game", {
-            game_name: game_name,
-            player_info: [{username: username, position: 0, money: 1500, color: 'red'}],
-            // game_info: tiles.map((el) => {
-            //     const simple = {name: el.name};
-            //     if (el.cost) {
-            //         simple.owned = false;
-            //         simple.player = null;
-            //         simple.type = el.type;
-            //         simple.group = el.group;
-            //     }
-            //     return simple;
-            // }),
-            // game_info: [],
-            password,
-        });
-        // this.joinGame(game_name, username, password);
     };
-    joinGame = (game_name, username, password) => {
-        // this.socket.emit("join_game", {
-        //     game_name: game_name,
-        //     username: username,
-        // })
-        this.username = username;
-        localStorage.setItem("last_game", JSON.stringify({game_name, username, password}));
-        this.connectToGame(game_name, username, password);
+    newGame = async (game_name, username, password) => {
+        this.socket.emit("create_game", {
+            game_name,
+            username,
+            password,
+        }, game => {
+            this.setGameInfo(game);
+            this.setUsername(username);
+            localStorage.setItem("username", username);
+        });
     };
     setGameInfo = (data) => {
         this.game = data
-        // console.log(playerInfo);
-        // this.gameTilesID = gameInfo;
-        // this.players = playerInfo;
-        // this.player = playerInfo.findIndex(el => el.username === this.username);
-        // this.game_name = game_name;
-    }
-    changeCurrentPlayer = (player) => {
-        this.currentPlayer = player;
     };
     setMousedOverTile = (tile) => {
         this.mousedOverTile = tile;
@@ -114,7 +103,7 @@ class Store {
     rollDice = () => {
         this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
         this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
-        console.log(this.diceSum)
+        console.log("dice rolled", this.diceSum);
     };
     buyProperty = () => {
         const tile = this.gameTilesID[this.thisPlayer.position];
@@ -265,6 +254,10 @@ class Store {
             })
     }
 
+    get getPlayer() {
+        return this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)];
+    }
+
     get inGame() {
         if (!this.game.player_info) {
             return false;
@@ -273,16 +266,16 @@ class Store {
         } else {
             return true
         }
-        // console.log(this.game.player_info.findIndex(el => el.username === this.username) === -1);
-        // return false;
     }
 }
 
 decorate(Store, {
     players: observable,
+    connectedFromNewPage: observable,
     game: observable,
     player: observable,
     currentPlayer: observable,
+    username: observable,
     turn: observable,
     gameTiles: observable,
     gameTilesID: observable,
@@ -295,6 +288,7 @@ decorate(Store, {
     thisPlayersTurn: computed,
     thisPlayer: computed,
     inGame: computed,
+    getPlayer: computed,
     mousedOverTileInfo: computed,
     mousedOverTileIDInfo: computed,
     playerTile: computed,
@@ -312,6 +306,9 @@ decorate(Store, {
     setGameInfo: action,
     joinGame: action,
     setGameName: action,
+    newGame: action,
+    connectedFromNew: action,
+    movePlayer: action,
 });
 
 export default new Store();

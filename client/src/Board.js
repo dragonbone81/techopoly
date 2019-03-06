@@ -7,19 +7,17 @@ import {withRouter} from 'react-router-dom';
 
 class Board extends Component {
     componentDidMount() {
-        const gameName = this.props.match.params.game_name;
         const username = localStorage.getItem("username");
-        console.log(gameName, username)
-        this.props.store.setGameName(gameName);
-        this.props.store.setUsername(username);
-        this.props.store.connectToGame();
-        console.log(gameName);
+        if (username && !this.props.store.connectedFromNewPage) {
+            const gameName = this.props.match.params.game_name;
+            this.props.store.connectToGame(gameName, username)
+        }
     }
 
     render() {
         return (
             this.props.store.inGame ? <div className="d-flex flex-column main-box">
-                    {/*<MainView/>*/}
+                    <MainView/>
                     <div className="d-flex flex-row">
                         <Card position={20}/>
                         <Card position={21}/>

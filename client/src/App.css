@@ -33,9 +33,17 @@
     position: relative;
 }
 
+.player {
+    border-radius: 50%;
+    width: 21px;
+    height: 21px;
+    background-color: rgb(171, 233, 255);
+}
+
 .game-tile {
     height: 70px;
     width: 70px;
+    padding: 2px;
     /*background-color: beige;*/
     background-size: contain !important;
     background-repeat: no-repeat;

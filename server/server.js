@@ -23,4 +23,4 @@ io.on('connection', (socket) => {
     // console.log(io.sockets.sockets);
     game.game(socket, io);
 });
-client.then((client) => console.log(client));
+// client.then((client) => console.log(client));

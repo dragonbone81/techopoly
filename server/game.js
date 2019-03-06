@@ -2,7 +2,7 @@ const client = require("./db_connection");
 const board = require("./monopoly");
 
 const game = (socket, io) => {
-    socket.on("create_game", async (input) => {
+    socket.on("create_game", async (input, respond) => {
         const newBoard = board.map(tile => {
             return {
                 ...tile,
@@ -13,33 +13,30 @@ const game = (socket, io) => {
         const game = await (await client).insertOne(
             {
                 game_name: input.game_name,
-                player_info: input.player_info,
+                player_info: [{username: input.username, position: 0, money: 1500, color: 'red', id: 0}],
                 board: newBoard,
-                // game_info: input.game_info,
-                // password: input.password,
                 current_player: 0,
             }
         );
+        respond(game.ops[0]);
     });
-    socket.on('game_join', async (input) => {
+    socket.on('join_game', async (input) => {
         console.log('join_request', input);
         try {
-            // const response = checkJWT(input.token);
             socket.username = input.username;
             socket.join(`game_${input.game_name}`, () => {
                 console.log(Object.keys(io.sockets.sockets));
             });
-            const game = await (await client).findOne(
+
+
+            let game = await (await client).findOne(
                 {game_name: input.game_name},
                 {}
             );
-            // if (game.password !== input.password) {
-            //     console.log('asd');
-            //     return;
-            // }
-            console.log(game)
+
+            //for dev stuff
             if (game.player_info.findIndex(el => el.username === input.username) === -1) {
-                await (await client).updateOne(
+                game = await (await client).findOneAndUpdate(
                     {game_name: input.game_name},
                     {
                         $set: {
@@ -47,17 +44,18 @@ const game = (socket, io) => {
                                 username: input.username,
                                 position: 0,
                                 money: 1500,
-                                color: 'blue'
+                                color: 'red',
+                                id: Math.max(...game.player_info.map(el => el.id)) + 1,
                             }]
                         }
-                    }
+                    },
+                    {returnOriginal: false},
                 );
-                let newGame = await (await client).findOne(
-                    {game_name: input.game_name},
-                    {}
-                );
-                io.in(`game_${input.game_name}`).emit("game_info", newGame);
+                game = game.value;
             }
+
+            console.log(game);
+            io.in(`game_${input.game_name}`).emit("game_info", game);
         } catch (err) {
             console.log(err);
         }
@@ -69,6 +67,17 @@ const game = (socket, io) => {
         );
         console.log(game)
         socket.emit("game_info", game);
+    });
+    socket.on("move", async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {
+                game_name: input.game_name,
+            },
+            {$set: {[`player_info.${input.player_index}.position`]: input.new_position}},
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("player_moved", game);
     });
     socket.on('end_turn', async (input) => {
         // const game = await (await client).findOne(
