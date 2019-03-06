@@ -54,7 +54,7 @@ const game = (socket, io) => {
                 game = game.value;
             }
 
-            console.log(game);
+            // console.log(game);
             io.in(`game_${input.game_name}`).emit("game_info", game);
         } catch (err) {
             console.log(err);
@@ -79,22 +79,25 @@ const game = (socket, io) => {
         const game = response.value;
         socket.to(`game_${input.game_name}`).emit("player_moved", game);
     });
+    socket.on("buy_tile", async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {
+                game_name: input.game_name,
+            },
+            {$set: {[`board.${input.tile_index}`]: input.tile_bought}},
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("tile_bought", game);
+    });
     socket.on('end_turn', async (input) => {
-        // const game = await (await client).findOne(
-        //     {game_id: input.game_id},
-        //     {}
-        // );
-        console.log(input);
-        await (await client).updateOne(
+        const response = await (await client).findOneAndUpdate(
             {game_name: input.game_name},
-            {$set: {current_player: input.next_player, game_info: input.game_info, player_info: input.player_info}}
+            {$set: {current_player: input.next_player}}
         );
-        const game = await (await client).findOne(
-            {game_name: input.game_name},
-            {}
-        );
+        const game = response.value;
         console.log(game);
-        io.in(`game_${input.game_name}`).emit("game_info", game);
+        socket.to(`game_${input.game_name}`).emit("turn_ended", game);
     })
 };
 module.exports.game = game;

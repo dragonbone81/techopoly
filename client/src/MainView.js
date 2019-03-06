@@ -50,9 +50,22 @@ class MainView extends Component {
                 {/*</div>*/}
                 {/*}*/}
 
-                <button type="button" onClick={this.props.store.startTurn}
-                        className="btn btn-primary">roll
-                </button>
+                {this.props.store.turnState === "START_TURN" && (
+                    <button type="button" onClick={this.props.store.startTurn}
+                            className="btn btn-primary">roll
+                    </button>
+                )}
+                {this.props.store.turnState === "BUY_TILE" && (
+                    <div>
+                        <button onClick={this.props.store.buyTile}>Buy Tile</button>
+                        <button>Reject Buy</button>
+                    </div>
+                )}
+                {this.props.store.turnState === "END_OF_TURN" && (
+                    <button type="button" onClick={this.props.store.endTurn}
+                            className="btn btn-primary">End Turn
+                    </button>
+                )}
             </div>
         );
     }
