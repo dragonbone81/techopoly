@@ -49,23 +49,35 @@ class MainView extends Component {
                 {/*}*/}
                 {/*</div>*/}
                 {/*}*/}
-
-                {this.props.store.playerState === "START_TURN" && (
-                    <button type="button" onClick={this.props.store.startTurn}
-                            className="btn btn-primary">roll
-                    </button>
-                )}
-                {this.props.store.playerState === "BUY_TILE" && (
+                {this.props.store.gameState !== "NOT_STARTED" &&
+                <div>
+                    {this.props.store.playerState === "START_TURN" && (
+                        <button type="button" onClick={this.props.store.startTurn}
+                                className="btn btn-primary">roll
+                        </button>
+                    )}
+                    {this.props.store.playerState === "BUY_TILE" && (
+                        <div>
+                            <button onClick={this.props.store.buyTile}>Buy Tile</button>
+                            <button onClick={this.props.store.rejectBuyTile}>Reject Buy</button>
+                        </div>
+                    )}
+                    {this.props.store.playerState === "BUY_TILE_NO_MONEY" && (
+                        <div>
+                            <button disabled>Buy Tile</button>
+                            <button onClick={this.props.store.rejectBuyTile}>Reject Buy</button>
+                        </div>
+                    )}
+                    {this.props.store.playerState === "END_OF_TURN" && (
+                        <button type="button" onClick={this.props.store.endTurn}
+                                className="btn btn-primary">End Turn
+                        </button>
+                    )}
                     <div>
-                        <button onClick={this.props.store.buyTile}>Buy Tile</button>
-                        <button>Reject Buy</button>
+                        {this.props.store.getPlayer.money}
                     </div>
-                )}
-                {this.props.store.playerState === "END_OF_TURN" && (
-                    <button type="button" onClick={this.props.store.endTurn}
-                            className="btn btn-primary">End Turn
-                    </button>
-                )}
+                </div>
+                }
             </div>
         );
     }

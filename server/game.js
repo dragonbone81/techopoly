@@ -92,11 +92,31 @@ const game = (socket, io) => {
             {
                 game_name: input.game_name,
             },
-            {$set: {[`board.${input.tile_index}`]: input.tile_bought}},
+            {
+                $set: {
+                    [`board.${input.tile_index}`]: input.tile_bought,
+                    [`player_info.${input.player_index}.money`]: input.player_money,
+                }
+            },
             {returnOriginal: false},
         );
         const game = response.value;
         socket.to(`game_${input.game_name}`).emit("tile_bought", game);
+    });
+    socket.on("update_player_money", async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {
+                game_name: input.game_name,
+            },
+            {
+                $set: {
+                    [`player_info.${input.player_index}.money`]: input.player_money,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
     });
     socket.on('end_turn', async (input) => {
         console.log(input);

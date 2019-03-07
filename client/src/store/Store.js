@@ -40,6 +40,7 @@ class Store {
         this.setPlayerState("ROLLING");
         this.rollDice();
         this.movePlayer();
+        this.checkIfPlayerPassedGo();
         this.checkTile();
     };
     checkTile = () => {
@@ -48,11 +49,29 @@ class Store {
         if (tile.owned) {
             this.setPlayerState("END_OF_TURN");
         } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
-            this.setPlayerState("BUY_TILE");
+            const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+            if (this.getPlayer.money < this.game.board[this.getPlayer.position].cost) {
+                this.setPlayerState("BUY_TILE_NO_MONEY");
+            } else {
+                this.setPlayerState("BUY_TILE");
+            }
         } else {
             this.setPlayerState("END_OF_TURN");
         }
         this.syncPlayerState();
+    };
+    checkIfPlayerPassedGo = () => {
+        if (this.getPlayer.position - this.diceSum < 0) { //passed or on go
+            const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+            this.game.player_info[playerIndex].money += 200;
+            console.log("passed go", this.game.player_info[playerIndex].money);
+            this.socket.emit("update_player_money", {
+                game_name: this.game.game_name,
+                username: this.username,
+                player_money: this.game.player_info[playerIndex].money,
+                player_index: playerIndex,
+            });
+        }
     };
     syncPlayerState = () => {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
@@ -65,6 +84,7 @@ class Store {
     };
     buyTile = () => {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].money -= this.game.board[this.getPlayer.position].cost;
         this.game.board[this.getPlayer.position].owned = true;
         this.game.board[this.getPlayer.position].player = playerIndex;
         this.socket.emit("buy_tile", {
@@ -72,7 +92,13 @@ class Store {
             username: this.username,
             tile_index: this.getPlayer.position,
             tile_bought: this.game.board[this.getPlayer.position],
+            player_money: this.game.player_info[playerIndex].money,
+            player_index: playerIndex,
         });
+        this.setPlayerState("END_OF_TURN");
+        this.syncPlayerState();
+    };
+    rejectBuyTile = () => {
         this.setPlayerState("END_OF_TURN");
         this.syncPlayerState();
     };
@@ -138,7 +164,9 @@ class Store {
         }, game => {
             this.setGameInfo(game);
             this.setUsername(username);
-            this.gameState = "STARTED";
+            runInAction(() => {
+                this.gameState = "STARTED";
+            });
             localStorage.setItem("username", username);
         });
     };
@@ -361,6 +389,7 @@ decorate(Store, {
     mortgageProp: action,
     changeCurrentPlayer: action,
     setGameInfo: action,
+    connectToGame: action,
     joinGame: action,
     setGameName: action,
     newGame: action,
@@ -369,6 +398,7 @@ decorate(Store, {
     buyTile: action,
     startTurn: action,
     endTurn: action,
+    checkIfPlayerPassedGo: action,
     checkAndSetCurrentPlayer: action,
 });
 
