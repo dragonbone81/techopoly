@@ -17,7 +17,7 @@ class Store {
     username = "";
     player = 0;
     currentPlayer = 0;
-    turnState = "START_TURN";
+    gameState = "NOT_STARTED";
     dice = [0, 0];
     gameTilesID = [];
     gameTiles = [];
@@ -32,11 +32,12 @@ class Store {
     connectToGame = (game_name, username) => {
         this.socket.emit('join_game', {username: username, game_name: game_name});
         this.setUsername(username);
+        this.gameState = "STARTED";
         localStorage.setItem("username", username);
     };
 
     startTurn = () => {
-        this.turnState = "ROLLING";
+        this.setPlayerState("ROLLING");
         this.rollDice();
         this.movePlayer();
         this.checkTile();
@@ -45,13 +46,22 @@ class Store {
         const tile = this.game.board[this.getPlayer.position];
         console.log(tile.type);
         if (tile.owned) {
-            // this.payOwner();
-            this.turnState = "END_OF_TURN";
-        } else if (!tile.owned && tile.type === "property") {
-            this.turnState = "BUY_TILE";
+            this.setPlayerState("END_OF_TURN");
+        } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
+            this.setPlayerState("BUY_TILE");
         } else {
-            this.turnState = "END_OF_TURN";
+            this.setPlayerState("END_OF_TURN");
         }
+        this.syncPlayerState();
+    };
+    syncPlayerState = () => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.socket.emit("sync_player_state", {
+            game_name: this.game.game_name,
+            username: this.username,
+            player_index: playerIndex,
+            state: this.playerState,
+        });
     };
     buyTile = () => {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
@@ -63,18 +73,20 @@ class Store {
             tile_index: this.getPlayer.position,
             tile_bought: this.game.board[this.getPlayer.position],
         });
-        this.turnState = "END_OF_TURN";
+        this.setPlayerState("END_OF_TURN");
+        this.syncPlayerState();
     };
     endTurn = () => {
-        this.turnState = "NOT_TURN";
+        this.setPlayerState("NOT_TURN");
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
-        console.log(newCurrentPlayer);
-        this.game.current_player = newCurrentPlayer;
+        console.log("newplayer", newCurrentPlayer);
+        // this.game.current_player = newCurrentPlayer;
         this.socket.emit('end_turn', {
             game_name: this.game.game_name,
             username: this.username,
             next_player: newCurrentPlayer,
+            old_player: playerIndex,
         });
     };
     movePlayer = () => {
@@ -103,7 +115,8 @@ class Store {
         });
         this.socket.on("turn_ended", data => {
             this.setGameInfo(data);
-            this.checkAndSetCurrentPlayer()
+            console.log(data);
+            // this.checkAndSetCurrentPlayer()
         });
     }
 
@@ -111,7 +124,7 @@ class Store {
         console.log("here", this.game.current_player);
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         if (this.game.current_player === playerIndex) {
-            this.turnState = "START_TURN";
+            this.setPlayerState("START_TURN");
         }
     };
     setUsername = (username) => {
@@ -125,6 +138,7 @@ class Store {
         }, game => {
             this.setGameInfo(game);
             this.setUsername(username);
+            this.gameState = "STARTED";
             localStorage.setItem("username", username);
         });
     };
@@ -183,7 +197,7 @@ class Store {
         }
     };
     moveHere = (where) => {
-        this.turnState = "BUY";
+        this.setPlayerState("BUY");
         this.rollDice();
         this.players[this.currentPlayer].position = where;
         this.clearMousedOverTile();
@@ -206,7 +220,6 @@ class Store {
         }
     }
     rollAndMove = () => {
-        this.turnState = "BUY";
         this.rollDice();
         this.players[this.currentPlayer].position = this.circularAdd(this.players[this.currentPlayer].position, this.diceSum, 39);
         this.clearMousedOverTile();
@@ -296,6 +309,18 @@ class Store {
             return true
         }
     }
+
+    setPlayerState(state) {
+        this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)].state = state;
+    }
+
+    get playerState() {
+        if (this.gameState === "NOT_STARTED") {
+            return "NOT_TURN";
+        } else {
+            return this.getPlayer.state;
+        }
+    }
 }
 
 decorate(Store, {
@@ -309,12 +334,13 @@ decorate(Store, {
     gameTiles: observable,
     gameTilesID: observable,
     game_name: observable,
-    turnState: observable,
+    gameState: observable,
     mousedOverTile: observable,
     buyProcessStarted: observable,
     positions: computed,
     diceSum: computed,
     thisPlayersTurn: computed,
+    playerState: computed,
     thisPlayer: computed,
     inGame: computed,
     getPlayer: computed,
@@ -323,6 +349,7 @@ decorate(Store, {
     playerTile: computed,
     rollDice: action,
     takeTurn: action,
+    setPlayerState: action,
     buyProperty: action,
     moveHere: action,
     checkTile: action,

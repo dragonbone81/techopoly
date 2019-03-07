@@ -13,7 +13,14 @@ const game = (socket, io) => {
         const game = await (await client).insertOne(
             {
                 game_name: input.game_name,
-                player_info: [{username: input.username, position: 0, money: 1500, color: 'red', id: 0}],
+                player_info: [{
+                    username: input.username,
+                    position: 0,
+                    money: 1500,
+                    color: 'red',
+                    id: 0,
+                    state: "START_TURN"
+                }],
                 board: newBoard,
                 current_player: 0,
             }
@@ -46,6 +53,7 @@ const game = (socket, io) => {
                                 money: 1500,
                                 color: 'red',
                                 id: Math.max(...game.player_info.map(el => el.id)) + 1,
+                                state: "NOT_TURN",
                             }]
                         }
                     },
@@ -91,13 +99,37 @@ const game = (socket, io) => {
         socket.to(`game_${input.game_name}`).emit("tile_bought", game);
     });
     socket.on('end_turn', async (input) => {
+        console.log(input);
         const response = await (await client).findOneAndUpdate(
             {game_name: input.game_name},
-            {$set: {current_player: input.next_player}}
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.next_player}.state`]: "START_TURN",
+                    [`player_info.${input.old_player}.state`]: "NOT_TURN"
+                }
+            },
+            {returnOriginal: false},
         );
         const game = response.value;
-        console.log(game);
+        console.log(response);
         socket.to(`game_${input.game_name}`).emit("turn_ended", game);
+    });
+    socket.on('sync_player_state', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.player_index}.state`]: input.state,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
     })
 };
 module.exports.game = game;
