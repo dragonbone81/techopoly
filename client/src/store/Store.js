@@ -107,16 +107,36 @@ class Store {
         this.rollDice();
         this.movePlayerDev(tile_position);
         this.checkTile();
-    }
+    };
+    payPlayer = () => {
+        const rent = this.calcRentCost();
+        const receivingPlayer = this.playerTile.player;
+        const givingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[receivingPlayer].money += rent;
+        this.game.player_info[givingPlayer].money -= rent;
+        this.socket.emit("process_transaction", {
+            game_name: this.game.game_name,
+            username: this.username,
+            giving_player: givingPlayer,
+            receiving_player: receivingPlayer,
+            giving_player_money: this.game.player_info[givingPlayer].money,
+            receiving_player_money: this.game.player_info[receivingPlayer].money,
+        });
+    };
     checkTile = () => {
         const tile = this.game.board[this.getPlayer.position];
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         console.log(tile.type);
-        if (tile.owned) {
-            if (this.dice[0] === this.dice[1]) {
+        if (tile.owned && tile.player !== playerIndex) {
+            if (this.dice[0] === this.dice[1] && this.game.player_info[playerIndex].doubles_rolled + 1 === 3) {
                 this.checkAndUpdateDoublesRolled(playerIndex);
             } else {
-                this.setPlayerState("END_OF_TURN");
+                this.payPlayer();
+                if (this.dice[0] === this.dice[1]) {
+                    this.checkAndUpdateDoublesRolled(playerIndex);
+                } else {
+                    this.setPlayerState("END_OF_TURN");
+                }
             }
         } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
             if (this.dice[0] === this.dice[1] && this.game.player_info[playerIndex].doubles_rolled + 1 === 3) {
@@ -319,10 +339,10 @@ class Store {
         console.log(this.mousedOverTile)
     };
     rollDice = () => {
-        // this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
-        // this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
-        this.dice[0] = 2;
-        this.dice[1] = 2;
+        this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
+        this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
+        // this.dice[0] = 2;
+        // this.dice[1] = 2;
         console.log("dice rolled", this.diceSum);
     };
     buyProperty = () => {
@@ -345,67 +365,22 @@ class Store {
         this.buyProcessStarted = false;
         this.endTurn();
     };
-    calcCostRent = () => {
-        console.log("hey", this.playerGameTile)
-        if (this.playerGameTile.type === "rr") {
-            let numOwns = this.gameTilesID.filter(el => el.type === "rr" && el.player === this.playerTile.player).length;
-            let rent = this.playerGameTile.base_rent * Math.pow(2, numOwns);
+    calcRentCost = () => {
+        console.log("hey", this.playerTile)
+        if (this.playerTile.type === "rr") {
+            let numOwns = this.game.board.filter(el => el.type === "rr" && el.player === this.playerTile.player).length;
+            let rent = this.playerTile.base_rent * Math.pow(2, numOwns);
             console.log(rent);
             return rent;
-        } else if (this.playerGameTile.type === "property") {
+        } else if (this.playerTile.type === "property") {
             console.log('here')
-            let ownsAll = this.gameTilesID.filter(el => el.group === this.playerGameTile.group && el.player !== this.playerTile.player).length === 0;
+            let ownsAll = this.game.board.filter(el => el.group === this.playerTile.group && el.player !== this.playerTile.player).length === 0;
             if (!ownsAll) {
-                return this.playerGameTile.rent[0];
+                return this.playerTile.rent[0];
             } else {
-                return this.playerGameTile.rent[0] * 2;
+                return this.playerTile.rent[0] * 2;
                 // if()
             }
-        }
-    };
-    moveHere = (where) => {
-        this.setPlayerState("BUY");
-        this.rollDice();
-        this.players[this.currentPlayer].position = where;
-        this.clearMousedOverTile();
-        console.log(this.playerTile)
-        if (!this.playerTile.owned && this.playerGameTile.cost) {
-            this.buyProcessStarted = true;
-        } else if (this.playerGameTile.type === "income-tax") {
-            const player = this.thisPlayer;
-            player.money -= player.money * .10;
-            this.players[this.currentPlayer] = player;
-            this.endTurn();
-        } else if (this.playerTile.owned && this.playerGameTile.cost && this.playerTile.player !== this.username) {
-            console.log("paying the other player")
-            let cost = this.calcCostRent();
-            this.players[this.playerTile.player].money += cost;
-            this.players[this.currentPlayer].money -= cost;
-            this.endTurn();
-        } else {
-            this.endTurn();
-        }
-    }
-    rollAndMove = () => {
-        this.rollDice();
-        this.players[this.currentPlayer].position = this.circularAdd(this.players[this.currentPlayer].position, this.diceSum, 39);
-        this.clearMousedOverTile();
-        console.log(this.playerTile)
-        if (!this.playerTile.owned && this.playerGameTile.cost) {
-            this.buyProcessStarted = true;
-        } else if (this.playerGameTile.type === "income-tax") {
-            const player = this.thisPlayer;
-            player.money -= player.money * .10;
-            this.players[this.currentPlayer] = player;
-            this.endTurn();
-        } else if (this.playerTile.owned && this.playerGameTile.cost && this.playerTile.player !== this.username) {
-            console.log("paying the other player")
-            let cost = this.calcCostRent();
-            this.players[this.playerTile.player].money += cost;
-            this.players[this.currentPlayer].money -= cost;
-            this.endTurn();
-        } else {
-            this.endTurn();
         }
     };
     mortgageProp = (property) => {
@@ -437,7 +412,7 @@ class Store {
     };
 
     get playerTile() {
-        return this.gameTilesID[this.thisPlayer.position];
+        return this.game.board[this.getPlayer.position];
     }
 
     get playerGameTile() {
@@ -552,6 +527,7 @@ decorate(Store, {
     connectedFromNew: action,
     movePlayerDev: action,
     movePlayer: action,
+    payPlayer: action,
     buyTile: action,
     startTurn: action,
     endTurn: action,

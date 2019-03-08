@@ -175,6 +175,23 @@ const game = (socket, io) => {
         console.log(response);
         socket.to(`game_${input.game_name}`).emit("game_info", game);
     });
+    socket.on('process_transaction', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.giving_player}.money`]: input.giving_player_money,
+                    [`player_info.${input.receiving_player}.money`]: input.receiving_player_money,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
     socket.on('update_players_doubles', async (input) => {
         console.log(input);
         const response = await (await client).findOneAndUpdate(
