@@ -15,7 +15,7 @@ class Card extends Component {
 
     render() {
         return (
-            <div onClick={() => this.props.store.moveHere(this.props.position)}
+            <div onClick={() => this.props.store.devMoveHere(this.props.position)}
                  style={{
                      backgroundImage: `url(${this.props.store.game.board[this.props.position].url})`,
                      border: `1px solid ${this.getCardColor()}`

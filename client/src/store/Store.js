@@ -9,6 +9,7 @@ const turnState = [
     "ENDED_ROLL",
     "ACTIONS",
 ];
+const JAIL_POSITION = -10;
 
 class Store {
     mainView = "properties";
@@ -25,6 +26,7 @@ class Store {
     buyProcessStarted = false;
     game_name = "";
     game = {};
+    JAIL_POSITION = -10;
     connectedFromNewPage = false;
     connectedFromNew = () => {
         this.connectedFromNewPage = true;
@@ -35,30 +37,141 @@ class Store {
         this.gameState = "STARTED";
         localStorage.setItem("username", username);
     };
-
-    startTurn = () => {
-        this.setPlayerState("ROLLING");
-        this.rollDice();
-        this.movePlayer();
-        this.checkIfPlayerPassedGo();
-        this.checkTile();
+    updatePlayerJailRolls = (playerIndex) => {
+        this.socket.emit("update_player_jail_rolls", {
+            game_name: this.game.game_name,
+            username: this.username,
+            jail_turns: this.game.player_info[playerIndex].jail_turns,
+            player_index: playerIndex,
+        });
     };
-    checkTile = () => {
-        const tile = this.game.board[this.getPlayer.position];
-        console.log(tile.type);
-        if (tile.owned) {
-            this.setPlayerState("END_OF_TURN");
-        } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
+    startTurn = () => {
+        if (!this.playerJailState) {
+            this.setPlayerState("ROLLING");
+            this.rollDice();
+            this.movePlayer();
+            this.checkIfPlayerPassedGo();
+            this.checkTile();
+        } else {
             const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
-            if (this.getPlayer.money < this.game.board[this.getPlayer.position].cost) {
-                this.setPlayerState("BUY_TILE_NO_MONEY");
+            this.setPlayerState("ROLLING");
+            this.rollDice();
+            if (this.dice[0] === this.dice[1]) {
+                this.setJailState(false);
+                this.syncPlayerJailState();
+                this.game.player_info[playerIndex].jail_turns = 0;
             } else {
-                this.setPlayerState("BUY_TILE");
+                this.game.player_info[playerIndex].jail_turns += 1;
             }
+            console.log(this.getPlayer.jail_turns, "jail turns");
+            this.updatePlayerJailRolls(playerIndex);
+            this.setPlayerState("END_OF_TURN");
+            this.syncPlayerState();
+        }
+    };
+    payBank = (playerIndex) => {
+        this.socket.emit("update_player_money", {
+            game_name: this.game.game_name,
+            username: this.username,
+            player_money: this.game.player_info[playerIndex].money,
+            player_index: playerIndex,
+        });
+    };
+    payOutOfJail = () => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].money -= 50;
+        this.payBank(playerIndex);
+        this.setJailState(false);
+        this.syncPlayerJailState();
+        this.game.player_info[playerIndex].jail_turns = 0;
+        this.updatePlayerJailRolls(playerIndex);
+        if (this.getPlayer.jail_turns === 3) {
+            this.setPlayerState("START_OF_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
         }
         this.syncPlayerState();
+    };
+    movePlayerDev = (position) => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].position = position;
+        this.socket.emit("move", {
+            game_name: this.game.game_name,
+            username: this.username,
+            new_position: this.game.player_info[playerIndex].position,
+            player_index: playerIndex,
+        });
+    };
+    devMoveHere = (tile_position) => {
+        this.setPlayerState("ROLLING");
+        this.rollDice();
+        this.movePlayerDev(tile_position);
+        this.checkTile();
+    }
+    checkTile = () => {
+        const tile = this.game.board[this.getPlayer.position];
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        console.log(tile.type);
+        if (tile.owned) {
+            if (this.dice[0] === this.dice[1]) {
+                this.checkAndUpdateDoublesRolled(playerIndex);
+            } else {
+                this.setPlayerState("END_OF_TURN");
+            }
+        } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
+            if (this.dice[0] === this.dice[1]) {
+                this.checkAndUpdateDoublesRolled(playerIndex);
+            } else {
+                const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+                if (this.getPlayer.money < this.game.board[this.getPlayer.position].cost) {
+                    this.setPlayerState("BUY_TILE_NO_MONEY");
+                } else {
+                    this.setPlayerState("BUY_TILE");
+                }
+            }
+        } else if (tile.type === "go-to-jail") {
+            this.game.player_info[playerIndex].doubles_rolled = 0;
+            this.updatePlayerDoublesRolled(playerIndex);
+            this.goToJail(playerIndex);
+        } else {
+            if (this.dice[0] === this.dice[1]) {
+                this.checkAndUpdateDoublesRolled(playerIndex);
+            } else {
+                this.setPlayerState("END_OF_TURN");
+            }
+        }
+        this.syncPlayerState();
+    };
+    goToJail = (playerIndex) => {
+        this.game.player_info[playerIndex].position = 10;
+        this.socket.emit("move", {
+            game_name: this.game.game_name,
+            username: this.username,
+            new_position: 10,
+            player_index: playerIndex,
+        });
+        this.setJailState(true);
+        this.syncPlayerJailState();
+        this.setPlayerState("END_OF_TURN");
+    };
+    checkAndUpdateDoublesRolled = (playerIndex) => {
+        this.game.player_info[playerIndex].doubles_rolled += 1;
+        if (this.game.player_info[playerIndex].doubles_rolled === 3) {
+            this.game.player_info[playerIndex].doubles_rolled = 0;
+            this.goToJail(playerIndex);
+        } else {
+            this.setPlayerState("START_TURN");
+        }
+        this.updatePlayerDoublesRolled(playerIndex);
+    };
+    updatePlayerDoublesRolled = (playerIndex) => {
+        this.socket.emit("update_players_doubles", {
+            game_name: this.game.game_name,
+            username: this.username,
+            new_position: 10,
+            player_index: playerIndex,
+            doubles_rolled: this.getPlayer.doubles_rolled,
+        });
     };
     checkIfPlayerPassedGo = () => {
         if (this.getPlayer.position - this.diceSum < 0) { //passed or on go
@@ -72,6 +185,15 @@ class Store {
                 player_index: playerIndex,
             });
         }
+    };
+    syncPlayerJailState = () => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.socket.emit("sync_player_jail_state", {
+            game_name: this.game.game_name,
+            username: this.username,
+            player_index: playerIndex,
+            jail_state: this.playerJailState,
+        });
     };
     syncPlayerState = () => {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
@@ -95,11 +217,20 @@ class Store {
             player_money: this.game.player_info[playerIndex].money,
             player_index: playerIndex,
         });
-        this.setPlayerState("END_OF_TURN");
+        if (this.dice[0] === this.dice[1]) {
+            this.checkAndUpdateDoublesRolled(playerIndex);
+        } else {
+            this.setPlayerState("END_OF_TURN");
+        }
         this.syncPlayerState();
     };
     rejectBuyTile = () => {
-        this.setPlayerState("END_OF_TURN");
+        if (this.dice[0] === this.dice[1]) {
+            const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+            this.checkAndUpdateDoublesRolled(playerIndex);
+        } else {
+            this.setPlayerState("END_OF_TURN");
+        }
         this.syncPlayerState();
     };
     endTurn = () => {
@@ -182,8 +313,10 @@ class Store {
         console.log(this.mousedOverTile)
     };
     rollDice = () => {
-        this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
-        this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
+        // this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
+        // this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
+        this.dice[0] = 1;
+        this.dice[1] = 1;
         console.log("dice rolled", this.diceSum);
     };
     buyProperty = () => {
@@ -338,9 +471,12 @@ class Store {
         }
     }
 
-    setPlayerState(state) {
+    setPlayerState = (state) => {
         this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)].state = state;
-    }
+    };
+    setJailState = (state) => {
+        this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)].jail_state = state;
+    };
 
     get playerState() {
         if (this.gameState === "NOT_STARTED") {
@@ -349,10 +485,19 @@ class Store {
             return this.getPlayer.state;
         }
     }
+
+    get playerJailState() {
+        if (this.gameState === "NOT_STARTED") {
+            return false;
+        } else {
+            return this.getPlayer.jail_state;
+        }
+    }
 }
 
 decorate(Store, {
     players: observable,
+    dice: observable,
     connectedFromNewPage: observable,
     game: observable,
     player: observable,
@@ -371,6 +516,7 @@ decorate(Store, {
     playerState: computed,
     thisPlayer: computed,
     inGame: computed,
+    playerJailState: computed,
     getPlayer: computed,
     mousedOverTileInfo: computed,
     mousedOverTileIDInfo: computed,
@@ -381,6 +527,9 @@ decorate(Store, {
     buyProperty: action,
     moveHere: action,
     checkTile: action,
+    goToJail: action,
+    checkAndUpdateDoublesRolled: action,
+    setJailState: action,
     clearMousedOverTile: action,
     setMousedOverTile: action,
     rollAndMove: action,
@@ -389,11 +538,13 @@ decorate(Store, {
     mortgageProp: action,
     changeCurrentPlayer: action,
     setGameInfo: action,
+    payOutOfJail: action,
     connectToGame: action,
     joinGame: action,
     setGameName: action,
     newGame: action,
     connectedFromNew: action,
+    movePlayerDev: action,
     movePlayer: action,
     buyTile: action,
     startTurn: action,

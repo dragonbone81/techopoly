@@ -19,7 +19,10 @@ const game = (socket, io) => {
                     money: 1500,
                     color: 'red',
                     id: 0,
-                    state: "START_TURN"
+                    state: "START_TURN",
+                    jail_state: false,
+                    jail_turns: 0,
+                    doubles_rolled: 0,
                 }],
                 board: newBoard,
                 current_player: 0,
@@ -54,6 +57,9 @@ const game = (socket, io) => {
                                 color: 'red',
                                 id: Math.max(...game.player_info.map(el => el.id)) + 1,
                                 state: "NOT_TURN",
+                                jail_state: false,
+                                jail_turns: 0,
+                                doubles_rolled: 0,
                             }]
                         }
                     },
@@ -135,6 +141,54 @@ const game = (socket, io) => {
         console.log(response);
         socket.to(`game_${input.game_name}`).emit("turn_ended", game);
     });
+    socket.on('sync_player_jail_state', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.player_index}.jail_state`]: input.jail_state,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
+    socket.on('update_players_doubles', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.player_index}.jail_turns`]: input.jail_turns,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
+    socket.on('update_player_jail_rolls', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.player_index}.doubles_rolled`]: input.doubles_rolled,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
     socket.on('sync_player_state', async (input) => {
         console.log(input);
         const response = await (await client).findOneAndUpdate(
@@ -150,6 +204,6 @@ const game = (socket, io) => {
         const game = response.value;
         console.log(response);
         socket.to(`game_${input.game_name}`).emit("game_info", game);
-    })
+    });
 };
 module.exports.game = game;

@@ -51,9 +51,14 @@ class MainView extends Component {
                 {/*}*/}
                 {this.props.store.gameState !== "NOT_STARTED" &&
                 <div>
-                    {this.props.store.playerState === "START_TURN" && (
+                    {this.props.store.playerState === "START_TURN" && this.props.store.getPlayer.jail_turns < 3 && (
                         <button type="button" onClick={this.props.store.startTurn}
                                 className="btn btn-primary">roll
+                        </button>
+                    )}
+                    {this.props.store.getPlayer.jail_state && this.props.store.playerState === "START_TURN" && (
+                        <button type="button" onClick={this.props.store.payOutOfJail}
+                                className="btn btn-primary">pay 50
                         </button>
                     )}
                     {this.props.store.playerState === "BUY_TILE" && (
@@ -74,7 +79,8 @@ class MainView extends Component {
                         </button>
                     )}
                     <div>
-                        {this.props.store.getPlayer.money}
+                        <div>{this.props.store.getPlayer.money}</div>
+                        <div>{`${this.props.store.dice[0]} - ${this.props.store.dice[1]}`}</div>
                     </div>
                 </div>
                 }
