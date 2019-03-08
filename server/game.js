@@ -23,6 +23,7 @@ const game = (socket, io) => {
                     jail_state: false,
                     jail_turns: 0,
                     doubles_rolled: 0,
+                    previous_roll: [0, 0],
                 }],
                 board: newBoard,
                 current_player: 0,
@@ -60,6 +61,7 @@ const game = (socket, io) => {
                                 jail_state: false,
                                 jail_turns: 0,
                                 doubles_rolled: 0,
+                                previous_roll: [0, 0],
                             }]
                         }
                     },
@@ -157,7 +159,7 @@ const game = (socket, io) => {
         console.log(response);
         socket.to(`game_${input.game_name}`).emit("game_info", game);
     });
-    socket.on('update_players_doubles', async (input) => {
+    socket.on('update_player_jail_rolls', async (input) => {
         console.log(input);
         const response = await (await client).findOneAndUpdate(
             {game_name: input.game_name},
@@ -173,7 +175,7 @@ const game = (socket, io) => {
         console.log(response);
         socket.to(`game_${input.game_name}`).emit("game_info", game);
     });
-    socket.on('update_player_jail_rolls', async (input) => {
+    socket.on('update_players_doubles', async (input) => {
         console.log(input);
         const response = await (await client).findOneAndUpdate(
             {game_name: input.game_name},
@@ -181,6 +183,22 @@ const game = (socket, io) => {
             {
                 $set: {
                     [`player_info.${input.player_index}.doubles_rolled`]: input.doubles_rolled,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
+    socket.on('update_player_roll', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.player_index}.previous_roll`]: input.previous_roll,
                 }
             },
             {returnOriginal: false},
@@ -205,5 +223,6 @@ const game = (socket, io) => {
         console.log(response);
         socket.to(`game_${input.game_name}`).emit("game_info", game);
     });
+
 };
 module.exports.game = game;

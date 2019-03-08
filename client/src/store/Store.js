@@ -119,10 +119,9 @@ class Store {
                 this.setPlayerState("END_OF_TURN");
             }
         } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
-            if (this.dice[0] === this.dice[1]) {
+            if (this.dice[0] === this.dice[1] && this.game.player_info[playerIndex].doubles_rolled + 1 === 3) {
                 this.checkAndUpdateDoublesRolled(playerIndex);
             } else {
-                const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
                 if (this.getPlayer.money < this.game.board[this.getPlayer.position].cost) {
                     this.setPlayerState("BUY_TILE_NO_MONEY");
                 } else {
@@ -154,6 +153,13 @@ class Store {
         this.syncPlayerJailState();
         this.setPlayerState("END_OF_TURN");
     };
+    checkIfTooManyDoubles = (playerIndex) => {
+        if (this.game.player_info[playerIndex].doubles_rolled === 3) {
+            this.game.player_info[playerIndex].doubles_rolled = 0;
+            this.goToJail(playerIndex);
+        }
+        this.updatePlayerDoublesRolled(playerIndex);
+    }
     checkAndUpdateDoublesRolled = (playerIndex) => {
         this.game.player_info[playerIndex].doubles_rolled += 1;
         if (this.game.player_info[playerIndex].doubles_rolled === 3) {
@@ -315,8 +321,8 @@ class Store {
     rollDice = () => {
         // this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
         // this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
-        this.dice[0] = 1;
-        this.dice[1] = 1;
+        this.dice[0] = 2;
+        this.dice[1] = 2;
         console.log("dice rolled", this.diceSum);
     };
     buyProperty = () => {
@@ -550,6 +556,7 @@ decorate(Store, {
     startTurn: action,
     endTurn: action,
     checkIfPlayerPassedGo: action,
+    checkIfTooManyDoubles: action,
     checkAndSetCurrentPlayer: action,
 });
 
