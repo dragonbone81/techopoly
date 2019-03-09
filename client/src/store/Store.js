@@ -1,7 +1,7 @@
 import {decorate, configure, observable, action, computed, runInAction} from 'mobx'
 // import tiles from '../../../server/monopoly';
 import io from 'socket.io-client';
-
+//TODO: Need to fix ending on buy tile or any action and then reloading page... resets dice at 00 and game assumes doubles were rolled
 configure({enforceActions: "observed"});
 const turnState = [
     "NOT_TURN",
@@ -86,7 +86,7 @@ class Store {
         this.game.player_info[playerIndex].jail_turns = 0;
         this.updatePlayerJailRolls(playerIndex);
         if (this.getPlayer.jail_turns === 3) {
-            this.setPlayerState("START_OF_TURN");
+            this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
         }
@@ -127,37 +127,62 @@ class Store {
         const tile = this.game.board[this.getPlayer.position];
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         console.log(tile.type);
+        if (this.dice[0] !== this.dice[1]) {
+            this.game.player_info[playerIndex].doubles_rolled = 0;
+        }
+        if (this.dice[0] === this.dice[1]) {
+            this.checkAndUpdateDoublesRolled(playerIndex);
+        }
+        if (this.getPlayer.jail_state) {
+            return;
+        }
         if (tile.owned && tile.player !== playerIndex) {
-            if (this.dice[0] === this.dice[1] && this.game.player_info[playerIndex].doubles_rolled + 1 === 3) {
-                this.checkAndUpdateDoublesRolled(playerIndex);
+            this.payPlayer();
+            if (this.dice[0] === this.dice[1]) {
+                this.setPlayerState("START_TURN");
             } else {
-                this.payPlayer();
-                if (this.dice[0] === this.dice[1]) {
-                    this.checkAndUpdateDoublesRolled(playerIndex);
-                } else {
-                    this.setPlayerState("END_OF_TURN");
-                }
+                this.setPlayerState("END_OF_TURN");
             }
         } else if (!tile.owned && (tile.type === "property" || tile.type === "rr" || tile.type === "utility")) {
-            if (this.dice[0] === this.dice[1] && this.game.player_info[playerIndex].doubles_rolled + 1 === 3) {
-                this.checkAndUpdateDoublesRolled(playerIndex);
+            if (this.getPlayer.money < this.game.board[this.getPlayer.position].cost) {
+                this.setPlayerState("BUY_TILE_NO_MONEY");
             } else {
-                if (this.getPlayer.money < this.game.board[this.getPlayer.position].cost) {
-                    this.setPlayerState("BUY_TILE_NO_MONEY");
-                } else {
-                    this.setPlayerState("BUY_TILE");
-                }
+                this.setPlayerState("BUY_TILE");
             }
+        } else if (tile.type === "income-tax") {
+            this.setPlayerState("INCOME_TAX");
         } else if (tile.type === "go-to-jail") {
             this.game.player_info[playerIndex].doubles_rolled = 0;
             this.updatePlayerDoublesRolled(playerIndex);
             this.goToJail(playerIndex);
         } else {
             if (this.dice[0] === this.dice[1]) {
-                this.checkAndUpdateDoublesRolled(playerIndex);
+                this.setPlayerState("START_TURN");
             } else {
                 this.setPlayerState("END_OF_TURN");
             }
+        }
+        this.syncPlayerState();
+    };
+    payPercentTax = () => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].money -= this.game.player_info[playerIndex].money * 0.10;
+        this.payBank(playerIndex);
+        if (this.dice[0] === this.dice[1]) {
+            this.setPlayerState("START_TURN");
+        } else {
+            this.setPlayerState("END_OF_TURN");
+        }
+        this.syncPlayerState();
+    };
+    payFlatTax = () => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].money -= 200;
+        this.payBank(playerIndex);
+        if (this.dice[0] === this.dice[1]) {
+            this.setPlayerState("START_TURN");
+        } else {
+            this.setPlayerState("END_OF_TURN");
         }
         this.syncPlayerState();
     };
@@ -186,7 +211,7 @@ class Store {
             this.game.player_info[playerIndex].doubles_rolled = 0;
             this.goToJail(playerIndex);
         } else {
-            this.setPlayerState("START_TURN");
+            // this.setPlayerState("START_TURN");
         }
         this.updatePlayerDoublesRolled(playerIndex);
     };
@@ -244,7 +269,7 @@ class Store {
             player_index: playerIndex,
         });
         if (this.dice[0] === this.dice[1]) {
-            this.checkAndUpdateDoublesRolled(playerIndex);
+            this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
         }
@@ -252,8 +277,7 @@ class Store {
     };
     rejectBuyTile = () => {
         if (this.dice[0] === this.dice[1]) {
-            const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
-            this.checkAndUpdateDoublesRolled(playerIndex);
+            this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
         }
@@ -508,6 +532,8 @@ decorate(Store, {
     buyProperty: action,
     moveHere: action,
     checkTile: action,
+    payPercentTax: action,
+    payFlatTax: action,
     goToJail: action,
     checkAndUpdateDoublesRolled: action,
     setJailState: action,

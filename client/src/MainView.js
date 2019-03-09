@@ -67,6 +67,12 @@ class MainView extends Component {
                             <button onClick={this.props.store.rejectBuyTile}>Reject Buy</button>
                         </div>
                     )}
+                    {this.props.store.playerState === "INCOME_TAX" && (
+                        <div>
+                            <button onClick={this.props.store.payPercentTax}>Pay 10%</button>
+                            <button onClick={this.props.store.payFlatTax}>Pay $200</button>
+                        </div>
+                    )}
                     {this.props.store.playerState === "BUY_TILE_NO_MONEY" && (
                         <div>
                             <button disabled>Buy Tile</button>
