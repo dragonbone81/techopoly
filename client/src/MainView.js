@@ -56,6 +56,11 @@ class MainView extends Component {
                                 className="btn btn-primary">roll
                         </button>
                     )}
+                    {this.props.store.playerState === "UTILITY_CHANCE_CARD" && (
+                        <button type="button" onClick={this.props.store.utilityChanceCardPayment}
+                                className="btn btn-primary">Roll to See how much to Pay
+                        </button>
+                    )}
                     {this.props.store.getPlayer.jail_state && this.props.store.playerState === "START_TURN" && (
                         <button type="button" onClick={this.props.store.payOutOfJail}
                                 className="btn btn-primary">pay 50

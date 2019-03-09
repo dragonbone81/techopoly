@@ -423,7 +423,7 @@ module.exports = {
             url: "http://www.logospng.com/images/148/technology-percolator-consulting-148098.png",
         },
     ],
-    cards: [
+    chance: [
         {
             name: "Advance to 'Go' (Collect $200)",
             type: "simple_move",
@@ -475,8 +475,8 @@ module.exports = {
         // },
         {
             name: "Pay poor tax of $15",
-            type: "simple_pay_bank",
-            amount: 15,
+            type: "simple_bank_pay",
+            amount: -15,
         },
         {
             name: "Take a trip to Microsoft. If you pass 'GO', collect $200",
@@ -503,77 +503,90 @@ module.exports = {
             type: "simple_bank_pay",
             amount: 100,
         },
-        // {
-        //     name: "Advance to 'GO'. Collect $200",
-        //     type: "chest",
-        //     position: 0
-        // },
-        // {
-        //     name: "Bank error in your favor. Collect $200",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Doctor's fee. Pay $50",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "From sale of stock you get $50",
-        //     type: "chest"
-        // },
+    ],
+    chest: [
+        {
+            name: "Advance to 'GO'. Collect $200",
+            type: "simple_move",
+            position: 0,
+        },
+        {
+            name: "Bank error in your favor. Collect $200",
+            type: "simple_bank_pay",
+            amount: 200,
+        },
+        {
+            name: "Doctor's fee. Pay $50",
+            type: "simple_bank_pay",
+            amount: -50,
+        },
+        {
+            name: "From sale of stock you get $50",
+            type: "simple_bank_pay",
+            amount: 50,
+        },
         // {
         //     name: "Get out of Jail Free",
         //     type: "chest"
         // },
-        // {
-        //     name: "Go to Jail",
-        //     type: "chest",
-        //     position: 10
-        // },
-        // {
-        //     name: "Grand Opera Night - Collect $50 from every player for opening night seats",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Holiday Fund Matures - Receive $100",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Income tax refund - Collect $20",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "It's your Birthday! - Collect $10",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Life insurance matures - Collect $100",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Pay hospital fees of $100",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Pay school fees of $150",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "Receive $25 consultancy fee",
-        //     type: "chest"
-        // },
+        {
+            name: "Go to Jail",
+            type: "go_to_jail"
+        },
+        {
+            name: "Grand Opera Night - Collect $50 from every player for opening night seats",
+            type: "pay_all_players",
+            amount: -50,
+        },
+        {
+            name: "Holiday Fund Matures - Receive $100",
+            type: "simple_bank_pay",
+            amount: 100,
+        },
+        {
+            name: "Income tax refund - Collect $20",
+            type: "simple_bank_pay",
+            amount: 20,
+        },
+        {
+            name: "It's your Birthday! - Collect $10",
+            type: "simple_bank_pay",
+            amount: 10,
+        },
+        {
+            name: "Life insurance matures - Collect $100",
+            type: "simple_bank_pay",
+            amount: 100,
+        },
+        {
+            name: "Pay hospital fees of $100",
+            type: "simple_bank_pay",
+            amount: -100,
+        },
+        {
+            name: "Pay school fees of $150",
+            type: "simple_bank_pay",
+            amount: -150,
+        },
+        {
+            name: "Receive $25 consultancy fee",
+            type: "simple_bank_pay",
+            amount: 25,
+        },
         // {
         //     name: "You are assessed for street repairs - $40 per house - $115 per hotel",
         //     type: "chest"
         // },
-        // {
-        //     name: "You have won second prize in a beauty contest - Collect $10",
-        //     type: "chest"
-        // },
-        // {
-        //     name: "You inherit $100",
-        //     type: "chest"
-        // },
-
-
+        {
+            name: "You have won second prize in a beauty contest - Collect $10",
+            type: "simple_bank_pay",
+            amount: 10,
+        },
+        {
+            name: "You inherit $100",
+            type: "simple_bank_pay",
+            amount: 100,
+        },
     ]
+
 };
