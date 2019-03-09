@@ -497,24 +497,93 @@ class Store {
 
     socketActions = () => {
         this.socket.on("player_moved", data => {
-            console.log(data);
+            console.log("player_moved", data);
             runInAction(() => {
                 this.game.player_info[data.player].position = data.position;
             });
         });
         this.socket.on("tile_bought", data => {
-            console.log(data);
+            console.log("tile_bought", data);
             runInAction(() => {
                 this.game.player_info[data.player.player_index].money = data.player.player_money;
                 this.game.board[data.tile.tile_index] = data.tile.tile;
             });
-
-            // this.setGameInfo(data);
+        });
+        this.socket.on("player_money_updated", data => {
+            console.log("player_money_updated", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].money = data.player_money;
+            });
         });
         this.socket.on("turn_ended", data => {
-            // this.setGameInfo(data);
-            console.log(data);
-            // this.checkAndSetCurrentPlayer()
+            console.log("turn_ended", data);
+            runInAction(() => {
+                this.game.player_info[data.next_player].state = "START_TURN";
+                this.game.player_info[data.old_player].state = "NOT_TURN";
+            });
+        });
+        this.socket.on("sync_player_jail_state_synced", data => {
+            console.log("sync_player_jail_state_synced", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].jail_state = data.jail_state;
+            });
+        });
+        this.socket.on("update_player_jail_rolls_updated", data => {
+            console.log("update_player_jail_rolls_updated", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].jail_turns = data.jail_turns;
+            });
+        });
+        this.socket.on("transaction_processed", data => {
+            console.log("transaction_processed", data);
+            runInAction(() => {
+                this.game.player_info[data.giving_player].money = data.giving_player_money;
+                this.game.player_info[data.giving_player].pay_multiplier = 1;
+                this.game.player_info[data.receiving_player].money = data.receiving_player_money;
+            });
+        });
+        this.socket.on("players_doubles_updated", data => {
+            console.log("players_doubles_updated", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].doubles_rolled = data.doubles_rolled;
+            });
+        });
+        this.socket.on("dice_roll_updated", data => {
+            console.log("dice_roll_updated", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].dice = data.dice;
+            });
+        });
+        this.socket.on("player_state_synced", data => {
+            console.log("player_state_synced", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].state = data.state;
+            });
+        });
+        this.socket.on("chest_card_increased", data => {
+            console.log("chest_card_increased", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].pay_multiplier = data.pay_multiplier;
+                this.game.last_chest_card = data.last_chest_card;
+            });
+        });
+        this.socket.on("chance_card_increased", data => {
+            console.log("chance_card_increased", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].pay_multiplier = data.pay_multiplier;
+                this.game.last_chance_card = data.last_chance_card;
+            });
+        });
+        this.socket.on("pay_all_players_payed", data => {
+            console.log("pay_all_players_payed", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].money = this.game.player_info[data.player_index].money - (data.amount * (this.game.player_info.length - 1));
+                this.game.player_info.forEach((player, index) => {
+                    if (index !== data.player_index) {
+                        player.money += data.amount;
+                    }
+                });
+            });
         });
     };
 
@@ -547,11 +616,9 @@ class Store {
     };
     setMousedOverTile = (tile) => {
         this.mousedOverTile = tile;
-        console.log(this.mousedOverTile)
     };
     clearMousedOverTile = () => {
         this.mousedOverTile = null;
-        console.log(this.mousedOverTile)
     };
 
     get chosenTile() {
