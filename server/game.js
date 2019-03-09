@@ -23,7 +23,7 @@ const game = (socket, io) => {
                     jail_state: false,
                     jail_turns: 0,
                     doubles_rolled: 0,
-                    previous_roll: [0, 0],
+                    dice: [0, 0],
                 }],
                 board: newBoard,
                 current_player: 0,
@@ -61,7 +61,7 @@ const game = (socket, io) => {
                                 jail_state: false,
                                 jail_turns: 0,
                                 doubles_rolled: 0,
-                                previous_roll: [0, 0],
+                                dice: [0, 0],
                             }]
                         }
                     },
@@ -232,6 +232,22 @@ const game = (socket, io) => {
             {
                 $set: {
                     [`player_info.${input.player_index}.state`]: input.state,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
+    socket.on('update_dice_roll', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`player_info.${input.player_index}.dice`]: input.dice,
                 }
             },
             {returnOriginal: false},

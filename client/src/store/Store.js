@@ -1,7 +1,7 @@
 import {decorate, configure, observable, action, computed, runInAction} from 'mobx'
 // import tiles from '../../../server/monopoly';
 import io from 'socket.io-client';
-//TODO: Need to fix ending on buy tile or any action and then reloading page... resets dice at 00 and game assumes doubles were rolled
+
 configure({enforceActions: "observed"});
 const turnState = [
     "NOT_TURN",
@@ -19,7 +19,7 @@ class Store {
     player = 0;
     currentPlayer = 0;
     gameState = "NOT_STARTED";
-    dice = [0, 0];
+    // dice = [0, 0];
     gameTilesID = [];
     gameTiles = [];
     mousedOverTile = null;
@@ -56,7 +56,7 @@ class Store {
             const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
             this.setPlayerState("ROLLING");
             this.rollDice();
-            if (this.dice[0] === this.dice[1]) {
+            if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
                 this.setJailState(false);
                 this.syncPlayerJailState();
                 this.game.player_info[playerIndex].jail_turns = 0;
@@ -127,10 +127,10 @@ class Store {
         const tile = this.game.board[this.getPlayer.position];
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         console.log(tile.type);
-        if (this.dice[0] !== this.dice[1]) {
+        if (this.getPlayer.dice[0] !== this.getPlayer.dice[1]) {
             this.game.player_info[playerIndex].doubles_rolled = 0;
         }
-        if (this.dice[0] === this.dice[1]) {
+        if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.checkAndUpdateDoublesRolled(playerIndex);
         }
         if (this.getPlayer.jail_state) {
@@ -138,7 +138,7 @@ class Store {
         }
         if (tile.owned && tile.player !== playerIndex) {
             this.payPlayer();
-            if (this.dice[0] === this.dice[1]) {
+            if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
                 this.setPlayerState("START_TURN");
             } else {
                 this.setPlayerState("END_OF_TURN");
@@ -156,7 +156,7 @@ class Store {
             this.updatePlayerDoublesRolled(playerIndex);
             this.goToJail(playerIndex);
         } else {
-            if (this.dice[0] === this.dice[1]) {
+            if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
                 this.setPlayerState("START_TURN");
             } else {
                 this.setPlayerState("END_OF_TURN");
@@ -168,7 +168,7 @@ class Store {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         this.game.player_info[playerIndex].money -= this.game.player_info[playerIndex].money * 0.10;
         this.payBank(playerIndex);
-        if (this.dice[0] === this.dice[1]) {
+        if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
@@ -179,7 +179,7 @@ class Store {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         this.game.player_info[playerIndex].money -= 200;
         this.payBank(playerIndex);
-        if (this.dice[0] === this.dice[1]) {
+        if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
@@ -268,7 +268,7 @@ class Store {
             player_money: this.game.player_info[playerIndex].money,
             player_index: playerIndex,
         });
-        if (this.dice[0] === this.dice[1]) {
+        if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
@@ -276,7 +276,7 @@ class Store {
         this.syncPlayerState();
     };
     rejectBuyTile = () => {
-        if (this.dice[0] === this.dice[1]) {
+        if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
@@ -363,8 +363,18 @@ class Store {
         console.log(this.mousedOverTile)
     };
     rollDice = () => {
-        this.dice[0] = Math.floor(Math.random() * Math.floor(6)) + 1;
-        this.dice[1] = Math.floor(Math.random() * Math.floor(6)) + 1;
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        this.game.player_info[playerIndex].dice = [
+            Math.floor(Math.random() * Math.floor(6)) + 1,
+            Math.floor(Math.random() * Math.floor(6)) + 1
+        ];
+        this.socket.emit("update_dice_roll", {
+            game_name: this.game.game_name,
+            username: this.username,
+            dice: this.game.player_info[playerIndex].dice,
+            player_index: playerIndex,
+        });
+
         // this.dice[0] = 2;
         // this.dice[1] = 2;
         console.log("dice rolled", this.diceSum);
@@ -424,7 +434,7 @@ class Store {
     };
 
     get diceSum() {
-        return this.dice[0] + this.dice[1];
+        return this.getPlayer.dice[0] + this.getPlayer.dice[1];
     }
 
     get thisPlayer() {
@@ -502,7 +512,7 @@ class Store {
 
 decorate(Store, {
     players: observable,
-    dice: observable,
+    // dice: observable,
     connectedFromNewPage: observable,
     game: observable,
     player: observable,

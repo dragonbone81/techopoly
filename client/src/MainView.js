@@ -86,7 +86,7 @@ class MainView extends Component {
                     )}
                     <div>
                         <div>{this.props.store.getPlayer.money}</div>
-                        <div>{`${this.props.store.dice[0]} - ${this.props.store.dice[1]}`}</div>
+                        <div>{`${this.props.store.getPlayer.dice[0]} - ${this.props.store.getPlayer.dice[1]}`}</div>
                     </div>
                 </div>
                 }
