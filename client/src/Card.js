@@ -20,8 +20,8 @@ class Card extends Component {
                      backgroundImage: `url(${this.props.store.game.board[this.props.position].url})`,
                      border: `1px solid ${this.getCardColor()}`
                  }} className="game-tile d-flex flex-wrap align-content-between justify-content-between"
-                // onMouseLeave={this.props.store.clearMousedOverTile}
-                // onMouseEnter={() => this.props.store.setMousedOverTile(this.props.position)}
+                 onMouseLeave={this.props.store.clearMousedOverTile}
+                 onMouseEnter={() => this.props.store.setMousedOverTile(this.props.position)}
             >
                 {this.props.store.game.player_info.filter(player => player.position === this.props.position).map((player, i) => {
                     return <Player playerNumber={player.id} key={i}/>

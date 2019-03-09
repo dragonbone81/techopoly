@@ -1,5 +1,16 @@
 const client = require("./db_connection");
-const board = require("./monopoly");
+const {board, cards} = require("./monopoly");
+
+const shuffle = (input_array) => {
+    const a = [...input_array];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return input_array;
+    return a;
+};
+
 
 const game = (socket, io) => {
     socket.on("create_game", async (input, respond) => {
@@ -24,8 +35,11 @@ const game = (socket, io) => {
                     jail_turns: 0,
                     doubles_rolled: 0,
                     dice: [0, 0],
+                    pay_multiplier: 1,
                 }],
                 board: newBoard,
+                chance: shuffle(cards),
+                last_chance_card: -1,
                 current_player: 0,
             }
         );
@@ -62,6 +76,7 @@ const game = (socket, io) => {
                                 jail_turns: 0,
                                 doubles_rolled: 0,
                                 dice: [0, 0],
+                                pay_multiplier: 1,
                             }]
                         }
                     },
@@ -183,6 +198,7 @@ const game = (socket, io) => {
             {
                 $set: {
                     [`player_info.${input.giving_player}.money`]: input.giving_player_money,
+                    [`player_info.${input.pay_multiplier}.money`]: 1,
                     [`player_info.${input.receiving_player}.money`]: input.receiving_player_money,
                 }
             },
@@ -248,6 +264,23 @@ const game = (socket, io) => {
             {
                 $set: {
                     [`player_info.${input.player_index}.dice`]: input.dice,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        console.log(response);
+        socket.to(`game_${input.game_name}`).emit("game_info", game);
+    });
+    socket.on('increase_chance_card', async (input) => {
+        console.log(input);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            // {$set: {current_player: input.next_player}}
+            {
+                $set: {
+                    [`last_chance_card`]: input.last_chance_card,
+                    [`player_info.${input.pay_multiplier}.dice`]: input.pay_multiplier,
                 }
             },
             {returnOriginal: false},
