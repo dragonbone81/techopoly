@@ -52,13 +52,16 @@
     font-size: 80px;
     color: #4B77BE;
 }
-.space-between-dice{
+
+.space-between-dice {
     margin: 0 10px 0 10px;
 }
-.logs{
+
+.logs {
     overflow-y: auto;
     max-height: 300px;
 }
+
 .owned-square-bottom {
     height: 10px;
     width: 36px;
@@ -68,6 +71,7 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }
+
 
 .grey-card {
     filter: grayscale(50%);
@@ -86,11 +90,105 @@
     max-height: inherit;
 }
 
+.upgrade-prop {
+    font-size: 25px;
+    width: 15px;
+    transition-duration: 100ms;
+}
+
+.upgrade-prop:hover {
+    transform: scale(1.1);
+}
+
+.upgrade-col {
+    position: relative;
+}
+
+.top-tiles-upgrade-bar {
+    position: absolute;
+    bottom: -3px;
+    left: -1px;
+    width: 70px;
+    height: 3px;
+}
+
+.top-tiles-upgrade-bar-component {
+    width: 14px;
+    filter: invert(100%);
+}
+
+.bottom-tiles-upgrade-bar {
+    position: absolute;
+    top: -3px;
+    left: -1px;
+    width: 70px;
+    height: 3px;
+}
+
+.bottom-tiles-upgrade-bar-component {
+    width: 14px;
+    filter: invert(100%);
+}
+
+.left-tiles-upgrade-bar {
+    position: absolute;
+    top: 0;
+    right: -3px;
+    height: 70px;
+    width: 3px;
+}
+
+.left-tiles-upgrade-bar-component {
+    height: 14px;
+    filter: invert(100%);
+}
+
+.right-tiles-upgrade-bar {
+    position: absolute;
+    top: 0;
+    left: -3px;
+    height: 70px;
+    width: 3px;
+}
+
+.right-tiles-upgrade-bar-component {
+    height: 14px;
+    filter: invert(100%);
+}
+
+.upgrade-bar {
+    position: absolute;
+    top: 2px;
+    left: 28px;
+    width: 80px;
+    height: 10px;
+}
+
+.bar-component {
+    width: 100%;
+    border-right: 1px solid black;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.bar-component-filled {
+    background-color: #93e882;
+}
+
+.bar-component-left {
+    border-left: 1px solid black;
+}
+
+
 .my-properties-table {
     /*height: 200px;*/
     max-height: 550px;
     overflow-y: auto;
     /*width: 100%;*/
+}
+
+.no-glow {
+
 }
 
 /*thead {*/

@@ -317,6 +317,22 @@ const game = (socket, io) => {
             mortgage_value: input.mortgage_value,
         });
     });
+    socket.on('tile_upgrade', async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            {
+                $set: {
+                    [`board.${input.property_index}.upgrades`]: input.upgrades,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("tile_upgraded", {
+            property_index: input.property_index,
+            upgrades: input.upgrades,
+        });
+    });
     socket.on('add_log', async (input) => {
         const response = await (await client).findOneAndUpdate(
             {game_name: input.game_name},
