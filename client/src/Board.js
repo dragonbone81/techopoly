@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Card from "./Card";
-import MainView from "./MainView";
+import MainView from "./middleScreen/MainView";
 import "./App.css";
 import {inject, observer} from "mobx-react";
 import {withRouter} from 'react-router-dom';

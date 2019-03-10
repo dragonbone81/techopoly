@@ -57,9 +57,12 @@
     margin: 0 10px 0 10px;
 }
 
-.logs {
+.logs-tab {
     overflow-y: auto;
-    max-height: 300px;
+    max-height: 290px;
+    border: 1px solid gray;
+    border-radius: 10px;
+    padding: 5px 10px 5px 10px;
 }
 
 .owned-square-bottom {
@@ -187,15 +190,11 @@
     /*width: 100%;*/
 }
 
-.no-glow {
-
+.info-tab-row {
+    margin-bottom: 10px;
 }
 
-/*thead {*/
-/*display: block;*/
-/*}*/
-
-.info-tab-row {
+.actions-tab {
     margin-bottom: 10px;
 }
 
