@@ -123,6 +123,7 @@ class Store {
         const rent = this.calcRentCost();
         const receivingPlayer = this.playerTile.player;
         const givingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
+        this.addToLog(`${this.getPlayer.username} paid ${this.game.player_info[receivingPlayer].username} $${rent} for visiting ${this.playerTile.name}`);
         this.game.player_info[receivingPlayer].money += rent * this.getPlayer.pay_multiplier;
         this.game.player_info[givingPlayer].money -= rent * this.getPlayer.pay_multiplier;
         this.game.player_info[givingPlayer].pay_multiplier = 1;
@@ -136,11 +137,12 @@ class Store {
         });
     };
     addToLog = (log) => {
-        this.game.logs.push(log);
+        const newLog = {log: log, time: new Date()};
+        this.game.logs.push(newLog);
         this.socket.emit("add_log", {
             game_name: this.game.game_name,
             username: this.username,
-            log: log,
+            log: newLog,
         });
     };
     checkTile = () => {
@@ -157,7 +159,7 @@ class Store {
         if (this.getPlayer.jail_state) {
             return;
         }
-        this.addToLog(`${this.getPlayer.username} rolled a ${this.diceSum} and is now at ${tile.name}`);
+        this.addToLog(`${this.getPlayer.username} rolled a ${this.diceSum} (${this.getPlayer.dice[0]} - ${this.getPlayer.dice[1]}) and is now at ${tile.name}.`);
         this.checkIfPlayerPassedGo();
         if (tile.owned && tile.player !== playerIndex) {
             this.payPlayer();
@@ -182,6 +184,7 @@ class Store {
             this.game.player_info[playerIndex].doubles_rolled = 0;
             this.updatePlayerDoublesRolled(playerIndex);
             this.goToJail(playerIndex);
+            this.addToLog(`${this.getPlayer.username} is going to jail :(`);
         } else {
             if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
                 this.setPlayerState("START_TURN");
@@ -232,8 +235,7 @@ class Store {
             newCard = this.game.chest[newCardIndex];
             console.log("CHANCE CARD", this.game.chest[newCardIndex].name);
         }
-
-
+        this.addToLog(`${this.getPlayer.username} picked a card: ${newCard.name}`);
         if (newCard.type === "simple_move") {
             if (newCard.position === 0) {
                 this.playerPassedGoMoneyIncrease();
@@ -341,6 +343,7 @@ class Store {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         this.game.player_info[playerIndex].money -= 75;
         this.updatePlayerMoney(playerIndex);
+        this.addToLog(`${this.getPlayer.username} paid $75 for tax evasion :O`);
         if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {
@@ -411,7 +414,7 @@ class Store {
     playerPassedGoMoneyIncrease = () => {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         this.game.player_info[playerIndex].money += 200;
-        console.log("passed go", this.game.player_info[playerIndex].money);
+        this.addToLog(`${this.getPlayer.username} passed GO and earned $200!`);
         this.socket.emit("update_player_money", {
             game_name: this.game.game_name,
             username: this.username,
@@ -447,6 +450,7 @@ class Store {
         this.game.player_info[playerIndex].money -= this.game.board[this.getPlayer.position].cost;
         this.game.board[this.getPlayer.position].owned = true;
         this.game.board[this.getPlayer.position].player = playerIndex;
+        this.addToLog(`${this.getPlayer.username} bought ${this.playerTile.name} for $${this.playerTile.cost}.`);
         this.socket.emit("buy_tile", {
             game_name: this.game.game_name,
             username: this.username,
@@ -463,6 +467,7 @@ class Store {
         this.syncPlayerState();
     };
     rejectBuyTile = () => {
+        this.addToLog(`${this.getPlayer.username} refused to buy ${this.playerTile.name}.`);
         if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {

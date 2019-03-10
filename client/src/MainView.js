@@ -9,6 +9,15 @@ class MainView extends Component {
         selectedTab: "my_info",
     };
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log(prevProps.store.game.logs.length, this.props.store.game.logs.length);
+        // if (this.props.store.game.logs.length !== prevProps.store.game.logs.length) {
+        const div = document.getElementById("logs");
+        div.scrollTop = div.scrollHeight;
+        console.log('asd')
+        // }
+    }
+
     render() {
         const [diceOne, diceTwo] = this.props.store.getPlayer.dice;
         return (
@@ -215,11 +224,11 @@ class MainView extends Component {
                             )}
                         </div>
                     )}
-                    <div>
-                        {this.props.store.game.logs.map(log => {
+                    <div id="logs" className="logs">
+                        {this.props.store.game.logs.map((log, i) => {
                             return (
-                                <div>
-                                    {log}
+                                <div key={i}>
+                                    {new Date(log.time).toLocaleString()}: {log.log}
                                 </div>
                             )
                         })}

@@ -55,6 +55,10 @@
 .space-between-dice{
     margin: 0 10px 0 10px;
 }
+.logs{
+    overflow-y: auto;
+    max-height: 300px;
+}
 .owned-square-bottom {
     height: 10px;
     width: 36px;
