@@ -10,12 +10,10 @@ class MainView extends Component {
     };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log(prevProps.store.game.logs.length, this.props.store.game.logs.length);
-        // if (this.props.store.game.logs.length !== prevProps.store.game.logs.length) {
         const div = document.getElementById("logs");
-        div.scrollTop = div.scrollHeight;
-        console.log('asd')
-        // }
+        if (div) {
+            div.scrollTop = div.scrollHeight;
+        }
     }
 
     render() {
@@ -165,12 +163,13 @@ class MainView extends Component {
                                             <td className="text-center">{property.name}</td>
                                             <td className="text-center">$125</td>
                                             <td className="text-center">
-                                                <i className="far fa-arrow-alt-circle-up mr-2 cursor"/>
+                                                <i onClick={() => console.log(this.props.store.canUpgrade(property.index))}
+                                                   className="far fa-arrow-alt-circle-up mr-2 cursor"/>
                                                 <i className="far fa-arrow-alt-circle-down ml-2 cursor"/>
                                             </td>
                                             <td className="text-center">
                                                 <input
-                                                    disabled={property.mortgaged && this.props.store.getPlayer.money - property.cost / 2 < 0}
+                                                    disabled={(property.mortgaged && this.props.store.getPlayer.money - property.cost / 2 < 0) || this.props.store.getPlayer.state === "NOT_TURN"}
                                                     onChange={() => this.props.store.mortgageProperty(property.index)}
                                                     checked={property.mortgaged} type="checkbox" className="double"
                                                 /> {property.mortgaged ? "(-)" : "(+)"}{property.cost / 2}
@@ -224,15 +223,19 @@ class MainView extends Component {
                             )}
                         </div>
                     )}
-                    <div id="logs" className="logs">
-                        {this.props.store.game.logs.map((log, i) => {
-                            return (
-                                <div key={i}>
-                                    {new Date(log.time).toLocaleString()}: {log.log}
-                                </div>
-                            )
-                        })}
-                    </div>
+                    {this.state.selectedTab === "my_info" &&
+                    (
+                        <div id="logs" className="logs">
+                            {this.props.store.game.logs.map((log, i) => {
+                                return (
+                                    <div key={i}>
+                                        {new Date(log.time).toLocaleString()}: {log.log}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )
+                    }
                 </div>
                 }
             </div>

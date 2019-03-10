@@ -690,20 +690,18 @@ class Store {
         this.endTurn();
     };
     calcRentCost = () => {
-        console.log("hey", this.playerTile)
         if (this.playerTile.type === "rr") {
             let numOwns = this.game.board.filter(el => el.type === "rr" && el.player === this.playerTile.player).length;
             let rent = this.playerTile.base_rent * Math.pow(2, numOwns - 1);
             console.log(rent);
             return rent;
         } else if (this.playerTile.type === "property") {
-            console.log('here')
             let ownsAll = this.game.board.filter(el => el.group === this.playerTile.group && el.player !== this.playerTile.player).length === 0;
-            if (!ownsAll) {
-                return this.playerTile.rent[0];
-            } else {
+            let noneMortgaged = this.game.board.filter(el => el.group === this.playerTile.group).every(el => !el.mortgaged);
+            if (ownsAll && noneMortgaged) {
                 return this.playerTile.rent[0] * 2;
-                // if()
+            } else {
+                return this.playerTile.rent[0];
             }
         } else if (this.playerTile.type === "utility") {
             let ownsAll = this.game.board.filter(el => el.group === this.playerTile.group && el.player !== this.playerTile.player).length === 0;
@@ -855,6 +853,12 @@ class Store {
             .sort((a, b) => {
                 return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
             });
+    }
+
+    canUpgrade = (propertyIndex) => {
+        let ownsAll = this.game.board.filter(el => el.group === this.game.board[propertyIndex].group && el.player !== this.game.board[propertyIndex].player).length === 0;
+        let noneMortgaged = this.game.board.filter(el => el.group === this.game.board[propertyIndex].group).every(el => !el.mortgaged);
+        return ownsAll && noneMortgaged && this.game.board[propertyIndex].upgrades < 3 && this.getPlayer.money >= this.game.board[propertyIndex].upgrade;
     }
 }
 

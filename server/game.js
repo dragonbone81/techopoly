@@ -19,6 +19,7 @@ const game = (socket, io) => {
                 owned: false,
                 player: null,
                 mortgaged: false,
+                upgrades: 0,
             }
         });
         const game = await (await client).insertOne(
