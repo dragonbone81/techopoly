@@ -215,6 +215,15 @@ class MainView extends Component {
                             )}
                         </div>
                     )}
+                    <div>
+                        {this.props.store.game.logs.map(log => {
+                            return (
+                                <div>
+                                    {log}
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
                 }
             </div>

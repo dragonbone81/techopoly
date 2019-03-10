@@ -52,7 +52,6 @@ class Store {
             this.setPlayerState("ROLLING");
             this.rollDice();
             this.movePlayer();
-            this.checkIfPlayerPassedGo();
             this.checkTile();
         } else {
             const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
@@ -136,6 +135,14 @@ class Store {
             receiving_player_money: this.game.player_info[receivingPlayer].money,
         });
     };
+    addToLog = (log) => {
+        this.game.logs.push(log);
+        this.socket.emit("add_log", {
+            game_name: this.game.game_name,
+            username: this.username,
+            log: log,
+        });
+    };
     checkTile = () => {
         const tile = this.game.board[this.getPlayer.position];
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
@@ -150,6 +157,8 @@ class Store {
         if (this.getPlayer.jail_state) {
             return;
         }
+        this.addToLog(`${this.getPlayer.username} rolled a ${this.diceSum} and is now at ${tile.name}`);
+        this.checkIfPlayerPassedGo();
         if (tile.owned && tile.player !== playerIndex) {
             this.payPlayer();
             if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
@@ -581,6 +590,12 @@ class Store {
                 this.game.board[data.property_index].mortgaged = data.mortgage_value;
             });
         });
+        this.socket.on("log_added", data => {
+            console.log("log_added", data);
+            runInAction(() => {
+                this.game.logs.push(data.log);
+            });
+        });
         this.socket.on("pay_all_players_payed", data => {
             console.log("pay_all_players_payed", data);
             runInAction(() => {
@@ -641,8 +656,6 @@ class Store {
         this.game.player_info[playerIndex].dice = [
             Math.floor(Math.random() * Math.floor(6)) + 1,
             Math.floor(Math.random() * Math.floor(6)) + 1,
-            // 2,
-            // 2,
         ];
         this.socket.emit("update_dice_roll", {
             game_name: this.game.game_name,
@@ -650,9 +663,6 @@ class Store {
             dice: this.game.player_info[playerIndex].dice,
             player_index: playerIndex,
         });
-
-        // this.dice[0] = 2;
-        // this.dice[1] = 2;
         console.log("dice rolled", this.diceSum);
     };
     buyProperty = () => {
@@ -907,6 +917,7 @@ decorate(Store, {
     movePlayer: action,
     payPlayer: action,
     buyTile: action,
+    addToLog: action,
     startTurn: action,
     payAllPlayers: action,
     endTurn: action,
