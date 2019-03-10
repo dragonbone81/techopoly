@@ -118,9 +118,10 @@ class MainView extends Component {
                             <table className="table">
                                 <thead>
                                 <tr>
-                                    <th scope="col"/>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Rent</th>
+                                    <th/>
+                                    <th className="text-center" scope="col">Name</th>
+                                    <th className="text-center" scope="col">Rent</th>
+                                    <th className="text-center" scope="col">Upgrade</th>
                                 </tr>
                                 </thead>
                                 <tbody className="">
@@ -132,8 +133,11 @@ class MainView extends Component {
                                                     backgroundImage: `url(${property.url})`,
                                                 }}/>
                                             </th>
-                                            <td>{property.name}</td>
-                                            <td>$125</td>
+                                            <td className="text-center">{property.name}</td>
+                                            <td className="text-center">$125</td>
+                                            <td className="text-center"><i
+                                                className="far fa-arrow-alt-circle-up mr-2 cursor"/><i
+                                                className="far fa-arrow-alt-circle-down ml-2 cursor"/></td>
                                         </tr>
                                     )
                                 })}
