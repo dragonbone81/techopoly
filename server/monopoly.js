@@ -587,6 +587,15 @@ module.exports = {
             type: "simple_bank_pay",
             amount: 100,
         },
+    ],
+    colors: [
+        "#F47983",
+        "#BE90D4",
+        "#59ABE3",
+        "#87D37C",
+        "#F5D76E",
+        "#ca865c",
+        "#6C7A89",
     ]
 
 };

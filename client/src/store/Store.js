@@ -575,6 +575,12 @@ class Store {
                 this.game.last_chance_card = data.last_chance_card;
             });
         });
+        this.socket.on("property_mortgaged", data => {
+            console.log("property_mortgaged", data);
+            runInAction(() => {
+                this.game.board[data.property_index].mortgaged = data.mortgage_value;
+            });
+        });
         this.socket.on("pay_all_players_payed", data => {
             console.log("pay_all_players_payed", data);
             runInAction(() => {
@@ -693,8 +699,22 @@ class Store {
             }
         }
     };
-    mortgageProp = (property) => {
-        this.gameTilesID[property].mortaged = true;
+    mortgageProperty = (property) => {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        if (this.game.board[property].mortgaged) {
+            this.game.player_info[playerIndex].money -= this.game.board[property].cost / 2;
+            this.updatePlayerMoney(playerIndex);
+        } else {
+            this.game.player_info[playerIndex].money += this.game.board[property].cost / 2;
+            this.updatePlayerMoney(playerIndex);
+        }
+        this.game.board[property].mortgaged = !this.game.board[property].mortgaged;
+        this.socket.emit("mortgage_property", {
+            game_name: this.game.game_name,
+            username: this.username,
+            property_index: property,
+            mortgage_value: this.game.board[property].mortgaged,
+        });
     };
     circularAdd = (val, num, max) => {
         if (val + num > max) {
@@ -811,6 +831,9 @@ class Store {
     get playerProperties() {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         return this.game.board
+            .map((tile, i) => {
+                return {...tile, index: i}
+            })
             .filter(tile => {
                 return tile.owned && tile.player === playerIndex;
             })
@@ -870,7 +893,7 @@ decorate(Store, {
     rollAndMove: action,
     setUsername: action,
     buyPrompt: action,
-    mortgageProp: action,
+    mortgageProperty: action,
     changeCurrentPlayer: action,
     setGameInfo: action,
     payOutOfJail: action,

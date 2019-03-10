@@ -1,5 +1,5 @@
 const client = require("./db_connection");
-const {board, chance, chest} = require("./monopoly");
+const {board, chance, chest, colors} = require("./monopoly");
 
 const shuffle = (input_array) => {
     const a = [...input_array];
@@ -18,6 +18,7 @@ const game = (socket, io) => {
                 ...tile,
                 owned: false,
                 player: null,
+                mortgaged: false,
             }
         });
         const game = await (await client).insertOne(
@@ -27,7 +28,6 @@ const game = (socket, io) => {
                     username: input.username,
                     position: 0,
                     money: 1500,
-                    color: 'red',
                     id: 0,
                     state: "START_TURN",
                     jail_state: false,
@@ -35,7 +35,9 @@ const game = (socket, io) => {
                     doubles_rolled: 0,
                     dice: [0, 0],
                     pay_multiplier: 1,
+                    color: colors[0],
                 }],
+                log: [],
                 board: newBoard,
                 chance: shuffle(chance),
                 chest: shuffle(chest),
@@ -70,7 +72,7 @@ const game = (socket, io) => {
                                 username: input.username,
                                 position: 0,
                                 money: 1500,
-                                color: 'red',
+                                color: colors[game.player_info.length],
                                 id: Math.max(...game.player_info.map(el => el.id)) + 1,
                                 state: "NOT_TURN",
                                 jail_state: false,
@@ -296,6 +298,22 @@ const game = (socket, io) => {
         socket.to(`game_${input.game_name}`).emit("dice_roll_updated", {
             player_index: input.player_index,
             dice: input.dice,
+        });
+    });
+    socket.on('mortgage_property', async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            {
+                $set: {
+                    [`board.${input.property_index}.mortgaged`]: input.mortgage_value,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("property_mortgaged", {
+            property_index: input.property_index,
+            mortgage_value: input.mortgage_value,
         });
     });
     socket.on('increase_chest_card', async (input) => {
