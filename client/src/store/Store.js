@@ -28,6 +28,7 @@ class Store {
     game = {};
     JAIL_POSITION = -10;
     chosenCard = null;
+    selectedTab = "my_info";
     connectedFromNewPage = false;
     connectedFromNew = () => {
         this.connectedFromNewPage = true;
@@ -783,6 +784,40 @@ class Store {
             return this.getPlayer.jail_state;
         }
     }
+
+    get netWorth() {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        let worth = this.getPlayer.money;
+        this.game.board.forEach(tile => {
+            if (tile.owned && tile.player === playerIndex) {
+                worth += tile.cost;
+            }
+        });
+        return worth;
+
+    }
+
+    get liquidWorth() {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        let worth = this.getPlayer.money;
+        this.game.board.forEach(tile => {
+            if (tile.owned && tile.player === playerIndex) {
+                worth += tile.cost / 2;
+            }
+        });
+        return worth;
+    }
+
+    get playerProperties() {
+        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        return this.game.board
+            .filter(tile => {
+                return tile.owned && tile.player === playerIndex;
+            })
+            .sort((a, b) => {
+                return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
+            });
+    }
 }
 
 decorate(Store, {
@@ -800,6 +835,7 @@ decorate(Store, {
     gameState: observable,
     chosenCard: observable,
     mousedOverTile: observable,
+    selectedTab: observable,
     buyProcessStarted: observable,
     positions: computed,
     diceSum: computed,
@@ -813,6 +849,9 @@ decorate(Store, {
     mousedOverTileInfo: computed,
     mousedOverTileIDInfo: computed,
     playerTile: computed,
+    netWorth: computed,
+    liquidWorth: computed,
+    playerProperties: computed,
     rollDice: action,
     takeTurn: action,
     setPlayerState: action,

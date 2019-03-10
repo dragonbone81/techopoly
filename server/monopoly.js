@@ -425,33 +425,33 @@ module.exports = {
     ],
     chance: [
         {
-            name: "Advance to 'Go' (Collect $200)",
+            name: "Advance to 'Go' (Collect $200).",
             type: "simple_move",
             position: 0
         },
         {
-            name: "Advance to Twilio",
+            name: "Advance to Twilio.",
             type: "simple_move",
             position: 24
         },
         {
-            name: "Advance to Dropbox",
+            name: "Advance to Dropbox.",
             type: "simple_move",
             position: 11,
             //if you pass Go
         },
         {
-            name: "Advance Token to nearest Utility",
+            name: "Advance Token to nearest Musk company.",
             type: "nearest_utility",
             extra: "no_go",
             //either tesla or spacex
         },
         {
-            name: "Advance Token to nearest Railroad and pay owner twice the rental to which they are otherwise entitled. If the railroad is unowned, you may buy it from the Bank",
+            name: "Advance Token to the nearest Big Four and pay owner twice the rental to which they are otherwise entitled. If the railroad is unowned, you may buy it from the Bank.",
             type: "nearest_rr",
         },
         {
-            name: "Bank pays you dividend of $50",
+            name: "The Stock Market is up today. Collect $50.",
             type: "simple_bank_pay",
             amount: 50,
         },
@@ -460,7 +460,7 @@ module.exports = {
         //     type: "chance"
         // },
         {
-            name: "Go Back Three Spaces",
+            name: "Go Back Three Spaces.",
             type: "move_amount",
             amount: -3,
 
@@ -474,17 +474,17 @@ module.exports = {
         //     type: "chance"
         // },
         {
-            name: "Pay poor tax of $15",
+            name: "Please pay $15 for your stock processing fee.",
             type: "simple_bank_pay",
             amount: -15,
         },
         {
-            name: "Take a trip to Microsoft. If you pass 'GO', collect $200",
+            name: "Take a tour of Microsoft. If you pass 'GO', collect $200",
             type: "simple_move",
             position: 5
         },
         {
-            name: "Take a walk to Salesforce. Advance token to Salesforce.",
+            name: "Take a walk to Salesforce.",
             type: "simple_move",
             position: 39
         },
@@ -534,7 +534,7 @@ module.exports = {
             type: "go_to_jail"
         },
         {
-            name: "Grand Opera Night - Collect $50 from every player for opening night seats",
+            name: "Grand Opera Night - All players with Venmo you $50.",
             type: "pay_all_players",
             amount: -50,
         },
@@ -578,7 +578,7 @@ module.exports = {
         //     type: "chest"
         // },
         {
-            name: "You have won second prize in a beauty contest - Collect $10",
+            name: "You have won fourth prize in a beauty contest - Collect $10",
             type: "simple_bank_pay",
             amount: 10,
         },
