@@ -61,7 +61,7 @@ class TradesTab extends Component {
                             {this.props.store.game.trades.map((trade, i) => ({
                                 ...trade,
                                 index: i
-                            })).filter(trade => trade.state === "PROPOSED").map((trade, i) => {
+                            })).filter(trade => trade.state === "PROPOSED" && (trade.initiating_player === playerIndex || trade.trading_player === playerIndex)).map((trade, i) => {
                                 return (
                                     <li key={i}
                                         onClick={() => this.setState({selectedTrade: trade.index})}

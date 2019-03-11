@@ -117,7 +117,7 @@ class TradeTab extends Component {
                 </div>
                 <div>
                     <button
-                        disabled={this.state.moneyTaken === 0 && this.state.moneyGiven === 0 && this.state.takenProperties.length === 0 && this.state.givenProperties.length === 0}
+                        disabled={this.state.moneyTaken == 0 && this.state.moneyGiven == 0 && this.state.takenProperties.length === 0 && this.state.givenProperties.length === 0}
                         onClick={this.proposeTrade} type="button"
                         className="btn btn-primary">Propose Trade
                     </button>
