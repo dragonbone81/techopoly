@@ -332,11 +332,24 @@
     /*border: 1px solid black;*/
 }
 
+.tile-info-image-div {
+    height: 150px;
+    width: 150px;
+    padding: 2px;
+    border: 1px solid black;
+    /*background-color: beige;*/
+    background-size: contain !important;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    /*border: 1px solid black;*/
+}
+
 .game-tile {
     height: 70px;
     width: 70px;
     padding: 2px;
     position: relative;
+    z-index: 100;
     /*background-color: beige;*/
     background-size: contain !important;
     background-repeat: no-repeat;
@@ -362,4 +375,24 @@
     position: relative;
     width: 770px;
     min-width: 770px;
+}
+
+.tile-info-container {
+    padding: 10px;
+}
+
+.tile-info-name {
+    font-size: xx-large;
+}
+
+.tile-info-rents {
+    min-width: 180px;
+    font-size: x-large;
+}
+.tile-info-upgrades{
+    min-width: 250px;
+    font-size: x-large;
+}
+.tile-info-property{
+    width: 100%;
 }

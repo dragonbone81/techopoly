@@ -8,11 +8,12 @@ import Actions from './Actions';
 import PlayersTab from './PlayersTab';
 import TradeTab from './TradeTab';
 import TradesTab from './TradesTab';
+import MousedOverTileTab from './MousedOverTileTab';
 
 class MainView extends Component {
     state = {
         dropdownExpanded: false,
-        selectedTab: "trades",
+        selectedTab: "my_info",
         selectedPlayer: 1,
     };
 
@@ -28,31 +29,38 @@ class MainView extends Component {
             <div className="main-view">
                 {this.props.store.gameState !== "NOT_STARTED" &&
                 <div className="main-view-content">
-                    <NavTabs
-                        dropdownExpanded={this.state.dropdownExpanded}
-                        changeDropDown={this.changeDropDown}
-                        selectTab={this.selectTab}
-                        selectedTab={this.state.selectedTab}
-                    />
-                    {this.state.selectedTab === "my_info" && (
-                        <>
-                            <MyInfoTab/>
-                            <Actions/>
-                            <Logs/>
-                        </>
-                    )}
-                    {this.state.selectedTab === "my_properties" && (
-                        <MyPropertiesTab/>
-                    )}
-                    {this.state.selectedTab === "player_info" && (
-                        <PlayersTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
-                    )}
-                    {this.state.selectedTab === "player_trade" && (
-                        <TradeTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
-                    )}
-                    {this.state.selectedTab === "trades" && (
-                        <TradesTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
-                    )}
+                    {this.props.store.mousedOverTile !== null && (
+                        <MousedOverTileTab/>
+                    )
+                    }
+                    <div className={this.props.store.mousedOverTile !== null ? "invisible" : ""}>
+                        <NavTabs
+                            dropdownExpanded={this.state.dropdownExpanded}
+                            changeDropDown={this.changeDropDown}
+                            selectTab={this.selectTab}
+                            selectedTab={this.state.selectedTab}
+                        />
+                        {this.state.selectedTab === "my_info" && (
+                            <>
+                                <MyInfoTab/>
+                                <Actions/>
+                                <Logs/>
+                            </>
+                        )}
+                        {this.state.selectedTab === "my_properties" && (
+                            <MyPropertiesTab/>
+                        )}
+                        {this.state.selectedTab === "player_info" && (
+                            <PlayersTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                        )}
+                        {this.state.selectedTab === "player_trade" && (
+                            <TradeTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                        )}
+                        {this.state.selectedTab === "trades" && (
+                            <TradesTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                        )}
+                    </div>
+
                 </div>
                 }
             </div>
