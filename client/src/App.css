@@ -1,4 +1,5 @@
 .main {
+    /*margin: auto;*/
     /*min-width: 1300px;*/
 }
 
@@ -285,25 +286,31 @@
     background-position: 50%;
     /*border: 1px solid black;*/
 }
-.trade-view-left{
+
+.trade-view-left {
     margin-right: 10px;
 }
-.player-properties-trade{
+
+.player-properties-trade {
     overflow-y: auto;
     max-height: 410px;
     min-height: 410px;
 }
-.pending-trades{
+
+.pending-trades {
     overflow-y: auto;
     max-height: 442px;
     cursor: pointer;
 }
-.main-trade-content{
+
+.main-trade-content {
     padding-bottom: 10px;
 }
-.trade-money-label{
+
+.trade-money-label {
     font-size: x-large;
 }
+
 .trade-prop-name {
     margin-right: 10px;
     margin-left: 10px;
@@ -351,5 +358,8 @@
 }
 
 .main-box {
+    margin: auto;
+    position: relative;
     width: 770px;
+    min-width: 770px;
 }

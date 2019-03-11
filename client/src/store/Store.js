@@ -120,6 +120,52 @@ class Store {
         this.movePlayerDev(tile_position);
         this.checkTile();
     };
+    mergeTradeData = (tradeIndex) => {
+        const trade = this.game.trades[tradeIndex];
+        this.game.player_info[trade.initiating_player].money -= parseInt(trade.given_money);
+        this.game.player_info[trade.initiating_player].money += parseInt(trade.taken_money);
+        this.game.player_info[trade.trading_player].money += parseInt(trade.given_money);
+        this.game.player_info[trade.trading_player].money -= parseInt(trade.taken_money);
+        trade.given_properties.forEach(propIndex => {
+            this.game.board[propIndex].player = trade.trading_player;
+        });
+        trade.taken_properties.forEach(propIndex => {
+            this.game.board[propIndex].player = trade.initiating_player;
+        });
+    };
+    acceptTrade = (tradeIndex) => {
+        const trade = this.game.trades[tradeIndex];
+        this.mergeTradeData(tradeIndex);
+        this.game.trades[tradeIndex].state = "ACCEPTED";
+        this.addToLog(`${this.game.player_info[trade.trading_player].username} accepted a trade from ${this.game.player_info[trade.initiating_player].username}`);
+        this.socket.emit("accept_trade", {
+            game_name: this.game.game_name,
+            username: this.username,
+            trade_index: tradeIndex,
+            trade,
+        });
+
+    };
+    rejectTrade = (tradeIndex) => {
+        const trade = this.game.trades[tradeIndex];
+        this.game.trades[tradeIndex].state = "REJECTED";
+        this.addToLog(`${this.game.player_info[trade.trading_player].username} rejected a trade from ${this.game.player_info[trade.initiating_player].username}`);
+        this.socket.emit("reject_trade", {
+            game_name: this.game.game_name,
+            username: this.username,
+            trade_index: tradeIndex,
+        });
+    };
+    cancelTrade = (tradeIndex) => {
+        const trade = this.game.trades[tradeIndex];
+        this.game.trades[tradeIndex].state = "CANCELED";
+        this.addToLog(`${this.game.player_info[trade.initiating_player].username} canceled a trade to ${this.game.player_info[trade.trading_player].username}`);
+        this.socket.emit("cancel_trade", {
+            game_name: this.game.game_name,
+            username: this.username,
+            trade_index: tradeIndex,
+        });
+    };
     createTrade = (tradingPlayer, givenProperties, takenProperties, givenMoney, takenMoney) => {
         const initiatingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
         const trade = {
@@ -646,6 +692,25 @@ class Store {
                 this.game.board[data.property_index].upgrades = data.upgrades;
             });
         });
+        this.socket.on("trade_accepted", data => {
+            console.log("trade_accepted", data);
+            this.mergeTradeData(data.trade_index);
+            runInAction(() => {
+                this.game.trades[data.trade_index].state = "ACCEPTED";
+            });
+        });
+        this.socket.on("trade_rejected", data => {
+            console.log("trade_rejected", data);
+            runInAction(() => {
+                this.game.trades[data.trade_index].state = "REJECTED";
+            });
+        });
+        this.socket.on("trade_canceled", data => {
+            console.log("trade_canceled", data);
+            runInAction(() => {
+                this.game.trades[data.trade_index].state = "CANCELED";
+            });
+        });
         this.socket.on("trade_created", data => {
             console.log("trade_created", data);
             runInAction(() => {
@@ -1114,12 +1179,16 @@ decorate(Store, {
     movePlayer: action,
     payPlayer: action,
     buyTile: action,
+    mergeTradeData: action,
+    acceptTrade: action,
     addToLog: action,
     startTurn: action,
     payAllPlayers: action,
     endTurn: action,
     handleModifierCard: action,
     upgradeProperty: action,
+    rejectTrade: action,
+    cancelTrade: action,
     downgradeProperty: action,
     checkIfPlayerPassedGo: action,
     playerPassedGoMoneyIncrease: action,

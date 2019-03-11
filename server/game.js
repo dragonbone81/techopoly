@@ -333,6 +333,63 @@ const game = (socket, io) => {
             trade: input.trade,
         });
     });
+    socket.on('reject_trade', async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            {
+                $set: {
+                    [`trades.${input.trade_index}.state`]: "REJECTED",
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("trade_rejected", {
+            trade_index: input.trade_index,
+        });
+    });
+    socket.on('cancel_trade', async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            {
+                $set: {
+                    [`trades.${input.trade_index}.state`]: "CANCELED",
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("trade_canceled", {
+            trade_index: input.trade_index,
+        });
+    });
+    socket.on('accept_trade', async (input) => {
+        const original = await (await client).findOne(
+            {game_name: input.game_name}
+        );
+        const mergeObj = {};
+        mergeObj[`trades.${input.trade_index}.state`] = "ACCEPTED";
+        mergeObj[`player_info.${input.trade.initiating_player}.money`] = original.player_info[input.trade.initiating_player].money - parseInt(input.trade.given_money) + parseInt(input.trade.taken_money);
+        mergeObj[`player_info.${input.trade.trading_player}.money`] = original.player_info[input.trade.trading_player].money + parseInt(input.trade.given_money) - parseInt(input.trade.taken_money);
+        input.trade.given_properties.forEach(propIndex => {
+            mergeObj[`board.${propIndex}.player`] = input.trade.trading_player;
+        });
+        input.trade.taken_properties.forEach(propIndex => {
+            mergeObj[`board.${propIndex}.player`] = input.trade.initiating_player;
+        });
+        console.log(mergeObj);
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            {
+                $set: mergeObj,
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("trade_accepted", {
+            trade_index: input.trade_index,
+        });
+    });
     socket.on('tile_upgrade', async (input) => {
         const response = await (await client).findOneAndUpdate(
             {game_name: input.game_name},
