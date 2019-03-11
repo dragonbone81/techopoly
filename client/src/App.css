@@ -60,6 +60,7 @@
 .logs-tab {
     overflow-y: auto;
     max-height: 290px;
+    min-height: 290px;
     border: 1px solid gray;
     border-radius: 10px;
     padding: 5px 10px 5px 10px;
@@ -167,6 +168,11 @@
     height: 10px;
 }
 
+.upgrade-bar-other-player {
+    margin-top: 11px;
+    height: 15px;
+}
+
 .bar-component {
     width: 100%;
     border-right: 1px solid black;
@@ -190,12 +196,35 @@
     /*width: 100%;*/
 }
 
+.other-players-properties-table {
+    padding-top: 10px;
+    max-height: 415px;
+    overflow-y: auto;
+}
+
 .info-tab-row {
     margin-bottom: 10px;
 }
 
 .actions-tab {
     margin-bottom: 10px;
+    padding-top: 5px;
+    min-height: 38px;
+    max-height: 38px;
+    font-size: xx-large;
+}
+
+/*.accept-reject-tile-buy-div{*/
+/*width: 100%;*/
+/*position: relative;*/
+/*}*/
+.buy-tile-button {
+    /*width: 50%;*/
+    /*padding-right: 30px;*/
+    width: 103.3px;
+}
+
+.reject-buy-tile-button {
 }
 
 .cursor {
@@ -246,6 +275,45 @@
 }
 
 .my-properties-pic {
+    height: 50px;
+    width: 50px;
+    padding: 2px;
+    border: 1px solid black;
+    /*background-color: beige;*/
+    background-size: contain !important;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    /*border: 1px solid black;*/
+}
+.trade-view-left{
+    margin-right: 10px;
+}
+.player-properties-trade{
+    overflow-y: auto;
+    max-height: 410px;
+    min-height: 410px;
+}
+.pending-trades{
+    overflow-y: auto;
+    max-height: 442px;
+    cursor: pointer;
+}
+.main-trade-content{
+    padding-bottom: 10px;
+}
+.trade-money-label{
+    font-size: x-large;
+}
+.trade-prop-name {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.trade-row {
+    margin-top: 5px;
+}
+
+.trade-properties-pic {
     height: 50px;
     width: 50px;
     padding: 2px;

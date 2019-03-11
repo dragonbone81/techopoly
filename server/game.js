@@ -38,6 +38,7 @@ const game = (socket, io) => {
                     pay_multiplier: 1,
                     color: colors[0],
                 }],
+                trades: [],
                 logs: [],
                 board: newBoard,
                 chance: shuffle(chance),
@@ -315,6 +316,21 @@ const game = (socket, io) => {
         socket.to(`game_${input.game_name}`).emit("property_mortgaged", {
             property_index: input.property_index,
             mortgage_value: input.mortgage_value,
+        });
+    });
+    socket.on('create_trade', async (input) => {
+        const response = await (await client).findOneAndUpdate(
+            {game_name: input.game_name},
+            {
+                $push: {
+                    [`trades`]: input.trade,
+                }
+            },
+            {returnOriginal: false},
+        );
+        const game = response.value;
+        socket.to(`game_${input.game_name}`).emit("trade_created", {
+            trade: input.trade,
         });
     });
     socket.on('tile_upgrade', async (input) => {

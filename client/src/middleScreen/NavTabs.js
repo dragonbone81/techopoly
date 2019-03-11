@@ -15,6 +15,11 @@ class NavTabs extends Component {
                         Properties
                     </div>
                 </li>
+                <li className="nav-item cursor" onClick={() => this.props.selectTab({selectedTab: "trades"})}>
+                    <div className={`nav-link ${this.props.selectedTab === "trades" ? "active" : ""}`}>My
+                        Trades
+                    </div>
+                </li>
                 <li className="nav-item dropdown cursor"
                     onMouseEnter={() => this.props.changeDropDown({dropdownExpanded: true})}
                     onMouseLeave={() => this.props.changeDropDown({dropdownExpanded: false})}
@@ -23,9 +28,16 @@ class NavTabs extends Component {
                          aria-haspopup="true" aria-expanded="false">Players
                     </div>
                     <div className={`dropdown-menu ${this.props.dropdownExpanded ? "show" : ""}`}>
-                        <div className="dropdown-item">Action</div>
-                        <div className="dropdown-item">Another action</div>
-                        <div className="dropdown-item">Something else here</div>
+                        {this.props.store.game.player_info.map((player, index) => ({
+                            ...player,
+                            index
+                        })).filter(player => player.username !== this.props.store.username).map(player =>
+                            <div onClick={() => this.props.selectTab({
+                                selectedTab: "player_info",
+                                selectedPlayer: player.index,
+                                dropdownExpanded: false,
+                            })} key={player.index} className="dropdown-item">{player.username}</div>
+                        )}
                     </div>
                 </li>
             </ul>

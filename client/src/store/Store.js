@@ -11,6 +11,7 @@ const turnState = [
 ];
 const JAIL_POSITION = -10;
 
+//TODO finish net and liquid worth calcs and do all other calcs for worth and mortgages
 class Store {
     mainView = "properties";
     socket = io("http://localhost:3001/");
@@ -118,6 +119,25 @@ class Store {
         this.rollDice();
         this.movePlayerDev(tile_position);
         this.checkTile();
+    };
+    createTrade = (tradingPlayer, givenProperties, takenProperties, givenMoney, takenMoney) => {
+        const initiatingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
+        const trade = {
+            initiating_player: initiatingPlayer,
+            trading_player: tradingPlayer,
+            given_properties: givenProperties,
+            taken_properties: takenProperties,
+            given_money: givenMoney,
+            taken_money: takenMoney,
+            state: "PROPOSED",
+        };
+        this.addToLog(`${this.game.player_info[initiatingPlayer].username} initiated a trade with ${this.game.player_info[tradingPlayer].username}`);
+        this.game.trades.push(trade);
+        this.socket.emit("create_trade", {
+            game_name: this.game.game_name,
+            username: this.username,
+            trade
+        });
     };
     payPlayer = () => {
         const receivingPlayer = this.playerTile.player;
@@ -626,6 +646,12 @@ class Store {
                 this.game.board[data.property_index].upgrades = data.upgrades;
             });
         });
+        this.socket.on("trade_created", data => {
+            console.log("trade_created", data);
+            runInAction(() => {
+                this.game.trades.push(data.trade);
+            });
+        });
         this.socket.on("log_added", data => {
             console.log("log_added", data);
             runInAction(() => {
@@ -840,16 +866,16 @@ class Store {
         return this.gameTiles[this.mousedOverTile] || null;
     };
 
-    get playersProperties() {
-        return this.gameTilesID.filter((el, i) => {
-            if (el.player === this.player) {
-                return {...el, ...this.gameTiles[i]}
-            }
-        })
-            .sort((a, b) => {
-                return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
-            })
-    }
+    // get playersProperties() {
+    //     return this.gameTilesID.filter((el, i) => {
+    //         if (el.player === this.player) {
+    //             return {...el, ...this.gameTiles[i]}
+    //         }
+    //     })
+    //         .sort((a, b) => {
+    //             return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
+    //         })
+    // }
 
     get getPlayer() {
         return this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)];
@@ -857,8 +883,10 @@ class Store {
 
     get inGame() {
         if (!this.game.player_info) {
+            console.log("here", this.game.player_info)
             return false;
         } else if (this.game.player_info.findIndex(el => el.username === this.username) === -1) {
+            console.log('this')
             return false;
         } else {
             return true
@@ -888,6 +916,37 @@ class Store {
         }
     }
 
+    netWorthOfPlayer = (playerIndex) => {
+        if (!this.game.player_info) {
+            return 0
+        }
+        let worth = this.game.player_info[playerIndex].money;
+        this.game.board.forEach(tile => {
+            if (tile.owned && tile.player === playerIndex) {
+                worth += tile.cost;
+                if (tile.upgrades) {
+                    worth += tile.upgrades * tile.upgrade;
+                }
+            }
+        });
+        return worth;
+    };
+    liquidWorthofPlayer = (playerIndex) => {
+        if (!this.game.player_info) {
+            return 0
+        }
+        let worth = this.game.player_info[playerIndex].money;
+        this.game.board.forEach(tile => {
+            if (tile.owned && tile.player === playerIndex) {
+                worth += tile.cost / 2;
+                if (tile.upgrades) {
+                    worth += tile.upgrades * (tile.upgrade / 2);
+                }
+            }
+        });
+        return worth;
+    };
+
     get netWorth() {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
         let worth = this.getPlayer.money;
@@ -900,7 +959,6 @@ class Store {
             }
         });
         return worth;
-
     }
 
     get liquidWorth() {
@@ -916,6 +974,40 @@ class Store {
         });
         return worth;
     }
+
+    playersProperties = (playerIndex) => {
+        const player = this.game.player_info[playerIndex];
+        return this.game.board
+            .map((tile, i) => {
+                let ownsAll = this.game.board.filter(el => el.group === this.game.board[i].group && el.player !== this.game.board[i].player).length === 0;
+                let noneMortgaged = this.game.board.filter(el => el.group === this.game.board[i].group).every(el => !el.mortgaged);
+                let offByOneUp = this.game.board.filter(el => el.group === this.game.board[i].group).every(el => {
+                    if (tile.upgrades > el.upgrades) {
+                        return false;
+                    }
+                    return tile.upgrades < el.upgrades || tile.upgrades === el.upgrades;
+
+                });
+                let offByOneDown = this.game.board.filter(el => el.group === this.game.board[i].group).every(el => {
+                    if (tile.upgrades < el.upgrades) {
+                        return false;
+                    }
+                    return tile.upgrades > el.upgrades || tile.upgrades === el.upgrades;
+
+                });
+                const hasHousesOnAny = this.game.board.filter(el => el.group === this.game.board[i].group && el.upgrade && el.upgrades > 0).length > 0;
+                const canUpgrade = offByOneUp && ownsAll && noneMortgaged && this.game.board[i].upgrades < 5 && player.money >= this.game.board[i].upgrade;
+                const canDowngrade = offByOneDown && ownsAll && noneMortgaged && this.game.board[i].upgrades > 0;
+                let calculatedRent = this.calcRentCostTile(i, true);
+                return {...tile, index: i, canUpgrade, canDowngrade, calculatedRent, ownsAll, hasHousesOnAny}
+            })
+            .filter(tile => {
+                return tile.owned && tile.player === playerIndex;
+            })
+            .sort((a, b) => {
+                return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
+            });
+    };
 
     get playerProperties() {
         const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
@@ -1010,6 +1102,7 @@ decorate(Store, {
     mortgageProperty: action,
     changeCurrentPlayer: action,
     setGameInfo: action,
+    createTrade: action,
     payOutOfJail: action,
     connectToGame: action,
     joinGame: action,

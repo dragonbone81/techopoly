@@ -5,11 +5,15 @@ import MyInfoTab from './MyInfoTab';
 import MyPropertiesTab from './MyPropertiesTab';
 import Logs from './Logs';
 import Actions from './Actions';
+import PlayersTab from './PlayersTab';
+import TradeTab from './TradeTab';
+import TradesTab from './TradesTab';
 
 class MainView extends Component {
     state = {
         dropdownExpanded: false,
-        selectedTab: "my_info",
+        selectedTab: "trades",
+        selectedPlayer: 1,
     };
 
     selectTab = (state) => {
@@ -39,6 +43,15 @@ class MainView extends Component {
                     )}
                     {this.state.selectedTab === "my_properties" && (
                         <MyPropertiesTab/>
+                    )}
+                    {this.state.selectedTab === "player_info" && (
+                        <PlayersTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                    )}
+                    {this.state.selectedTab === "player_trade" && (
+                        <TradeTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                    )}
+                    {this.state.selectedTab === "trades" && (
+                        <TradesTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
                     )}
                 </div>
                 }
