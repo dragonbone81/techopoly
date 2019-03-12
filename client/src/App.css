@@ -389,18 +389,25 @@
     min-width: 180px;
     font-size: x-large;
 }
-.tile-info-upgrades{
+
+.tile-info-upgrades {
     min-width: 250px;
     font-size: x-large;
 }
-.tile-info-property{
+
+.tile-info-property {
     width: 100%;
 }
-.pay-flat-tax-button{
+
+.pay-flat-tax-button {
     margin-left: 5px;
 }
-.create-game-input{
-    width: 300px;
-    margin: auto;
-    /*max-width: 300px;*/
+
+.create-game-input {
+    max-width: 500px;
+    margin: 30px auto auto auto;
+}
+
+.new-game-main {
+    padding: 20px;
 }

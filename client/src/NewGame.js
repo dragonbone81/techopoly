@@ -5,13 +5,17 @@ import {withRouter} from 'react-router-dom';
 
 class NewGame extends Component {
     state = {
-        // name: "",
-        // username: "",
-        // password: "",
         game_name: "",
         game_password: "",
         username: "",
         password: "",
+        selectedTab: "create_game",
+        searchGameName: "",
+        gamesFound: [],
+        gamesFoundSelected: -1,
+        joinGamePassword: "",
+        joinGameUsername: "",
+        joinGameUsernamePassword: "",
     };
 
     componentDidMount() {
@@ -45,11 +49,50 @@ class NewGame extends Component {
                 this.props.history.push("/play-game");
             });
     };
+    joinGame = (e) => {
+        // e.preventDefault();
+        // fetch("http://localhost:3001/create_game", {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({
+        //         game_name: this.state.game_name,
+        //         game_password: this.state.game_password,
+        //         username: this.state.username,
+        //         password: this.state.password
+        //     }),
+        // })
+        //     .then(res => res.json())
+        //     .then(response => {
+        //         localStorage.setItem("previous_game", JSON.stringify({
+        //             game_name: this.state.game_name,
+        //             game_password: this.state.game_password,
+        //             username: this.state.username,
+        //             password: this.state.password,
+        //             game_id: response.game_id,
+        //         }));
+        //         console.log(response);
+        //         this.props.history.push("/play-game");
+        //     });
+    };
+    keyPress = (e) => {
+        if (e.keyCode === 13) {
+            this.searchForGames();
+        }
+    };
+    searchForGames = () => {
+        fetch(`http://localhost:3001/search_for_games?game_name=${this.state.searchGameName}`)
+            .then(res => res.json())
+            .then(data => {
+                this.setState({gamesFound: data.games});
+            })
+    };
 
     render() {
 
         return (
-            <div>
+            <div className="new-game-main">
                 {/*<input onChange={({target}) => this.setState({name: target.value})} value={this.state.name}*/}
                 {/*placeholder="Game Name"/>*/}
                 {/*<input onChange={({target}) => this.setState({username: target.value})} value={this.state.username}*/}
@@ -68,7 +111,19 @@ class NewGame extends Component {
                 {/*this.props.history.push(`/game/${this.state.name}`);*/}
                 {/*}}>Join*/}
                 {/*</button>*/}
-                <div className="d-flex flex-column">
+                <ul className="nav nav-tabs">
+                    <li className="nav-item cursor" onClick={() => this.setState({selectedTab: "create_game"})}>
+                        <div className={`nav-link ${this.state.selectedTab === "create_game" ? "active" : ""}`}>
+                            Create Game
+                        </div>
+                    </li>
+                    <li className="nav-item cursor" onClick={() => this.setState({selectedTab: "join_game"})}>
+                        <div className={`nav-link ${this.state.selectedTab === "join_game" ? "active" : ""}`}>
+                            Join Game
+                        </div>
+                    </li>
+                </ul>
+                {this.state.selectedTab === "create_game" && (
                     <div className="create-game-input">
                         <form onSubmit={this.submitNewGame}>
                             <h5>Create Game</h5>
@@ -87,7 +142,7 @@ class NewGame extends Component {
                             <input required value={this.state.username}
                                    onChange={({target}) => this.setState({username: target.value})}
                                    type="text" className="form-control mb-2"
-                                   placeholder="Your game name"/>
+                                   placeholder="Your name"/>
                             <small className="form-text text-muted align-self-start">Your password</small>
                             <input required value={this.state.password}
                                    onChange={({target}) => this.setState({password: target.value})} type="password"
@@ -96,7 +151,95 @@ class NewGame extends Component {
                             <button type="submit" className="btn btn-primary">Create</button>
                         </form>
                     </div>
-                </div>
+                )}
+                {this.state.selectedTab === "join_game" && (
+                    <div className="create-game-input">
+                        <h5>Join Game</h5>
+                        <small className="form-text text-muted align-self-start">Search for games</small>
+                        <div className="input-group">
+                            <input required value={this.state.searchGameName}
+                                   onChange={({target}) => this.setState({searchGameName: target.value})} type="text"
+                                   className="form-control"
+                                   placeholder="Search..."
+                                   onKeyDown={this.keyPress}
+                            />
+                            <div className="input-group-append">
+                                <button onClick={this.searchForGames} className="btn btn-outline-secondary"
+                                        type="button">
+                                    <i className="fas fa-search"/>
+                                </button>
+                            </div>
+                        </div>
+                        {this.state.gamesFound.length > 0 && (
+                            <div className="mt-3">
+                                <h5>Games Found</h5>
+                                <ul className="list-group">
+                                    {this.state.gamesFound.map((game, index) => {
+                                        return (
+                                            <li key={game._id}
+                                                onClick={() => this.setState({
+                                                    gamesFoundSelected: index,
+                                                    joinGamePassword: "",
+                                                    joinGameUsername: "",
+                                                    joinGameUsernamePassword: "",
+                                                })}
+                                                className="cursor list-group-item">
+                                                {this.state.gamesFoundSelected !== index && (
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        {game.auth.game_name}
+                                                        <i className="fas fa-arrow-circle-right"/>
+                                                    </div>
+                                                )}
+                                                {this.state.gamesFoundSelected === index && (
+                                                    <div className="">
+                                                        <form onSubmit={this.joinGame}>
+                                                            <small
+                                                                className="form-text text-muted align-self-start">Game
+                                                                name
+                                                            </small>
+                                                            <input required value={game.auth.game_name}
+                                                                   type="text"
+                                                                   readOnly
+                                                                   className="form-control"
+                                                                   placeholder="Enter game name"/>
+                                                            <small
+                                                                className="form-text text-muted align-self-start">Game
+                                                                password
+                                                            </small>
+                                                            <input required value={this.state.joinGamePassword}
+                                                                   onChange={({target}) => this.setState({joinGamePassword: target.value})}
+                                                                   type="password" className="form-control mb-2"
+                                                                   placeholder="Game password"/>
+                                                            <small
+                                                                className="form-text text-muted align-self-start">Your
+                                                                name
+                                                            </small>
+                                                            <input required value={this.state.joinGameUsername}
+                                                                   onChange={({target}) => this.setState({joinGameUsername: target.value})}
+                                                                   type="text" className="form-control mb-2"
+                                                                   placeholder="Your name"/>
+                                                            <small
+                                                                className="form-text text-muted align-self-start">Your
+                                                                password
+                                                            </small>
+                                                            <input required value={this.state.joinGameUsernamePassword}
+                                                                   onChange={({target}) => this.setState({joinGameUsernamePassword: target.value})}
+                                                                   type="password"
+                                                                   className="form-control mb-2"
+                                                                   placeholder="Your game password"/>
+                                                            <button type="submit" className="btn btn-primary">Join
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                )}
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         );
     }

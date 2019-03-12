@@ -26,6 +26,14 @@ const shuffle = (input_array) => {
 app.get('/', async (req, res) => {
     res.json({asd: "asd"})
 });
+app.get('/search_for_games', async (req, res) => {
+    const game_name = req.query.game_name;
+    const games = await (await client).find(
+        {"auth.game_name": game_name},
+        {fields: {auth: 1, player_info: 1}}
+    ).toArray();
+    res.json({games});
+});
 app.post('/create_game', async (req, res) => {
 
     const newBoard = board.map(tile => {
