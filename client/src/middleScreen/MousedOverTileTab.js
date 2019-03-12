@@ -14,6 +14,26 @@ class MousedOverTileTab extends Component {
                 <div className="tile-info-name">
                     {tile.name}
                 </div>
+                {(tile.type === "chance" || tile.type === "chest") && (
+                    <div>
+                        Land here and draw a card.
+                    </div>
+                )}
+                {(tile.type === "go") && (
+                    <div>
+                        Pass or land and get $200.
+                    </div>
+                )}
+                {(tile.type === "lux-tax") && (
+                    <div>
+                        Pay $75. Don't evade anymore taxes.
+                    </div>
+                )}
+                {(tile.type === "income-tax") && (
+                    <div>
+                        Pay $200 or 10% of your net worth.
+                    </div>
+                )}
                 {(tile.type === "property" || tile.type === "utility" || tile.type === "rr") && (
                     <div className="d-flex flex-row tile-info-property justify-content-between">
                         <div className="d-flex flex-column tile-info-rents">
@@ -27,12 +47,10 @@ class MousedOverTileTab extends Component {
                                     <div>${this.props.store.calcRentCostTile(this.props.store.mousedOverTile, true)}</div>
                                 </div>
                             )}
-                            {!tile.owned && (
-                                <div className="d-flex justify-content-between">
-                                    <div>Base rent:</div>
-                                    <div>${this.props.store.calcRentCostTile(this.props.store.mousedOverTile, true)}</div>
-                                </div>
-                            )}
+                            <div className="d-flex justify-content-between">
+                                <div>Base rent:</div>
+                                <div>${this.props.store.calcRentCostTile(this.props.store.mousedOverTile, true)}</div>
+                            </div>
                         </div>
                         <div className="d-flex flex-column justify-content-between tile-info-upgrades">
                             {tile.type === "property" && (
@@ -60,6 +78,38 @@ class MousedOverTileTab extends Component {
                                     <div className="d-flex justify-content-between">
                                         <div>5th Round:</div>
                                         <div>${tile.rent[5]}</div>
+                                    </div>
+                                </div>
+                            )}
+                            {tile.type === "rr" && (
+                                <div>
+                                    <div className="d-flex justify-content-between">
+                                        <div>One Owned:</div>
+                                        <div>$25</div>
+                                    </div>
+                                    <div className="d-flex justify-content-between">
+                                        <div>Two Owned:</div>
+                                        <div>$50</div>
+                                    </div>
+                                    <div className="d-flex justify-content-between">
+                                        <div>Three Owned:</div>
+                                        <div>$100</div>
+                                    </div>
+                                    <div className="d-flex justify-content-between">
+                                        <div>Four Owned:</div>
+                                        <div>$200</div>
+                                    </div>
+                                </div>
+                            )}
+                            {tile.type === "utility" && (
+                                <div>
+                                    <div className="d-flex justify-content-between">
+                                        <div>One Owned:</div>
+                                        <div>$Dice×4</div>
+                                    </div>
+                                    <div className="d-flex justify-content-between">
+                                        <div>Two Owned:</div>
+                                        <div>$Dice×10</div>
                                     </div>
                                 </div>
                             )}

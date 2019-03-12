@@ -40,8 +40,12 @@ class Actions extends Component {
                 )}
                 {this.props.store.playerState === "INCOME_TAX" && (
                     <div>
-                        <button onClick={this.props.store.payPercentTax}>Pay 10%</button>
-                        <button onClick={this.props.store.payFlatTax}>Pay $200</button>
+                        <button type="button" className="btn btn-primary" onClick={this.props.store.payPercentTax}>Pay
+                            10%
+                        </button>
+                        <button type="button" className="btn btn-primary pay-flat-tax-button" onClick={this.props.store.payFlatTax}>Pay
+                            $200
+                        </button>
                     </div>
                 )}
                 {this.props.store.playerState === "END_OF_TURN" && (
