@@ -13,10 +13,9 @@ class TradeTab extends Component {
     };
 
     render() {
-        console.log(this.state.givenProperties, this.state.takenProperties)
         const yourCash = this.props.store.getPlayer.money;
         const playersCash = this.props.store.game.player_info[this.props.player].money;
-        const playerIndex = this.props.store.game.player_info.findIndex(el => el.username === this.props.store.username);
+        const playerIndex = this.props.store.playerIndex;
         return (
             <div className="d-flex flex-column text-center">
                 <div className="d-flex flex-row justify-content-around main-trade-content">

@@ -31,7 +31,7 @@ class NavTabs extends Component {
                         {this.props.store.game.player_info.map((player, index) => ({
                             ...player,
                             index
-                        })).filter(player => player.username !== this.props.store.username).map(player =>
+                        })).filter(player => player.username !== this.props.store.gameAuthInfo.username).map(player =>
                             <div onClick={() => this.props.selectTab({
                                 selectedTab: "player_info",
                                 selectedPlayer: player.index,

@@ -3,47 +3,24 @@ import {decorate, configure, observable, action, computed, runInAction} from 'mo
 import io from 'socket.io-client';
 
 configure({enforceActions: "observed"});
-const turnState = [
-    "NOT_TURN",
-    "ROLLING",
-    "ENDED_ROLL",
-    "ACTIONS",
-];
-const JAIL_POSITION = -10;
 
-//TODO finish net and liquid worth calcs and do all other calcs for worth and mortgages
 class Store {
-    mainView = "properties";
     socket = io("http://localhost:3001/");
-    players = [];
-    username = "";
-    player = 0;
-    currentPlayer = 0;
     gameState = "NOT_STARTED";
-    // dice = [0, 0];
-    gameTilesID = [];
-    gameTiles = [];
     mousedOverTile = null;
-    buyProcessStarted = false;
-    game_name = "";
     game = {};
-    JAIL_POSITION = -10;
-    chosenCard = null;
     selectedTab = "my_info";
-    connectedFromNewPage = false;
-    connectedFromNew = () => {
-        this.connectedFromNewPage = true;
-    };
-    connectToGame = (game_name, username) => {
-        this.socket.emit('join_game', {username: username, game_name: game_name});
-        this.setUsername(username);
+    gameAuthInfo = {};
+    connectToGame = () => {
+        this.socket.emit('join_game', this.gameAuthInfo);
         this.gameState = "STARTED";
-        localStorage.setItem("username", username);
+    };
+    setGameAuthInfo = (gameInfo) => {
+        this.gameAuthInfo = gameInfo;
     };
     updatePlayerJailRolls = (playerIndex) => {
         this.socket.emit("update_player_jail_rolls", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             jail_turns: this.game.player_info[playerIndex].jail_turns,
             player_index: playerIndex,
         });
@@ -55,7 +32,7 @@ class Store {
             this.movePlayer();
             this.checkTile();
         } else {
-            const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+            const playerIndex = this.playerIndex;
             this.setPlayerState("ROLLING");
             this.rollDice();
             if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
@@ -65,7 +42,6 @@ class Store {
             } else {
                 this.game.player_info[playerIndex].jail_turns += 1;
             }
-            console.log(this.getPlayer.jail_turns, "jail turns");
             this.updatePlayerJailRolls(playerIndex);
             this.setPlayerState("END_OF_TURN");
             this.syncPlayerState();
@@ -73,14 +49,13 @@ class Store {
     };
     updatePlayerMoney = (playerIndex) => {
         this.socket.emit("update_player_money", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             player_money: this.game.player_info[playerIndex].money,
             player_index: playerIndex,
         });
     };
     payOutOfJail = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money -= 50;
         this.updatePlayerMoney(playerIndex);
         this.setJailState(false);
@@ -95,21 +70,19 @@ class Store {
         this.syncPlayerState();
     };
     movePlayerDev = (position) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].position = position;
         this.socket.emit("move", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             new_position: this.game.player_info[playerIndex].position,
             player_index: playerIndex,
         });
     };
     movePlayerToTile = (position) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].position = position;
         this.socket.emit("move", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             new_position: position,
             player_index: playerIndex,
         });
@@ -139,8 +112,7 @@ class Store {
         this.game.trades[tradeIndex].state = "ACCEPTED";
         this.addToLog(`${this.game.player_info[trade.trading_player].username} accepted a trade from ${this.game.player_info[trade.initiating_player].username}`);
         this.socket.emit("accept_trade", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             trade_index: tradeIndex,
             trade,
         });
@@ -151,8 +123,7 @@ class Store {
         this.game.trades[tradeIndex].state = "REJECTED";
         this.addToLog(`${this.game.player_info[trade.trading_player].username} rejected a trade from ${this.game.player_info[trade.initiating_player].username}`);
         this.socket.emit("reject_trade", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             trade_index: tradeIndex,
         });
     };
@@ -161,13 +132,12 @@ class Store {
         this.game.trades[tradeIndex].state = "CANCELED";
         this.addToLog(`${this.game.player_info[trade.initiating_player].username} canceled a trade to ${this.game.player_info[trade.trading_player].username}`);
         this.socket.emit("cancel_trade", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             trade_index: tradeIndex,
         });
     };
     createTrade = (tradingPlayer, givenProperties, takenProperties, givenMoney, takenMoney) => {
-        const initiatingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
+        const initiatingPlayer = this.playerIndex;
         const trade = {
             initiating_player: initiatingPlayer,
             trading_player: tradingPlayer,
@@ -180,22 +150,20 @@ class Store {
         this.addToLog(`${this.game.player_info[initiatingPlayer].username} initiated a trade with ${this.game.player_info[tradingPlayer].username}`);
         this.game.trades.push(trade);
         this.socket.emit("create_trade", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             trade
         });
     };
     payPlayer = () => {
         const receivingPlayer = this.playerTile.player;
-        const givingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
+        const givingPlayer = this.playerIndex;
         const rent = this.calcRentCostTile(this.game.player_info[givingPlayer].position, false);
         this.addToLog(`${this.getPlayer.username} paid ${this.game.player_info[receivingPlayer].username} $${rent} for visiting ${this.playerTile.name}.`);
         this.game.player_info[receivingPlayer].money += rent * this.getPlayer.pay_multiplier;
         this.game.player_info[givingPlayer].money -= rent * this.getPlayer.pay_multiplier;
         this.game.player_info[givingPlayer].pay_multiplier = 1;
         this.socket.emit("process_transaction", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             giving_player: givingPlayer,
             receiving_player: receivingPlayer,
             giving_player_money: this.game.player_info[givingPlayer].money,
@@ -206,14 +174,13 @@ class Store {
         const newLog = {log: log, time: new Date()};
         this.game.logs.push(newLog);
         this.socket.emit("add_log", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             log: newLog,
         });
     };
     checkTile = () => {
         const tile = this.game.board[this.getPlayer.position];
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         if (this.getPlayer.dice[0] !== this.getPlayer.dice[1]) {
             this.game.player_info[playerIndex].doubles_rolled = 0;
             this.updatePlayerDoublesRolled(playerIndex);
@@ -265,14 +232,12 @@ class Store {
             Math.floor(Math.random() * Math.floor(6)) + 1
         ];
         const rent = (roll[0] + roll[1]) * 10;
-        console.log("You Rolled", roll);
         const receivingPlayer = this.playerTile.player;
-        const givingPlayer = this.game.player_info.findIndex(el => el.username === this.username);
+        const givingPlayer = this.playerIndex;
         this.game.player_info[receivingPlayer].money += rent;
         this.game.player_info[givingPlayer].money -= rent;
         this.socket.emit("process_transaction", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             giving_player: givingPlayer,
             receiving_player: receivingPlayer,
             giving_player_money: this.game.player_info[givingPlayer].money,
@@ -286,19 +251,17 @@ class Store {
         this.syncPlayerState();
     };
     handleModifierCard = (type) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         let newCardIndex = 0;
         let newCard = {};
         if (type === "chance") {
             newCardIndex = this.game.last_chance_card + 1 === this.game.chance.length ? 0 : this.game.last_chance_card + 1;
             this.game.last_chance_card = newCardIndex;
             newCard = this.game.chance[newCardIndex];
-            console.log("CHANCE CARD", this.game.chance[newCardIndex].name);
         } else {
             newCardIndex = this.game.last_chest_card + 1 === this.game.chest.length ? 0 : this.game.last_chest_card + 1;
             this.game.last_chest_card = newCardIndex;
             newCard = this.game.chest[newCardIndex];
-            console.log("CHANCE CARD", this.game.chest[newCardIndex].name);
         }
         this.addToLog(`${this.getPlayer.username} picked a card: ${newCard.name}`);
         if (newCard.type === "simple_move") {
@@ -345,7 +308,6 @@ class Store {
         } else if (newCard.type === "go_to_jail") {
             this.goToJail(playerIndex);
         } else if (newCard.type === "pay_all_players") {
-            console.log("payingall");
             this.payAllPlayers(newCard.amount);
             if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
                 this.setPlayerState("START_TURN");
@@ -357,26 +319,22 @@ class Store {
 
         if (type === "chance") {
             this.socket.emit("increase_chance_card", {
-                game_name: this.game.game_name,
-                username: this.username,
+                game_id: this.gameAuthInfo.game_id,
                 last_chance_card: newCardIndex,
                 player_index: playerIndex,
                 pay_multiplier: this.game.player_info[playerIndex].pay_multiplier,
             });
         } else {
             this.socket.emit("increase_chest_card", {
-                game_name: this.game.game_name,
-                username: this.username,
+                game_id: this.gameAuthInfo.game_id,
                 last_chest_card: newCardIndex,
                 player_index: playerIndex,
                 pay_multiplier: this.game.player_info[playerIndex].pay_multiplier,
             });
         }
-
-
     };
     payAllPlayers = (amount) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money = this.game.player_info[playerIndex].money - (amount * (this.game.player_info.length - 1));
         this.game.player_info.forEach((player, index) => {
             if (index !== playerIndex) {
@@ -384,8 +342,7 @@ class Store {
             }
         });
         this.socket.emit("pay_all_players", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             player_index: playerIndex,
             amount: amount,
         });
@@ -405,7 +362,7 @@ class Store {
         return nearest;
     };
     payLuxuryTax = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money -= 75;
         this.updatePlayerMoney(playerIndex);
         this.addToLog(`${this.getPlayer.username} paid $75 for tax evasion :O`);
@@ -417,7 +374,7 @@ class Store {
         this.syncPlayerState();
     };
     payPercentTax = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money -= Math.ceil(this.netWorth * .10);
         this.updatePlayerMoney(playerIndex);
         this.addToLog(`${this.getPlayer.username} chose to pay 10% of their net worth (${Math.ceil(this.netWorth * .10)}).`);
@@ -429,7 +386,7 @@ class Store {
         this.syncPlayerState();
     };
     payFlatTax = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money -= 200;
         this.updatePlayerMoney(playerIndex);
         this.addToLog(`${this.getPlayer.username} chose to pay $200 dollars.`);
@@ -443,8 +400,7 @@ class Store {
     goToJail = (playerIndex) => {
         this.game.player_info[playerIndex].position = 10;
         this.socket.emit("move", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             new_position: 10,
             player_index: playerIndex,
         });
@@ -452,13 +408,6 @@ class Store {
         this.syncPlayerJailState();
         this.setPlayerState("END_OF_TURN");
     };
-    checkIfTooManyDoubles = (playerIndex) => {
-        if (this.game.player_info[playerIndex].doubles_rolled === 3) {
-            this.game.player_info[playerIndex].doubles_rolled = 0;
-            this.goToJail(playerIndex);
-        }
-        this.updatePlayerDoublesRolled(playerIndex);
-    }
     checkAndUpdateDoublesRolled = (playerIndex) => {
         this.game.player_info[playerIndex].doubles_rolled += 1;
         if (this.game.player_info[playerIndex].doubles_rolled === 3) {
@@ -471,20 +420,18 @@ class Store {
     };
     updatePlayerDoublesRolled = (playerIndex) => {
         this.socket.emit("update_players_doubles", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             player_index: playerIndex,
             doubles_rolled: this.getPlayer.doubles_rolled,
         });
     };
 
     playerPassedGoMoneyIncrease = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money += 200;
         this.addToLog(`${this.getPlayer.username} passed GO and earned $200!`);
         this.socket.emit("update_player_money", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             player_money: this.game.player_info[playerIndex].money,
             player_index: playerIndex,
         });
@@ -495,32 +442,29 @@ class Store {
         }
     };
     syncPlayerJailState = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.socket.emit("sync_player_jail_state", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             player_index: playerIndex,
             jail_state: this.playerJailState,
         });
     };
     syncPlayerState = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.socket.emit("sync_player_state", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             player_index: playerIndex,
             state: this.playerState,
         });
     };
     buyTile = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money -= this.game.board[this.getPlayer.position].cost;
         this.game.board[this.getPlayer.position].owned = true;
         this.game.board[this.getPlayer.position].player = playerIndex;
         this.addToLog(`${this.getPlayer.username} bought ${this.playerTile.name} for $${this.playerTile.cost}.`);
         this.socket.emit("buy_tile", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             tile_index: this.getPlayer.position,
             tile_bought: this.game.board[this.getPlayer.position],
             player_money: this.game.player_info[playerIndex].money,
@@ -534,57 +478,57 @@ class Store {
         this.syncPlayerState();
     };
     rejectBuyTile = () => {
-        this.addToLog(`${this.getPlayer.username} refused to buy ${this.playerTile.name}.`);
+        this.addToLog(`${this.getPlayer.username} refused to buy ${this.playerTile.name}. Going to auction.`);
         if (this.getPlayer.dice[0] === this.getPlayer.dice[1]) {
             this.setPlayerState("START_TURN");
         } else {
             this.setPlayerState("END_OF_TURN");
         }
+        this.socket.emit('initiate_auction', {
+            game_id: this.gameAuthInfo.game_id,
+            tile: this.getPlayer.position,
+        });
+        this.game.auction = true;
+        this.game.auction_tile = this.getPlayer.position;
         this.syncPlayerState();
     };
     endTurn = () => {
         this.setPlayerState("NOT_TURN");
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
-        console.log("newplayer", newCurrentPlayer);
-        // this.game.current_player = newCurrentPlayer;
         this.socket.emit('end_turn', {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             next_player: newCurrentPlayer,
             old_player: playerIndex,
         });
     };
     movePlayer = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].position = this.circularAdd(this.game.player_info[playerIndex].position, this.diceSum, 39);
         this.socket.emit("move", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             new_position: this.game.player_info[playerIndex].position,
             player_index: playerIndex,
         });
     };
     upgradeProperty = (index) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money -= this.game.board[index].upgrade;
         this.updatePlayerMoney(playerIndex);
         this.game.board[index].upgrades += 1;
         this.socket.emit('tile_upgrade', {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             property_index: index,
             upgrades: this.game.board[index].upgrades,
         });
     };
     downgradeProperty = (index) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].money += this.game.board[index].upgrade / 2;
         this.updatePlayerMoney(playerIndex);
         this.game.board[index].upgrades -= 1;
         this.socket.emit('tile_upgrade', {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             property_index: index,
             upgrades: this.game.board[index].upgrades,
         });
@@ -705,6 +649,13 @@ class Store {
                 this.game.trades[data.trade_index].state = "REJECTED";
             });
         });
+        this.socket.on("auction_initiated", data => {
+            console.log("trade_rejected", data);
+            runInAction(() => {
+                this.game.auction = true;
+                this.game.auction_tile = data.tile;
+            });
+        });
         this.socket.on("trade_canceled", data => {
             console.log("trade_canceled", data);
             runInAction(() => {
@@ -735,31 +686,6 @@ class Store {
             });
         });
     };
-
-    checkAndSetCurrentPlayer = () => {
-        console.log("here", this.game.current_player);
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
-        if (this.game.current_player === playerIndex) {
-            this.setPlayerState("START_TURN");
-        }
-    };
-    setUsername = (username) => {
-        this.username = username;
-    };
-    newGame = async (game_name, username, password) => {
-        this.socket.emit("create_game", {
-            game_name,
-            username,
-            password,
-        }, game => {
-            this.setGameInfo(game);
-            this.setUsername(username);
-            runInAction(() => {
-                this.gameState = "STARTED";
-            });
-            localStorage.setItem("username", username);
-        });
-    };
     setGameInfo = (data) => {
         this.game = data
     };
@@ -770,74 +696,17 @@ class Store {
         this.mousedOverTile = null;
     };
 
-    get chosenTile() {
-        if (this.mousedOverTile === null) {
-            return this.game.board[this.getPlayer.position];
-        } else {
-            return this.game.board[this.mousedOverTile];
-        }
-    }
-
     rollDice = () => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].dice = [
             Math.floor(Math.random() * Math.floor(6)) + 1,
             Math.floor(Math.random() * Math.floor(6)) + 1,
         ];
         this.socket.emit("update_dice_roll", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             dice: this.game.player_info[playerIndex].dice,
             player_index: playerIndex,
         });
-        console.log("dice rolled", this.diceSum);
-    };
-    buyProperty = () => {
-        const tile = this.gameTilesID[this.thisPlayer.position];
-        const gamesTiles = this.gameTiles[this.thisPlayer.position]
-        if (!tile.owned && gamesTiles.cost) {
-            tile.owned = true;
-            tile.player = this.player;
-            const player = this.thisPlayer;
-            player.money -= gamesTiles.cost;
-            this.players[this.currentPlayer] = player;
-            this.gameTilesID[this.thisPlayer.position] = tile;
-        }
-    };
-    buyPrompt = (playerBuys) => {
-        if (playerBuys) {
-            this.buyProperty();
-        }
-        this.buyProcessStarted = false;
-        this.endTurn();
-    };
-    calcRentCost = () => {
-        if (this.playerTile.type === "rr") {
-            let numOwns = this.game.board.filter(el => el.type === "rr" && el.player === this.playerTile.player).length;
-            let rent = this.playerTile.base_rent * Math.pow(2, numOwns - 1);
-            return rent;
-        } else if (this.playerTile.type === "property") {
-            if (this.playerTile.mortgaged) {
-                return 0;
-            }
-            let ownsAll = this.game.board.filter(el => el.group === this.playerTile.group && el.player !== this.playerTile.player).length === 0;
-            let noneMortgaged = this.game.board.filter(el => el.group === this.playerTile.group).every(el => !el.mortgaged);
-            if (ownsAll && noneMortgaged) {
-                if (this.playerTile.upgrades > 0) {
-                    return this.playerTile.rent[this.playerTile.upgrades];
-                }
-                return this.playerTile.rent[0] * 2;
-            } else {
-                return this.playerTile.rent[0];
-            }
-        } else if (this.playerTile.type === "utility") {
-            let ownsAll = this.game.board.filter(el => el.group === this.playerTile.group && el.player !== this.playerTile.player).length === 0;
-            if (!ownsAll) {
-                return this.diceSum * 4;
-            } else {
-                return this.diceSum * 10;
-            }
-        }
     };
     calcRentCostTile = (tileIndex, preDiceRoll) => {
         const tile = this.game.board[tileIndex];
@@ -874,7 +743,7 @@ class Store {
         }
     };
     mortgageProperty = (property) => {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         if (this.game.board[property].mortgaged) {
             this.game.player_info[playerIndex].money -= this.game.board[property].cost / 2;
             this.updatePlayerMoney(playerIndex);
@@ -884,8 +753,7 @@ class Store {
         }
         this.game.board[property].mortgaged = !this.game.board[property].mortgaged;
         this.socket.emit("mortgage_property", {
-            game_name: this.game.game_name,
-            username: this.username,
+            game_id: this.gameAuthInfo.game_id,
             property_index: property,
             mortgage_value: this.game.board[property].mortgaged,
         });
@@ -899,59 +767,22 @@ class Store {
         }
     };
 
-    get thisPlayersTurn() {
-        return this.player === this.currentPlayer;
-    };
-
     get diceSum() {
         return this.getPlayer.dice[0] + this.getPlayer.dice[1];
     }
-
-    get thisPlayer() {
-        return this.players[this.player];
-    }
-
-    get positions() {
-        return this.players.map(el => el.position);
-    };
 
     get playerTile() {
         return this.game.board[this.getPlayer.position];
     }
 
-    get playerGameTile() {
-        return this.gameTiles[this.thisPlayer.position];
-    }
-
-    get mousedOverTileIDInfo() {
-        return this.gameTilesID[this.mousedOverTile] || null;
-    };
-
-    get mousedOverTileInfo() {
-        return this.gameTiles[this.mousedOverTile] || null;
-    };
-
-    // get playersProperties() {
-    //     return this.gameTilesID.filter((el, i) => {
-    //         if (el.player === this.player) {
-    //             return {...el, ...this.gameTiles[i]}
-    //         }
-    //     })
-    //         .sort((a, b) => {
-    //             return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
-    //         })
-    // }
-
     get getPlayer() {
-        return this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)];
+        return this.game.player_info[this.playerIndex];
     }
 
     get inGame() {
         if (!this.game.player_info) {
-            console.log("here", this.game.player_info)
             return false;
-        } else if (this.game.player_info.findIndex(el => el.username === this.username) === -1) {
-            console.log('this')
+        } else if (this.playerIndex === -1) {
             return false;
         } else {
             return true
@@ -959,10 +790,10 @@ class Store {
     }
 
     setPlayerState = (state) => {
-        this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)].state = state;
+        this.game.player_info[this.playerIndex].state = state;
     };
     setJailState = (state) => {
-        this.game.player_info[this.game.player_info.findIndex(el => el.username === this.username)].jail_state = state;
+        this.game.player_info[this.playerIndex].jail_state = state;
     };
 
     get playerState() {
@@ -1013,7 +844,7 @@ class Store {
     };
 
     get netWorth() {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         let worth = this.getPlayer.money;
         this.game.board.forEach(tile => {
             if (tile.owned && tile.player === playerIndex) {
@@ -1027,7 +858,7 @@ class Store {
     }
 
     get liquidWorth() {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
+        const playerIndex = this.playerIndex;
         let worth = this.getPlayer.money;
         this.game.board.forEach(tile => {
             if (tile.owned && tile.player === playerIndex) {
@@ -1074,37 +905,11 @@ class Store {
             });
     };
 
-    get playerProperties() {
-        const playerIndex = this.game.player_info.findIndex(el => el.username === this.username);
-        return this.game.board
-            .map((tile, i) => {
-                let ownsAll = this.game.board.filter(el => el.group === this.game.board[i].group && el.player !== this.game.board[i].player).length === 0;
-                let noneMortgaged = this.game.board.filter(el => el.group === this.game.board[i].group).every(el => !el.mortgaged);
-                let offByOneUp = this.game.board.filter(el => el.group === this.game.board[i].group).every(el => {
-                    if (tile.upgrades > el.upgrades) {
-                        return false;
-                    }
-                    return tile.upgrades < el.upgrades || tile.upgrades === el.upgrades;
-
-                });
-                let offByOneDown = this.game.board.filter(el => el.group === this.game.board[i].group).every(el => {
-                    if (tile.upgrades < el.upgrades) {
-                        return false;
-                    }
-                    return tile.upgrades > el.upgrades || tile.upgrades === el.upgrades;
-
-                });
-                const canUpgrade = offByOneUp && ownsAll && noneMortgaged && this.game.board[i].upgrades < 5 && this.getPlayer.money >= this.game.board[i].upgrade;
-                const canDowngrade = offByOneDown && ownsAll && noneMortgaged && this.game.board[i].upgrades > 0;
-                let calculatedRent = this.calcRentCostTile(i, true);
-                return {...tile, index: i, canUpgrade, canDowngrade, calculatedRent}
-            })
-            .filter(tile => {
-                return tile.owned && tile.player === playerIndex;
-            })
-            .sort((a, b) => {
-                return a.group === b.group ? a.cost < b.cost ? 1 : -1 : a.type === b.type ? a.group < b.group ? -1 : 1 : a.type < b.type ? -1 : 1
-            });
+    get playerIndex() {
+        if (!this.game.player_info) {
+            return null;
+        }
+        return this.game.player_info.findIndex(el => el.username === this.gameAuthInfo.username);
     }
 
     canUpgrade = (propertyIndex) => {
@@ -1116,41 +921,22 @@ class Store {
 
 decorate(Store, {
     players: observable,
-    // dice: observable,
-    connectedFromNewPage: observable,
     game: observable,
-    player: observable,
-    currentPlayer: observable,
-    username: observable,
-    turn: observable,
-    gameTiles: observable,
-    gameTilesID: observable,
-    game_name: observable,
     gameState: observable,
-    chosenCard: observable,
     mousedOverTile: observable,
     selectedTab: observable,
-    buyProcessStarted: observable,
-    positions: computed,
+    gameAuthInfo: observable,
     diceSum: computed,
-    thisPlayersTurn: computed,
     playerState: computed,
-    thisPlayer: computed,
     inGame: computed,
     playerJailState: computed,
     getPlayer: computed,
-    chosenTile: computed,
-    mousedOverTileInfo: computed,
-    mousedOverTileIDInfo: computed,
     playerTile: computed,
     netWorth: computed,
     liquidWorth: computed,
-    playerProperties: computed,
+    playerIndex: computed,
     rollDice: action,
-    takeTurn: action,
     setPlayerState: action,
-    buyProperty: action,
-    moveHere: action,
     movePlayerToTile: action,
     checkTile: action,
     payPercentTax: action,
@@ -1161,19 +947,12 @@ decorate(Store, {
     setJailState: action,
     clearMousedOverTile: action,
     setMousedOverTile: action,
-    rollAndMove: action,
     setUsername: action,
-    buyPrompt: action,
     mortgageProperty: action,
-    changeCurrentPlayer: action,
     setGameInfo: action,
     createTrade: action,
     payOutOfJail: action,
-    connectToGame: action,
-    joinGame: action,
-    setGameName: action,
     payLuxuryTax: action,
-    newGame: action,
     connectedFromNew: action,
     movePlayerDev: action,
     movePlayer: action,
@@ -1188,13 +967,14 @@ decorate(Store, {
     handleModifierCard: action,
     upgradeProperty: action,
     rejectTrade: action,
+    rejectBuyTile: action,
     cancelTrade: action,
+    setGameAuthInfo: action,
     downgradeProperty: action,
     checkIfPlayerPassedGo: action,
     playerPassedGoMoneyIncrease: action,
-    checkIfTooManyDoubles: action,
     socketActions: action,
-    checkAndSetCurrentPlayer: action,
+    connectToGame: action,
 });
 
 export default new Store();

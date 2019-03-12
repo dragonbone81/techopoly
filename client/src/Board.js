@@ -7,11 +7,14 @@ import {withRouter} from 'react-router-dom';
 
 class Board extends Component {
     componentDidMount() {
-        const username = localStorage.getItem("username");
-        if (username && !this.props.store.connectedFromNewPage) {
-            const gameName = this.props.match.params.game_name;
-            this.props.store.connectToGame(gameName, username)
+        let gameInfo = localStorage.getItem("previous_game");
+        if (!gameInfo) {
+            this.props.history.push("/newgame");
+            return;
         }
+        gameInfo = JSON.parse(gameInfo);
+        this.props.store.setGameAuthInfo(gameInfo);
+        this.props.store.connectToGame();
     }
 
     render() {

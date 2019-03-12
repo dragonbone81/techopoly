@@ -12,9 +12,12 @@ class App extends Component {
                         <Board/>
                     </div>
                 }/>
+                <Route exact path="/play-game" component={
+                    () => <div className="main">
+                        <Board/>
+                    </div>
+                }/>
                 <Route exact path="/newgame" component={NewGame}/>
-                {/*<Route exact path="/redirect" component={Redirect}/>*/}
-                {/*<Route exact path="/video/:video_id" component={VideoPage}/>*/}
             </Switch>
         );
     }

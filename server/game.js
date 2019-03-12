@@ -1,6 +1,6 @@
 const client = require("./db_connection");
 const {board, chance, chest, colors} = require("./monopoly");
-
+const ObjectId = require('mongodb').ObjectID;
 const shuffle = (input_array) => {
     const a = [...input_array];
     for (let i = a.length - 1; i > 0; i--) {
@@ -38,6 +38,8 @@ const game = (socket, io) => {
                     pay_multiplier: 1,
                     color: colors[0],
                 }],
+                auction: false,
+                auction_tile: 0,
                 trades: [],
                 logs: [],
                 board: newBoard,
@@ -54,84 +56,70 @@ const game = (socket, io) => {
         console.log('join_request', input);
         try {
             socket.username = input.username;
-            socket.join(`game_${input.game_name}`, () => {
+            socket.join(`game_${input.game_id}`, () => {
                 console.log(Object.keys(io.sockets.sockets));
             });
 
 
             let game = await (await client).findOne(
-                {game_name: input.game_name},
+                {_id: new ObjectId(input.game_id)},
                 {}
             );
 
             //for dev stuff
-            if (game.player_info.findIndex(el => el.username === input.username) === -1) {
-                game = await (await client).findOneAndUpdate(
-                    {game_name: input.game_name},
-                    {
-                        $set: {
-                            player_info: [...game.player_info, {
-                                username: input.username,
-                                position: 0,
-                                money: 1500,
-                                color: colors[game.player_info.length],
-                                id: Math.max(...game.player_info.map(el => el.id)) + 1,
-                                state: "NOT_TURN",
-                                jail_state: false,
-                                jail_turns: 0,
-                                doubles_rolled: 0,
-                                dice: [0, 0],
-                                pay_multiplier: 1,
-                            }]
-                        }
-                    },
-                    {returnOriginal: false},
-                );
-                game = game.value;
-            }
+            // if (game.player_info.findIndex(el => el.username === input.username) === -1) {
+            //     game = await (await client).findOneAndUpdate(
+            //         {game_name: input.game_name},
+            //         {
+            //             $set: {
+            //                 player_info: [...game.player_info, {
+            //                     username: input.username,
+            //                     position: 0,
+            //                     money: 1500,
+            //                     color: colors[game.player_info.length],
+            //                     id: Math.max(...game.player_info.map(el => el.id)) + 1,
+            //                     state: "NOT_TURN",
+            //                     jail_state: false,
+            //                     jail_turns: 0,
+            //                     doubles_rolled: 0,
+            //                     dice: [0, 0],
+            //                     pay_multiplier: 1,
+            //                 }]
+            //             }
+            //         },
+            //         {returnOriginal: false},
+            //     );
+            //     game = game.value;
+            // }
 
             // console.log(game);
-            io.in(`game_${input.game_name}`).emit("game_info", game);
+            socket.emit("game_info", game);
+            // io.in(`game_${input.game_id}`).emit("game_info", game);
         } catch (err) {
             console.log(err);
         }
     });
-    socket.on('get_game_info', async (input) => {
-        const game = await (await client).findOne(
-            {game_name: input.game_name},
-            {}
-        );
-        socket.emit("game_info", game);
-    });
     socket.on("move", async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {
-                game_name: input.game_name,
-            },
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {$set: {[`player_info.${input.player_index}.position`]: input.new_position}},
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("player_moved", {
+        socket.to(`game_${input.game_id}`).emit("player_moved", {
             player: input.player_index,
             position: input.new_position
         });
     });
     socket.on("buy_tile", async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {
-                game_name: input.game_name,
-            },
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`board.${input.tile_index}`]: input.tile_bought,
                     [`player_info.${input.player_index}.money`]: input.player_money,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("tile_bought", {
+        socket.to(`game_${input.game_id}`).emit("tile_bought", {
             tile: {
                 tile_index: input.tile_index,
                 tile: input.tile_bought
@@ -143,75 +131,65 @@ const game = (socket, io) => {
         });
     });
     socket.on("update_player_money", async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {
-                game_name: input.game_name,
-            },
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.player_index}.money`]: input.player_money,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("player_money_updated", {
+        socket.to(`game_${input.game_id}`).emit("player_money_updated", {
             player_index: input.player_index,
             player_money: input.player_money
         });
     });
     socket.on('end_turn', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.next_player}.state`]: "START_TURN",
                     [`player_info.${input.old_player}.state`]: "NOT_TURN"
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("turn_ended", {
+        socket.to(`game_${input.game_id}`).emit("turn_ended", {
             next_player: input.next_player,
             old_player: input.old_player,
         });
     });
     socket.on('sync_player_jail_state', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.player_index}.jail_state`]: input.jail_state,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("sync_player_jail_state_synced", {
+        socket.to(`game_${input.game_id}`).emit("sync_player_jail_state_synced", {
             player_index: input.player_index,
             jail_state: input.jail_state,
         });
     });
     socket.on('update_player_jail_rolls', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.player_index}.jail_turns`]: input.jail_turns,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("update_player_jail_rolls_updated", {
+        socket.to(`game_${input.game_id}`).emit("update_player_jail_rolls_updated", {
             player_index: input.player_index,
             jail_turns: input.jail_turns,
         });
     });
     socket.on('pay_all_players', async (input) => {
         const original = await (await client).findOne(
-            {game_name: input.game_name}
+            {_id: new ObjectId(input.game_id)},
         );
         const setObject = {};
         original.player_info.forEach((player, index) => {
@@ -221,22 +199,20 @@ const game = (socket, io) => {
                 setObject[`player_info.${index}.money`] = original.player_info[index].money + input.amount;
             }
         });
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: setObject,
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("pay_all_players_payed", {
+        socket.to(`game_${input.game_id}`).emit("pay_all_players_payed", {
             player_index: input.player_index,
             amount: input.amount,
         });
     });
     socket.on('process_transaction', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.giving_player}.money`]: input.giving_player_money,
@@ -244,10 +220,8 @@ const game = (socket, io) => {
                     [`player_info.${input.receiving_player}.money`]: input.receiving_player_money,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("transaction_processed", {
+        socket.to(`game_${input.game_id}`).emit("transaction_processed", {
             giving_player: input.giving_player,
             giving_player_money: input.giving_player_money,
             receiving_player: input.receiving_player,
@@ -255,117 +229,103 @@ const game = (socket, io) => {
         });
     });
     socket.on('update_players_doubles', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.player_index}.doubles_rolled`]: input.doubles_rolled,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("players_doubles_updated", {
+        socket.to(`game_${input.game_id}`).emit("players_doubles_updated", {
             player_index: input.player_index,
             doubles_rolled: input.doubles_rolled,
         });
     });
     socket.on('sync_player_state', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.player_index}.state`]: input.state,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("player_state_synced", {
+        socket.to(`game_${input.game_id}`).emit("player_state_synced", {
             player_index: input.player_index,
             state: input.state,
         });
     });
     socket.on('update_dice_roll', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`player_info.${input.player_index}.dice`]: input.dice,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("dice_roll_updated", {
+        socket.to(`game_${input.game_id}`).emit("dice_roll_updated", {
             player_index: input.player_index,
             dice: input.dice,
         });
     });
     socket.on('mortgage_property', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`board.${input.property_index}.mortgaged`]: input.mortgage_value,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("property_mortgaged", {
+        socket.to(`game_${input.game_id}`).emit("property_mortgaged", {
             property_index: input.property_index,
             mortgage_value: input.mortgage_value,
         });
     });
     socket.on('create_trade', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $push: {
                     [`trades`]: input.trade,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("trade_created", {
+        socket.to(`game_${input.game_id}`).emit("trade_created", {
             trade: input.trade,
         });
     });
     socket.on('reject_trade', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`trades.${input.trade_index}.state`]: "REJECTED",
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("trade_rejected", {
+        socket.to(`game_${input.game_id}`).emit("trade_rejected", {
             trade_index: input.trade_index,
         });
     });
     socket.on('cancel_trade', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`trades.${input.trade_index}.state`]: "CANCELED",
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("trade_canceled", {
+        socket.to(`game_${input.game_id}`).emit("trade_canceled", {
             trade_index: input.trade_index,
         });
     });
     socket.on('accept_trade', async (input) => {
         const original = await (await client).findOne(
-            {game_name: input.game_name}
+            {_id: new ObjectId(input.game_id)},
         );
         const mergeObj = {};
         mergeObj[`trades.${input.trade_index}.state`] = "ACCEPTED";
@@ -377,81 +337,84 @@ const game = (socket, io) => {
         input.trade.taken_properties.forEach(propIndex => {
             mergeObj[`board.${propIndex}.player`] = input.trade.initiating_player;
         });
-        console.log(mergeObj);
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: mergeObj,
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("trade_accepted", {
+        socket.to(`game_${input.game_id}`).emit("trade_accepted", {
             trade_index: input.trade_index,
         });
     });
     socket.on('tile_upgrade', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`board.${input.property_index}.upgrades`]: input.upgrades,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("tile_upgraded", {
+        socket.to(`game_${input.game_id}`).emit("tile_upgraded", {
             property_index: input.property_index,
             upgrades: input.upgrades,
         });
     });
     socket.on('add_log', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $push: {
                     [`logs`]: input.log,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("log_added", {
+        socket.to(`game_${input.game_id}`).emit("log_added", {
             log: input.log,
         });
     });
     socket.on('increase_chest_card', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`last_chest_card`]: input.last_chest_card,
                     [`player_info.${input.player_index}.pay_multiplier`]: input.pay_multiplier,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("chest_card_increased", {
+        socket.to(`game_${input.game_id}`).emit("chest_card_increased", {
             last_chest_card: input.last_chest_card,
             player_index: input.player_index,
             pay_multiplier: input.pay_multiplier,
         });
     });
+    socket.on('initiate_auction', async (input) => {
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
+            {
+                $set: {
+                    [`auction`]: true,
+                    [`auction_tile`]: input.tile,
+                }
+            },
+        );
+        socket.to(`game_${input.game_id}`).emit("auction_initiated", {
+            tile: input.tile,
+        });
+    });
     socket.on('increase_chance_card', async (input) => {
-        const response = await (await client).findOneAndUpdate(
-            {game_name: input.game_name},
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
             {
                 $set: {
                     [`last_chance_card`]: input.last_chance_card,
                     [`player_info.${input.player_index}.pay_multiplier`]: input.pay_multiplier,
                 }
             },
-            {returnOriginal: false},
         );
-        const game = response.value;
-        socket.to(`game_${input.game_name}`).emit("chance_card_increased", {
+        socket.to(`game_${input.game_id}`).emit("chance_card_increased", {
             last_chance_card: input.last_chance_card,
             player_index: input.player_index,
             pay_multiplier: input.pay_multiplier,

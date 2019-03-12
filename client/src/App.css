@@ -399,3 +399,8 @@
 .pay-flat-tax-button{
     margin-left: 5px;
 }
+.create-game-input{
+    width: 300px;
+    margin: auto;
+    /*max-width: 300px;*/
+}

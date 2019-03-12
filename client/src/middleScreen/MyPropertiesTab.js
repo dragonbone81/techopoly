@@ -17,7 +17,7 @@ class MyPropertiesTab extends Component {
                     </tr>
                     </thead>
                     <tbody className="">
-                    {this.props.store.playerProperties.map((property, i) => {
+                    {this.props.store.playersProperties(this.props.store.playerIndex).map((property, i) => {
                         return (
                             <tr key={i}>
                                 <th scope="row">

@@ -8,7 +8,7 @@ class TradesTab extends Component {
 
     componentDidMount() {
         if (this.props.store.game.player_info && this.props.store.game.trades.length > 0) {
-            const playerIndex = this.props.store.game.player_info.findIndex(el => el.username === this.props.store.username);
+            const playerIndex = this.props.store.playerIndex;
             const firstIndex = this.props.store.game.trades.findIndex(el => {
                 return (el.initiating_player === playerIndex || el.trading_player === playerIndex) && el.state === "PROPOSED";
             });
@@ -18,7 +18,7 @@ class TradesTab extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevState.selectedTrade === -1) {
-            const playerIndex = this.props.store.game.player_info.findIndex(el => el.username === this.props.store.username);
+            const playerIndex = this.props.store.playerIndex;
             const firstIndex = this.props.store.game.trades.findIndex(el => {
                 return (el.initiating_player === playerIndex || el.trading_player === playerIndex) && el.state === "PROPOSED";
             });
@@ -31,7 +31,7 @@ class TradesTab extends Component {
 
     render() {
         if (this.props.store.game.player_info && this.props.store.game.trades.length > 0) {
-            const playerIndex = this.props.store.game.player_info.findIndex(el => el.username === this.props.store.username);
+            const playerIndex = this.props.store.playerIndex;
             const firstIndex = this.props.store.game.trades.findIndex(el => {
                 return (el.initiating_player === playerIndex || el.trading_player === playerIndex) && el.state === "PROPOSED";
             });

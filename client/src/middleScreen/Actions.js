@@ -43,7 +43,8 @@ class Actions extends Component {
                         <button type="button" className="btn btn-primary" onClick={this.props.store.payPercentTax}>Pay
                             10%
                         </button>
-                        <button type="button" className="btn btn-primary pay-flat-tax-button" onClick={this.props.store.payFlatTax}>Pay
+                        <button type="button" className="btn btn-primary pay-flat-tax-button"
+                                onClick={this.props.store.payFlatTax}>Pay
                             $200
                         </button>
                     </div>
