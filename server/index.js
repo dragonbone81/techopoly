@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PROD ? 3001 : null;
 const server = app.listen(port, () => console.log("Server Started!"));
-// const io = require('socket.io')(server);
+const io = require('socket.io')(server);
 // const game = require("./game");
 // const client = require("./db_connection");
 // const {board, colors, chest, chance} = require("./monopoly");
@@ -25,7 +25,7 @@ const shuffle = (input_array) => {
     return a;
 };
 app.get('/', async (req, res) => {
-    res.json({asd: "asd", db: process.env.DB_URL});
+    res.json({asd: "asd", db: io});
 });
 // app.get('/search_for_games', async (req, res) => {
 //     const game_name = req.query.game_name;
