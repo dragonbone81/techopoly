@@ -209,7 +209,7 @@ module.exports = {
                 16, 80, 220, 600, 800, 1000,
             ],
             type: "property",
-            url: "https://ya-webdesign.com/images/netflix-logo-2017-png-3.png"
+            url: "https://i.imgur.com/jAJ2TYp.png"
         },
         {
             //Free Parking
