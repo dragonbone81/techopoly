@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {inject, observer} from "mobx-react";
 import {withRouter} from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+import {ToastContainer, toast} from 'react-toastify';
 
 
 class NewGame extends Component {
@@ -16,6 +18,7 @@ class NewGame extends Component {
         joinGamePassword: "",
         joinGameUsername: "",
         joinGameUsernamePassword: "",
+        formError: "",
     };
 
     componentDidMount() {
@@ -50,31 +53,68 @@ class NewGame extends Component {
             });
     };
     joinGame = (e) => {
-        // e.preventDefault();
-        // fetch("http://localhost:3001/create_game", {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify({
-        //         game_name: this.state.game_name,
-        //         game_password: this.state.game_password,
-        //         username: this.state.username,
-        //         password: this.state.password
-        //     }),
-        // })
-        //     .then(res => res.json())
-        //     .then(response => {
-        //         localStorage.setItem("previous_game", JSON.stringify({
-        //             game_name: this.state.game_name,
-        //             game_password: this.state.game_password,
-        //             username: this.state.username,
-        //             password: this.state.password,
-        //             game_id: response.game_id,
-        //         }));
-        //         console.log(response);
-        //         this.props.history.push("/play-game");
-        //     });
+        e.preventDefault();
+        console.log(this.state.gamesFound[this.state.gamesFoundSelected]._id);
+        fetch("http://localhost:3001/join_game", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                game_id: this.state.gamesFound[this.state.gamesFoundSelected]._id,
+                game_password: this.state.joinGamePassword,
+                username: this.state.joinGameUsername,
+                password: this.state.joinGameUsernamePassword
+            }),
+        })
+            .then(res => res.json())
+            .then(response => {
+                console.log(response)
+                if (response.error) {
+                    this.setState({formError: response.error}, () => {
+                        if (this.state.formError === "incorrect_game_pw") {
+                            toast.error("Incorrect password for game.", {
+                                position: "top-right",
+                                autoClose: 2000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                            });
+                        } else if (this.state.formError === "player_not_in_game") {
+                            toast.error("You are not in this game.", {
+                                position: "top-right",
+                                autoClose: 2000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                            });
+                        } else if (this.state.formError === "incorrect_player_pw") {
+                            toast.error("Incorrect password for player.", {
+                                position: "top-right",
+                                autoClose: 2000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                            });
+                        }
+                    });
+                    return;
+                }
+                if (response.success) {
+                    localStorage.setItem("previous_game", JSON.stringify({
+                        game_id: this.state.gamesFound[this.state.gamesFoundSelected]._id,
+                        game_name: this.state.gamesFound[this.state.gamesFoundSelected].auth.game_name,
+                        game_password: this.state.joinGamePassword,
+                        username: this.state.joinGameUsername,
+                        password: this.state.joinGameUsernamePassword,
+                    }));
+                    console.log(response);
+                    this.props.history.push("/play-game");
+                }
+            });
     };
     keyPress = (e) => {
         if (e.keyCode === 13) {
@@ -82,6 +122,7 @@ class NewGame extends Component {
         }
     };
     searchForGames = () => {
+        this.setState({gamesFound: [], gamesFoundSelected: -1});
         fetch(`http://localhost:3001/search_for_games?game_name=${this.state.searchGameName}`)
             .then(res => res.json())
             .then(data => {
@@ -93,6 +134,7 @@ class NewGame extends Component {
 
         return (
             <div className="new-game-main">
+                <ToastContainer/>
                 {/*<input onChange={({target}) => this.setState({name: target.value})} value={this.state.name}*/}
                 {/*placeholder="Game Name"/>*/}
                 {/*<input onChange={({target}) => this.setState({username: target.value})} value={this.state.username}*/}
@@ -177,12 +219,16 @@ class NewGame extends Component {
                                     {this.state.gamesFound.map((game, index) => {
                                         return (
                                             <li key={game._id}
-                                                onClick={() => this.setState({
-                                                    gamesFoundSelected: index,
-                                                    joinGamePassword: "",
-                                                    joinGameUsername: "",
-                                                    joinGameUsernamePassword: "",
-                                                })}
+                                                onClick={() => {
+                                                    if (this.state.gamesFoundSelected !== index) {
+                                                        this.setState({
+                                                            gamesFoundSelected: index,
+                                                            joinGamePassword: "",
+                                                            joinGameUsername: "",
+                                                            joinGameUsernamePassword: "",
+                                                        })
+                                                    }
+                                                }}
                                                 className="cursor list-group-item">
                                                 {this.state.gamesFoundSelected !== index && (
                                                     <div className="d-flex justify-content-between align-items-center">
@@ -192,6 +238,12 @@ class NewGame extends Component {
                                                 )}
                                                 {this.state.gamesFoundSelected === index && (
                                                     <div className="">
+                                                        {game.game_state === "INVITING_PLAYERS" && (
+                                                            <div>
+                                                                <small>Game has not started. You can still join...
+                                                                </small>
+                                                            </div>
+                                                        )}
                                                         <form onSubmit={this.joinGame}>
                                                             <small
                                                                 className="form-text text-muted align-self-start">Game

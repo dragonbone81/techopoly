@@ -54,49 +54,20 @@ const game = (socket, io) => {
     });
     socket.on('join_game', async (input) => {
         console.log('join_request', input);
-        try {
-            socket.username = input.username;
-            socket.join(`game_${input.game_id}`, () => {
-                console.log(Object.keys(io.sockets.sockets));
-            });
+        socket.username = input.username;
+        socket.join(`game_${input.game_id}`, () => {
+            console.log(Object.keys(io.sockets.sockets));
+        });
 
 
-            let game = await (await client).findOne(
-                {_id: new ObjectId(input.game_id)},
-                {}
-            );
-
-            //for dev stuff
-            // if (game.player_info.findIndex(el => el.username === input.username) === -1) {
-            //     game = await (await client).findOneAndUpdate(
-            //         {game_name: input.game_name},
-            //         {
-            //             $set: {
-            //                 player_info: [...game.player_info, {
-            //                     username: input.username,
-            //                     position: 0,
-            //                     money: 1500,
-            //                     color: colors[game.player_info.length],
-            //                     id: Math.max(...game.player_info.map(el => el.id)) + 1,
-            //                     state: "NOT_TURN",
-            //                     jail_state: false,
-            //                     jail_turns: 0,
-            //                     doubles_rolled: 0,
-            //                     dice: [0, 0],
-            //                     pay_multiplier: 1,
-            //                 }]
-            //             }
-            //         },
-            //         {returnOriginal: false},
-            //     );
-            //     game = game.value;
-            // }
-
-            // console.log(game);
+        let game = await (await client).findOne(
+            {_id: new ObjectId(input.game_id)},
+            {}
+        );
+        if (game.game_state === "INVITING_PLAYERS") {
+            io.in(`game_${input.game_id}`).emit("game_info", game);
+        } else {
             socket.emit("game_info", game);
-            // io.in(`game_${input.game_id}`).emit("game_info", game);
-        } catch (err) {
-            console.log(err);
         }
     });
     socket.on("move", async (input) => {
@@ -143,6 +114,17 @@ const game = (socket, io) => {
             player_index: input.player_index,
             player_money: input.player_money
         });
+    });
+    socket.on("start_game", async (input) => {
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
+            {
+                $set: {
+                    [`game_state`]: "STARTED",
+                }
+            },
+        );
+        socket.to(`game_${input.game_id}`).emit("game_started");
     });
     socket.on('end_turn', async (input) => {
         await (await client).updateOne(

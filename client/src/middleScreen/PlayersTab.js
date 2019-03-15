@@ -16,7 +16,8 @@ class PlayersTab extends Component {
                         </div>
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Current Tile: </span>
-                            <span className="flex-fill">{this.props.store.playerTile.name}</span>
+                            <span
+                                className="flex-fill">{this.props.store.game.board[this.props.store.game.player_info[this.props.player].position].name}</span>
                         </div>
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Out Of Jail: </span>
@@ -42,7 +43,9 @@ class PlayersTab extends Component {
                 </div>
                 <div className="d-flex justify-content-center">
                     <button onClick={() => this.props.selectTab({selectedTab: "player_trade"})} type="button"
-                            className="btn btn-primary">Trade
+                            className="btn btn-primary"
+                            disabled={this.props.store.getPlayer.state === "NOT_TURN"}>
+                        Trade
                     </button>
                 </div>
                 <div

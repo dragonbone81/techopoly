@@ -27,7 +27,7 @@ class MainView extends Component {
     render() {
         return (
             <div className="main-view">
-                {this.props.store.gameState !== "NOT_STARTED" &&
+                {this.props.store.game && this.props.store.game.game_state !== "NOT_STARTED" &&
                 <div className="main-view-content">
                     {this.props.store.mousedOverTile !== null && (
                         <MousedOverTileTab/>

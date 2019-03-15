@@ -6,14 +6,12 @@ configure({enforceActions: "observed"});
 
 class Store {
     socket = io("http://localhost:3001/");
-    gameState = "NOT_STARTED";
     mousedOverTile = null;
     game = {};
     selectedTab = "my_info";
     gameAuthInfo = {};
     connectToGame = () => {
         this.socket.emit('join_game', this.gameAuthInfo);
-        this.gameState = "STARTED";
     };
     setGameAuthInfo = (gameInfo) => {
         this.gameAuthInfo = gameInfo;
@@ -502,6 +500,12 @@ class Store {
             old_player: playerIndex,
         });
     };
+    startGame = () => {
+        this.game.game_state = "STARTED";
+        this.socket.emit('start_game', {
+            game_id: this.gameAuthInfo.game_id,
+        });
+    };
     movePlayer = () => {
         const playerIndex = this.playerIndex;
         this.game.player_info[playerIndex].position = this.circularAdd(this.game.player_info[playerIndex].position, this.diceSum, 39);
@@ -674,6 +678,12 @@ class Store {
                 this.game.logs.push(data.log);
             });
         });
+        this.socket.on("game_started", data => {
+            console.log("game_started", data);
+            runInAction(() => {
+                this.game.game_state = "STARTED";
+            });
+        });
         this.socket.on("pay_all_players_payed", data => {
             console.log("pay_all_players_payed", data);
             runInAction(() => {
@@ -797,19 +807,19 @@ class Store {
     };
 
     get playerState() {
-        if (this.gameState === "NOT_STARTED") {
-            return "NOT_TURN";
-        } else {
-            return this.getPlayer.state;
-        }
+        // if (this.gameState === "NOT_STARTED") {
+        //     return "NOT_TURN";
+        // } else {
+        return this.getPlayer.state;
+        // }
     }
 
     get playerJailState() {
-        if (this.gameState === "NOT_STARTED") {
-            return false;
-        } else {
-            return this.getPlayer.jail_state;
-        }
+        // if (this.gameState === "NOT_STARTED") {
+        //     return false;
+        // } else {
+        return this.getPlayer.jail_state;
+        // }
     }
 
     netWorthOfPlayer = (playerIndex) => {
@@ -922,7 +932,7 @@ class Store {
 decorate(Store, {
     players: observable,
     game: observable,
-    gameState: observable,
+    // gameState: observable,
     mousedOverTile: observable,
     selectedTab: observable,
     gameAuthInfo: observable,
@@ -975,6 +985,7 @@ decorate(Store, {
     playerPassedGoMoneyIncrease: action,
     socketActions: action,
     connectToGame: action,
+    startGame: action,
 });
 
 export default new Store();

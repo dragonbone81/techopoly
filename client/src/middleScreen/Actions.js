@@ -3,6 +3,17 @@ import {inject, observer} from "mobx-react";
 
 class Actions extends Component {
     render() {
+        if (this.props.store.game.game_state === "INVITING_PLAYERS" && this.props.store.playerIndex === 0) {
+            return (
+                <div className="actions-tab d-flex flex-row justify-content-center align-items-center">
+                    <button type="button"
+                            className="btn btn-primary"
+                            onClick={this.props.store.startGame}>
+                        Start Game
+                    </button>
+                </div>
+            )
+        }
         return (
             <div className="actions-tab d-flex flex-row justify-content-center align-items-center">
                 {this.props.store.playerState === "START_TURN" && this.props.store.getPlayer.jail_turns < 3 && (

@@ -5,7 +5,7 @@ class Player extends Component {
     render() {
         return (
             <div className="player d-flex justify-content-center">
-                <b>{this.props.playerNumber}</b>
+                <b>{this.props.playerNumber + 1}</b>
             </div>
         );
     }
