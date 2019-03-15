@@ -3,6 +3,7 @@ import {decorate, configure, observable, action, computed, runInAction} from 'mo
 import io from 'socket.io-client';
 
 configure({enforceActions: "observed"});
+const URL = "https://techopoly.herokuapp.com" || "localhost:3000";
 
 class Store {
     socket = io(`${URL}/`);
