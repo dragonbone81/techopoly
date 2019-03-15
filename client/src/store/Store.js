@@ -165,6 +165,26 @@ class Store {
             trade_index: tradeIndex,
         });
     };
+    giveUp = () => {
+        const playerIndex = this.playerIndex;
+        this.addToLog(`${this.game.player_info[playerIndex].username} gave up.`);
+        const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.filter(player => player.state !== "OUT").length - 1);
+        this.game.player_info[playerIndex].state = "OUT";
+        if (this.game.player_info.filter(player => player.state !== "OUT").length === 1) {
+            const winningPlayer = this.game.player_info.find(player => player.state !== "OUT");
+            this.socket.emit("end_game", {
+                game_id: this.gameAuthInfo.game_id,
+                winning_player: winningPlayer,
+            });
+            this.game.game_state = "ENDED";
+        } else {
+            this.socket.emit("player_gives_up", {
+                game_id: this.gameAuthInfo.game_id,
+                player_index: playerIndex,
+                next_player: newCurrentPlayer,
+            });
+        }
+    };
     createTrade = (tradingPlayer, givenProperties, takenProperties, givenMoney, takenMoney) => {
         this.selectedTab = "my_info";
         const initiatingPlayer = this.playerIndex;
@@ -365,7 +385,7 @@ class Store {
     };
     payAllPlayers = (amount) => {
         const playerIndex = this.playerIndex;
-        this.game.player_info[playerIndex].money = this.game.player_info[playerIndex].money - (amount * (this.game.player_info.length - 1));
+        this.game.player_info[playerIndex].money = this.game.player_info[playerIndex].money - (amount * (this.game.player_info.filter(player => player.state !== "OUT").length - 1));
         this.game.player_info.forEach((player, index) => {
             if (index !== playerIndex) {
                 player.money += amount;
@@ -525,7 +545,7 @@ class Store {
     endTurn = () => {
         this.setPlayerState("NOT_TURN");
         const playerIndex = this.playerIndex;
-        const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
+        const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.filter(player => player.state !== "OUT").length - 1);
         this.socket.emit('end_turn', {
             game_id: this.gameAuthInfo.game_id,
             next_player: newCurrentPlayer,
@@ -734,6 +754,19 @@ class Store {
                 this.game.game_state = "STARTED";
             });
         });
+        this.socket.on("player_gave_up", data => {
+            console.log("player_gave_up", data);
+            runInAction(() => {
+                this.game.player_info[data.player_index].state = "OUT";
+                this.game.player_info[data.next_player].state = "START_TURN";
+            });
+        });
+        this.socket.on("game_ended", data => {
+            console.log("game_ended", data);
+            runInAction(() => {
+                this.game.game_state = "ENDED";
+            });
+        });
         this.socket.on("animated_players_moved", data => {
             console.log("animated_players_moved", data);
             runInAction(() => {
@@ -751,7 +784,7 @@ class Store {
         this.socket.on("pay_all_players_payed", data => {
             console.log("pay_all_players_payed", data);
             runInAction(() => {
-                this.game.player_info[data.player_index].money = this.game.player_info[data.player_index].money - (data.amount * (this.game.player_info.length - 1));
+                this.game.player_info[data.player_index].money = this.game.player_info[data.player_index].money - (data.amount * (this.game.player_info.filter(player => player.state !== "OUT").length - 1));
                 this.game.player_info.forEach((player, index) => {
                     if (index !== data.player_index) {
                         player.money += data.amount;
@@ -1040,6 +1073,7 @@ decorate(Store, {
     endTurn: action,
     handleModifierCard: action,
     upgradeProperty: action,
+    giveUp: action,
     rejectTrade: action,
     rejectBuyTile: action,
     cancelTrade: action,

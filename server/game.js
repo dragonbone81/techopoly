@@ -80,6 +80,24 @@ const game = (socket, io) => {
             position: input.new_position
         });
     });
+    socket.on("player_gives_up", async (input) => {
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
+            {$set: {[`player_info.${input.player_index}.state`]: "OUT"}},
+            {$set: {[`player_info.${input.next_player}.state`]: "START_TURN"}},
+        );
+        socket.to(`game_${input.game_id}`).emit("player_gave_up", {
+            player_index: input.player_index,
+            next_player: input.next_player,
+        });
+    });
+    socket.on("end_game", async (input) => {
+        await (await client).updateOne(
+            {_id: new ObjectId(input.game_id)},
+            {$set: {[`game_state`]: "ENDED"}},
+        );
+        socket.to(`game_${input.game_id}`).emit("game_ended", {});
+    });
     socket.on("move_player_animation", async (input) => {
         socket.to(`game_${input.game_id}`).emit("animated_players_moved", {
             animated_players_move: input.animated_players_move

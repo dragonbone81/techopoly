@@ -3,6 +3,13 @@ import {inject, observer} from "mobx-react";
 
 class Actions extends Component {
     render() {
+        if (this.props.store.game.game_state === "ENDED") {
+            return (
+                <div className="actions-tab d-flex flex-row justify-content-center align-items-center">
+                    Game has ended
+                </div>
+            )
+        }
         if (this.props.store.game.game_state === "INVITING_PLAYERS" && this.props.store.playerIndex === 0) {
             return (
                 <div className="actions-tab d-flex flex-row justify-content-center align-items-center">
@@ -61,8 +68,14 @@ class Actions extends Component {
                     </div>
                 )}
                 {this.props.store.playerState === "END_OF_TURN" && (
-                    <button type="button" onClick={this.props.store.endTurn}
+                    <button disabled={this.props.store.getPlayer.money < 0} type="button"
+                            onClick={this.props.store.endTurn}
                             className="btn btn-primary">End Turn
+                    </button>
+                )}
+                {this.props.store.playerState === "END_OF_TURN" && this.props.store.getPlayer.money < 0 && (
+                    <button type="button" onClick={this.props.store.giveUp}
+                            className="btn btn-primary">Give Up
                     </button>
                 )}
             </div>

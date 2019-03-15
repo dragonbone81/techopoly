@@ -9,6 +9,7 @@ class TradeTab extends Component {
         takenProperties: [],
     };
     proposeTrade = () => {
+        this.props.selectTab({selectedTab: "my_info"});
         this.props.store.createTrade(this.props.player, this.state.givenProperties, this.state.takenProperties, this.state.moneyGiven, this.state.moneyTaken);
     };
 

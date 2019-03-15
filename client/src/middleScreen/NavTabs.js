@@ -28,10 +28,10 @@ class NavTabs extends Component {
                          aria-haspopup="true" aria-expanded="false">Players
                     </div>
                     <div className={`dropdown-menu ${this.props.dropdownExpanded ? "show" : ""}`}>
-                        {this.props.store.game.player_info.length === 1 && (
+                        {this.props.store.game.player_info.filter(player => player.state !== "OUT").length === 1 && (
                             <div className="dropdown-item">No Players</div>
                         )}
-                        {this.props.store.game.player_info.length > 1 && this.props.store.game.player_info.map((player, index) => ({
+                        {this.props.store.game.player_info.filter(player => player.state !== "OUT").length > 1 && this.props.store.game.player_info.filter(player => player.state !== "OUT").map((player, index) => ({
                             ...player,
                             index
                         })).filter(player => player.username !== this.props.store.gameAuthInfo.username).map(player =>
