@@ -16,6 +16,7 @@ app.use(morgan('short'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cors());
+console.log("asd");
 const shuffle = (input_array) => {
     const a = [...input_array];
     for (let i = a.length - 1; i > 0; i--) {
@@ -25,7 +26,7 @@ const shuffle = (input_array) => {
     return a;
 };
 app.get('/', async (req, res) => {
-    res.json({asd: "asd", db: io});
+    res.json({asd: "asd", db: "hi"});
 });
 // app.get('/search_for_games', async (req, res) => {
 //     const game_name = req.query.game_name;
