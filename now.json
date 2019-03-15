@@ -9,8 +9,6 @@
     "techopoly"
   ],
   "env": {
-    "DB_URL": "@db_url",
-    "PROD": "@prod"
   },
   "routes": [
     {
