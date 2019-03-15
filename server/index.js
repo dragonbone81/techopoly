@@ -25,7 +25,7 @@ const shuffle = (input_array) => {
     return a;
 };
 app.get('/', async (req, res) => {
-    res.json({asd: "asd"});
+    res.json({asd: "asd", db: process.env.DB_URL});
 });
 app.get('/search_for_games', async (req, res) => {
     const game_name = req.query.game_name;
