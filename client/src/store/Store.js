@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 configure({enforceActions: "observed"});
 
 class Store {
-    socket = io("http://localhost:3001/");
+    socket = io(`${URL}/`);
     mousedOverTile = null;
     game = {};
     selectedTab = "my_info";

@@ -4,6 +4,7 @@ import {withRouter} from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer, toast} from 'react-toastify';
 
+const URL = process.env.REACT_APP_URL || "http://localhost:3001";
 
 class NewGame extends Component {
     state = {
@@ -27,7 +28,7 @@ class NewGame extends Component {
 
     submitNewGame = (e) => {
         e.preventDefault();
-        fetch("http://localhost:3001/create_game", {
+        fetch(`${URL}/create_game`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -55,7 +56,7 @@ class NewGame extends Component {
     joinGame = (e) => {
         e.preventDefault();
         console.log(this.state.gamesFound[this.state.gamesFoundSelected]._id);
-        fetch("http://localhost:3001/join_game", {
+        fetch(`${URL}/join_game`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -123,7 +124,7 @@ class NewGame extends Component {
     };
     searchForGames = () => {
         this.setState({gamesFound: [], gamesFoundSelected: -1});
-        fetch(`http://localhost:3001/search_for_games?game_name=${this.state.searchGameName}`)
+        fetch(`${URL}/search_for_games?game_name=${this.state.searchGameName}`)
             .then(res => res.json())
             .then(data => {
                 this.setState({gamesFound: data.games});
