@@ -123,12 +123,12 @@ module.exports = {
         },
         {
             //Electric Company
-            name: "SpaceX",
+            name: "PayPal",
             cost: 150,
             position: 12,
             group: "utility",
             type: "utility",
-            url: "http://seekvectorlogo.com/wp-content/uploads/2017/12/spacex-vector-logo-small.png"
+            url: "https://i.imgur.com/HT6H2Qr.png"
         },
         {
             //States Avenue
@@ -163,7 +163,7 @@ module.exports = {
             base_rent: 25,
             position: 15,
             type: "rr",
-            url: "https://i1.wp.com/onedollargraphics.market/wp-content/uploads/2018/02/fb-icon.jpg?fit=500%2C500"
+            url: "https://i.imgur.com/Gahoxm2.png"
         },
         {
             //St James Place
@@ -176,7 +176,7 @@ module.exports = {
                 14, 70, 200, 550, 750, 950,
             ],
             type: "property",
-            url: "https://seeklogo.com/images/T/twitch-logo-4931D91F85-seeklogo.com.png"
+            url: "https://i.imgur.com/gCSqbRz.png"
         },
         {
             //Community Chest
@@ -196,7 +196,7 @@ module.exports = {
                 14, 70, 200, 550, 750, 950,
             ],
             type: "property",
-            url: "https://media.licdn.com/dms/image/C560BAQFWOfDVm7nHeg/company-logo_200_200/0?e=2159024400&v=beta&t=L7yzPfsyYeZUjkJc1Abfwbg-Nx710fAvwEYbf02LIEE"
+            url: "https://i.imgur.com/oMFn1fb.png"
         },
         {
             //New York Avenue

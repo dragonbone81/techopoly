@@ -6,7 +6,7 @@ configure({enforceActions: "observed"});
 const URL = process.env.REACT_APP_URL ? process.env.REACT_APP_URL : 'http://localhost:3001';
 
 class Store {
-    socket = io(`${URL}/`);
+    socket = io(`${URL}/`, {forceNew: true});
     mousedOverTile = null;
     game = {};
     selectedTab = "my_info";
