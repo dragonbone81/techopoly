@@ -16,7 +16,7 @@ app.use(morgan('short'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cors());
-console.log("asd");
+console.log(port, process.env.DB_URL);
 const shuffle = (input_array) => {
     const a = [...input_array];
     for (let i = a.length - 1; i > 0; i--) {
