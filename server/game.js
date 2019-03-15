@@ -83,18 +83,28 @@ const game = (socket, io) => {
     socket.on("player_gives_up", async (input) => {
         await (await client).updateOne(
             {_id: new ObjectId(input.game_id)},
-            {$set: {[`player_info.${input.player_index}.state`]: "OUT"}},
-            {$set: {[`player_info.${input.next_player}.state`]: "START_TURN"}},
+            {
+                $set: {
+                    [`player_info.${input.player_index}.state`]: "OUT",
+                    [`player_info.${input.next_player}.state`]: "START_TURN",
+                    [`board`]: input.new_board,
+                }
+            },
         );
         socket.to(`game_${input.game_id}`).emit("player_gave_up", {
             player_index: input.player_index,
             next_player: input.next_player,
+            new_board: input.new_board,
         });
     });
     socket.on("end_game", async (input) => {
         await (await client).updateOne(
             {_id: new ObjectId(input.game_id)},
-            {$set: {[`game_state`]: "ENDED"}},
+            {
+                $set: {
+                    [`game_state`]: "ENDED",
+                }
+            }
         );
         socket.to(`game_${input.game_id}`).emit("game_ended", {});
     });

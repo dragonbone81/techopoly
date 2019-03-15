@@ -6,7 +6,7 @@ class Player extends Component {
         return (
             <div
                 className={`${this.props.moving ? "player-moving" : "player"} d-flex justify-content-center align-items-center`}
-                style={{backgroundColor: !this.props.moving ? this.props.store.getPlayer.color : null}}
+                style={{backgroundColor: !this.props.moving ? this.props.store.game.player_info[this.props.playerNumber].color : null}}
             >
                 {this.props.moving && (
                     <i className="fas fa-circle"/>

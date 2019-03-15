@@ -178,10 +178,25 @@ class Store {
             });
             this.game.game_state = "ENDED";
         } else {
+            const newBoard = this.game.board.map(tile => {
+                if (tile.player === playerIndex) {
+                    return {
+                        ...tile,
+                        owned: false,
+                        player: null,
+                        mortgaged: false,
+                        upgrades: 0,
+                    }
+                } else {
+                    return tile;
+                }
+            });
+            this.game.board = newBoard;
             this.socket.emit("player_gives_up", {
                 game_id: this.gameAuthInfo.game_id,
                 player_index: playerIndex,
                 next_player: newCurrentPlayer,
+                new_board: newBoard,
             });
         }
     };
@@ -759,6 +774,7 @@ class Store {
             runInAction(() => {
                 this.game.player_info[data.player_index].state = "OUT";
                 this.game.player_info[data.next_player].state = "START_TURN";
+                this.game.board = data.new_board;
             });
         });
         this.socket.on("game_ended", data => {
