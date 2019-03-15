@@ -32,33 +32,35 @@ class MainView extends Component {
                     {this.props.store.mousedOverTile !== null && (
                         <MousedOverTileTab/>
                     )}
-                    <div className={this.props.store.mousedOverTile !== null ? "invisible" : ""}>
-                        <NavTabs
-                            dropdownExpanded={this.state.dropdownExpanded}
-                            changeDropDown={this.changeDropDown}
-                            selectTab={this.selectTab}
-                            selectedTab={this.state.selectedTab}
-                        />
-                        {this.state.selectedTab === "my_info" && (
-                            <>
-                                <MyInfoTab/>
-                                <Actions/>
-                                <Logs/>
-                            </>
-                        )}
-                        {this.state.selectedTab === "my_properties" && (
-                            <MyPropertiesTab/>
-                        )}
-                        {this.state.selectedTab === "player_info" && (
-                            <PlayersTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
-                        )}
-                        {this.state.selectedTab === "player_trade" && (
-                            <TradeTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
-                        )}
-                        {this.state.selectedTab === "trades" && (
-                            <TradesTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
-                        )}
-                    </div>
+                    {this.props.store.mousedOverTile === null && (
+                        <>
+                            <NavTabs
+                                dropdownExpanded={this.state.dropdownExpanded}
+                                changeDropDown={this.changeDropDown}
+                                selectTab={this.selectTab}
+                                selectedTab={this.state.selectedTab}
+                            />
+                            {this.state.selectedTab === "my_info" && (
+                                <>
+                                    <MyInfoTab/>
+                                    <Actions/>
+                                    <Logs/>
+                                </>
+                            )}
+                            {this.state.selectedTab === "my_properties" && (
+                                <MyPropertiesTab/>
+                            )}
+                            {this.state.selectedTab === "player_info" && (
+                                <PlayersTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                            )}
+                            {this.state.selectedTab === "player_trade" && (
+                                <TradeTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                            )}
+                            {this.state.selectedTab === "trades" && (
+                                <TradesTab selectTab={this.selectTab} player={this.state.selectedPlayer}/>
+                            )}
+                        </>
+                    )}
 
                 </div>
                 }

@@ -38,7 +38,7 @@ module.exports = {
                 4, 20, 60, 180, 320, 450,
             ],
             type: "property",
-            url: "https://uponarriving.com/wp-content/uploads/2017/11/CapitalOne.png"
+            url: "https://i.imgur.com/1HIGuU3.png"
         },
         {
             //Income Tax
@@ -78,7 +78,7 @@ module.exports = {
         },
         {
             //Vermont Avenue
-            name: "HPE",
+            name: "HP",
             cost: 100,
             upgrade: 50,
             position: 8,
@@ -87,11 +87,11 @@ module.exports = {
                 6, 30, 90, 270, 400, 550,
             ],
             type: "property",
-            url: "https://www.sitsgroup.com/wp-content/uploads/2018/06/HPE-LOGO-01.jpeg"
+            url: "https://i.imgur.com/1itQmiF.png"
         },
         {
             //Connecticut Avenue
-            name: "Cisco",
+            name: "Dell",
             cost: 120,
             upgrade: 50,
             position: 9,
@@ -100,13 +100,13 @@ module.exports = {
                 8, 40, 100, 300, 450, 600,
             ],
             type: "property",
-            url: "https://media.licdn.com/dms/image/C4D0BAQHO_cO49I_FRA/company-logo_200_200/0?e=2159024400&v=beta&t=OF89KYLt2qfOjCwiIHy78ilCX0InrtHQL8Evu40InFY"
+            url: "https://i.imgur.com/SotuXHT.png"
         },
         {
             name: "Jail",
             position: 10,
             type: "jail",
-            url: "https://cdn2.iconfinder.com/data/icons/criminal-minds/350/Jail-512.png"
+            url: "https://i.imgur.com/4HKMThP.png"
         },
         {
             //St Charles Place
@@ -119,7 +119,7 @@ module.exports = {
                 10, 50, 150, 450, 625, 750,
             ],
             type: "property",
-            url: "https://is5-ssl.mzstatic.com/image/thumb/Purple114/v4/b6/b2/d2/b6b2d200-6af7-415b-6443-3475d8f08a31/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/246x0w.jpg"
+            url: "https://i.imgur.com/Lckj4pJ.jpg"
         },
         {
             //Electric Company
@@ -141,7 +141,7 @@ module.exports = {
                 10, 50, 150, 450, 625, 750,
             ],
             type: "property",
-            url: "https://cdn-images-1.medium.com/max/1050/1*dYj6dVggYVHh7905JA3ABQ.png"
+            url: "https://i.imgur.com/9rBmGif.png"
         },
         {
             //Virginia Avenue
@@ -154,7 +154,7 @@ module.exports = {
                 12, 60, 180, 500, 700, 900,
             ],
             type: "property",
-            url: "https://cdn.freebiesupply.com/logos/thumbs/2x/slack-logo-thumb.png"
+            url: "https://i.imgur.com/zbuGzlf.png"
         },
         {
             //Pennsylvania Railroad
@@ -325,7 +325,7 @@ module.exports = {
             name: "Go to Jail",
             position: 30,
             type: "go-to-jail",
-            url: "https://vignette.wikia.nocookie.net/robcraftbloxboys/images/c/c4/Go_to_jail.png/revision/latest?cb=20180602205731"
+            url: "https://i.imgur.com/c6lFnjv.jpg"
         },
         {
             //Pacific Avenue
