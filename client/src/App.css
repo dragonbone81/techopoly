@@ -272,7 +272,17 @@
     border-radius: 50%;
     width: 21px;
     height: 21px;
+    /*background-color: rgb(171, 233, 255);*/
+}
+
+.player-moving {
+    position: absolute;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     background-color: rgb(171, 233, 255);
+    top: 25%;
+    right: 25%;
 }
 
 .my-properties-pic {

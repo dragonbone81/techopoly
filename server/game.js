@@ -80,6 +80,11 @@ const game = (socket, io) => {
             position: input.new_position
         });
     });
+    socket.on("move_player_animation", async (input) => {
+        socket.to(`game_${input.game_id}`).emit("animated_players_moved", {
+            animated_players_move: input.animated_players_move
+        });
+    });
     socket.on("buy_tile", async (input) => {
         await (await client).updateOne(
             {_id: new ObjectId(input.game_id)},

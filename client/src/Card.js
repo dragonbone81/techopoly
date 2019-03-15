@@ -20,6 +20,9 @@ class Card extends Component {
                 {this.props.store.game.player_info.filter(player => player.position === this.props.position).map((player, i) => {
                     return <Player playerNumber={player.id} key={i}/>
                 })}
+                {this.props.store.game.animated_players_move.moves.filter(tileIndex => tileIndex === this.props.position).map((tileIndex, i) => {
+                    return <Player key={i} moving={true}/>
+                })}
                 {this.props.right && this.props.store.game.board[this.props.position].owned && <div
                     style={{backgroundColor: this.props.store.game.player_info[this.props.store.game.board[this.props.position].player].color}}
                     className="owned-square-right"/>}

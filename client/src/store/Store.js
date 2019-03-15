@@ -69,15 +69,46 @@ class Store {
     };
     movePlayerDev = (position) => {
         const playerIndex = this.playerIndex;
-        this.game.player_info[playerIndex].position = position;
-        this.socket.emit("move", {
+        this.game.animated_players_move = {player: -1, moves: []};
+        let i = this.game.player_info[playerIndex].position;
+        while (this.circularAdd(i, 0, 39) !== this.circularAdd(position, 0, 39)) {
+            this.game.animated_players_move.moves.push(this.circularAdd(i, 1, 39));
+            i += 1;
+        }
+        this.socket.emit('move_player_animation', {
             game_id: this.gameAuthInfo.game_id,
-            new_position: this.game.player_info[playerIndex].position,
-            player_index: playerIndex,
+            animated_players_move: this.game.animated_players_move,
         });
+        const movingPlayer = setInterval(() => {
+            runInAction(() => {
+                this.game.animated_players_move.moves.shift();
+                if (this.game.animated_players_move.moves.length === 0) {
+                    clearInterval(movingPlayer);
+                }
+            });
+        }, 200);
+        this.game.player_info[playerIndex].position = position;
     };
     movePlayerToTile = (position) => {
         const playerIndex = this.playerIndex;
+        this.game.animated_players_move = {player: -1, moves: []};
+        let i = this.game.player_info[playerIndex].position;
+        while (this.circularAdd(i, 0, 39) !== this.circularAdd(position, 0, 39)) {
+            this.game.animated_players_move.moves.push(this.circularAdd(i, 1, 39));
+            i += 1;
+        }
+        this.socket.emit('move_player_animation', {
+            game_id: this.gameAuthInfo.game_id,
+            animated_players_move: this.game.animated_players_move,
+        });
+        const movingPlayer = setInterval(() => {
+            runInAction(() => {
+                this.game.animated_players_move.moves.shift();
+                if (this.game.animated_players_move.moves.length === 0) {
+                    clearInterval(movingPlayer);
+                }
+            });
+        }, 100);
         this.game.player_info[playerIndex].position = position;
         this.socket.emit("move", {
             game_id: this.gameAuthInfo.game_id,
@@ -508,6 +539,24 @@ class Store {
     };
     movePlayer = () => {
         const playerIndex = this.playerIndex;
+        this.game.animated_players_move = {player: -1, moves: []};
+        let i = 0;
+        while (i <= this.diceSum) {
+            this.game.animated_players_move.moves.push(this.circularAdd(this.game.player_info[playerIndex].position, i, 39));
+            i += 1;
+        }
+        this.socket.emit('move_player_animation', {
+            game_id: this.gameAuthInfo.game_id,
+            animated_players_move: this.game.animated_players_move,
+        });
+        const movingPlayer = setInterval(() => {
+            runInAction(() => {
+                this.game.animated_players_move.moves.shift();
+                if (this.game.animated_players_move.moves.length === 0) {
+                    clearInterval(movingPlayer);
+                }
+            });
+        }, 200);
         this.game.player_info[playerIndex].position = this.circularAdd(this.game.player_info[playerIndex].position, this.diceSum, 39);
         this.socket.emit("move", {
             game_id: this.gameAuthInfo.game_id,
@@ -682,6 +731,20 @@ class Store {
             console.log("game_started", data);
             runInAction(() => {
                 this.game.game_state = "STARTED";
+            });
+        });
+        this.socket.on("animated_players_moved", data => {
+            console.log("animated_players_moved", data);
+            runInAction(() => {
+                this.game.animated_players_move = data.animated_players_move;
+                const movingPlayer = setInterval(() => {
+                    runInAction(() => {
+                        this.game.animated_players_move.moves.shift();
+                        if (this.game.animated_players_move.moves.length === 0) {
+                            clearInterval(movingPlayer);
+                        }
+                    });
+                }, 200);
             });
         });
         this.socket.on("pay_all_players_payed", data => {

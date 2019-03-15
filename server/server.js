@@ -66,6 +66,7 @@ app.post('/create_game', async (req, res) => {
                 pay_multiplier: 1,
                 color: colors[0],
             }],
+            animated_players_move: {player: -1, moves: []},
             game_state: "INVITING_PLAYERS",
             auction: false,
             auction_tile: 0,

@@ -4,8 +4,16 @@ import {observer, inject} from 'mobx-react';
 class Player extends Component {
     render() {
         return (
-            <div className="player d-flex justify-content-center">
-                <b>{this.props.playerNumber + 1}</b>
+            <div
+                className={`${this.props.moving ? "player-moving" : "player"} d-flex justify-content-center align-items-center`}
+                style={{backgroundColor: !this.props.moving ? this.props.store.getPlayer.color : null}}
+            >
+                {this.props.moving && (
+                    <i className="fas fa-circle"/>
+                )}
+                {!this.props.moving && (
+                    <b>{this.props.playerNumber + 1}</b>
+                )}
             </div>
         );
     }
