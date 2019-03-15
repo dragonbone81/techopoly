@@ -3,7 +3,7 @@ import {decorate, configure, observable, action, computed, runInAction} from 'mo
 import io from 'socket.io-client';
 
 configure({enforceActions: "observed"});
-const URL = process.env.REACT_APP_URL ? process.env.REACT_APP_URL : 'http://localhost:3000';
+const URL = process.env.REACT_APP_URL ? process.env.REACT_APP_URL : 'http://localhost:3001';
 
 class Store {
     socket = io(`${URL}/`);
