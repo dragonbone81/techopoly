@@ -1,0 +1,21 @@
+{
+  "builds": [
+    {
+      "src": "server/index.js",
+      "use": "@now/node-server"
+    }
+  ],
+  "alias": [
+    "techopoly"
+  ],
+  "env": {
+    "DB_URL": "@db_url",
+    "PROD": "@prod"
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server/index.js"
+    }
+  ]
+}
