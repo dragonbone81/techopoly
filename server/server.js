@@ -113,7 +113,7 @@ app.post('/join_game', async (req, res) => {
                         doubles_rolled: 0,
                         dice: [0, 0],
                         pay_multiplier: 1,
-                        color: colors[0],
+                        color: colors[Math.max(...game.player_info.map(el => el.id)) + 1],
                     },
                 }
             },

@@ -28,16 +28,17 @@ class PlayersTab extends Component {
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Cash: </span>
                             <span
-                                className="flex-fill">${liquidWorth}</span>
+                                className="flex-fill">${this.props.store.game.player_info[this.props.player].money}</span>
                         </div>
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Net Worth: </span>
                             <span
-                                className="flex-fill">${netWorth}</span>
+                                className="flex-fill">${this.props.store.netWorthOfPlayer(this.props.player)}</span>
                         </div>
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Liquid Worth: </span>
-                            <span className="flex-fill">${this.props.store.liquidWorth}</span>
+                            <span
+                                className="flex-fill">${this.props.store.liquidWorthofPlayer(this.props.player)}</span>
                         </div>
                     </div>
                 </div>

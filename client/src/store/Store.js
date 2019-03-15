@@ -166,6 +166,7 @@ class Store {
         });
     };
     createTrade = (tradingPlayer, givenProperties, takenProperties, givenMoney, takenMoney) => {
+        this.selectedTab = "my_info";
         const initiatingPlayer = this.playerIndex;
         const trade = {
             initiating_player: initiatingPlayer,
