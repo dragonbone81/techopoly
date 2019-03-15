@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const app = express();
-const port = process.env.PROD ? 3001 : null;
+const port = process.env.PROD ? null : null;
 const server = app.listen(port, () => console.log("Server Started!"));
 const io = require('socket.io')(server);
 // const game = require("./game");
