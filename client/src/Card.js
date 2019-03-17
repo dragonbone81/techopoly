@@ -11,7 +11,7 @@ class Card extends Component {
                 // onClick={() => this.props.store.devMoveHere(this.props.position)}
                 style={{
                     backgroundImage: `url(${this.props.store.game.board[this.props.position].url})`,
-                    border: '1px solid grey'
+                    // border: `2px solid ${this.props.store.game.board[this.props.position].color}`
                 }}
                 className={`game-tile d-flex flex-wrap align-content-between justify-content-between ${this.props.store.game.board[this.props.position].mortgaged ? "grey-card" : ""}`}
                 onMouseLeave={this.props.store.clearMousedOverTile}
@@ -66,6 +66,10 @@ class Card extends Component {
                         }
                     </div>
                 )}
+                {/*{this.props.bottom && (*/}
+                    {/*<div style={{backgroundColor: this.props.store.game.board[this.props.position].color}}*/}
+                         {/*className="d-flex flex-row top-tiles-color"/>*/}
+                {/*)}*/}
                 {this.props.bottom && this.props.store.game.board[this.props.position].owned && <div
                     style={{backgroundColor: this.props.store.game.player_info[this.props.store.game.board[this.props.position].player].color}}
                     className="owned-square-bottom"/>}

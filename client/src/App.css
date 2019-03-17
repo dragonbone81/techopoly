@@ -77,7 +77,6 @@
     border-bottom-right-radius: 10px;
 }
 
-
 .grey-card {
     filter: grayscale(50%);
 }
@@ -85,7 +84,6 @@
 .double {
     zoom: 2;
 }
-
 
 .info-tab-label {
     width: 150px;
@@ -107,6 +105,14 @@
 
 .upgrade-col {
     position: relative;
+}
+
+.top-tiles-color {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 70px;
+    height: 3px;
 }
 
 .top-tiles-upgrade-bar {
@@ -188,7 +194,6 @@
 .bar-component-left {
     border-left: 1px solid black;
 }
-
 
 .my-properties-table {
     /*height: 200px;*/
@@ -364,7 +369,7 @@
     background-size: contain !important;
     background-repeat: no-repeat;
     background-position: 50%;
-    /*border: 1px solid black;*/
+    /*border: 1px solid #ffa5a0;*/
 }
 
 .edge {

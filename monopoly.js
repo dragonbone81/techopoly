@@ -2,10 +2,10 @@ module.exports = {
     board: [
         {
             //GO
-            name: "ENIAC",
+            name: "GO",
             position: 0,
             type: "go",
-            url: "https://banner2.kisspng.com/20180526/at/kisspng-computer-monitors-computer-icons-eniac-dell-vostro-5b090a577f0295.7597850915273191275202.jpg"
+            url: "https://i.imgur.com/zlsuZeT.jpg"
         },
         {
             //Mediterranean Avenue
@@ -18,14 +18,14 @@ module.exports = {
                 2, 10, 30, 90, 160, 250,
             ],
             type: "property",
-            url: "https://seeklogo.net/wp-content/uploads/2016/11/visa-logo-preview-200x200.png"
+            url: "https://i.imgur.com/TBCSxks.png"
         },
         {
             //Community Chest
             name: "Stock Options",
             position: 2,
             type: "chance",
-            url: "https://i.pinimg.com/originals/83/fd/36/83fd36a3daab3596a29973ff2e55ce9a.png"
+            url: "https://i.imgur.com/AC8HcoD.jpg"
         },
         {
             //Baltic Ave
@@ -38,14 +38,14 @@ module.exports = {
                 4, 20, 60, 180, 320, 450,
             ],
             type: "property",
-            url: "https://i.imgur.com/1HIGuU3.png"
+            url: "https://i.imgur.com/1bII4bF.jpg"
         },
         {
             //Income Tax
             name: "Tax",
             position: 4,
             type: "income-tax",
-            url: "https://www.gmkfreelogos.com/logos/I/img/IRS.gif"
+            url: "https://i.imgur.com/1E3cLRO.png"
         },
         {
             //Reading Railroad
@@ -54,31 +54,31 @@ module.exports = {
             base_rent: 25,
             position: 5,
             type: "rr",
-            url: "https://media.licdn.com/dms/image/C4D0BAQEko6uLz7XylA/company-logo_200_200/0?e=2159024400&v=beta&t=a1kve4i0YyusChyNR_Cvvn2vnHNUHhZ4H2rnYCxjQhU"
+            url: "https://i.imgur.com/9k7grnv.png"
         },
         {
-            //Oriental Ave
-            name: "Arista",
-            cost: 100,
+            //Connecticut Avenue
+            name: "Doordash",
+            cost: 120,
             upgrade: 50,
-            position: 6,
+            position: 9,
             group: "light-blue",
             rent: [
                 6, 30, 90, 270, 400, 550,
             ],
             type: "property",
-            url: "https://www.arista.com/assets/images/logo/arista_logo_blue_bg_500x280.jpg"
+            url: "https://i.imgur.com/x1zQhTY.png"
         },
         {
             //Chance
             name: "Equity",
             position: 7,
             type: "chance",
-            url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBtMbapWlc932J1u4m_6pQLl3sItQp4XrUIIfJE6QCq782tDtE5A"
+            url: "https://i.imgur.com/tXYApWB.png"
         },
         {
             //Vermont Avenue
-            name: "HP",
+            name: "Reddit",
             cost: 100,
             upgrade: 50,
             position: 8,
@@ -87,26 +87,26 @@ module.exports = {
                 6, 30, 90, 270, 400, 550,
             ],
             type: "property",
-            url: "https://i.imgur.com/1itQmiF.png"
+            url: "https://i.imgur.com/ry3ru3l.png"
         },
         {
-            //Connecticut Avenue
-            name: "Dell",
-            cost: 120,
+            //Oriental Ave
+            name: "Robinhood",
+            cost: 100,
             upgrade: 50,
-            position: 9,
+            position: 6,
             group: "light-blue",
             rent: [
                 8, 40, 100, 300, 450, 600,
             ],
             type: "property",
-            url: "https://i.imgur.com/SotuXHT.png"
+            url: "https://i.imgur.com/FO48Ffj.jpg"
         },
         {
             name: "Jail",
             position: 10,
             type: "jail",
-            url: "https://i.imgur.com/4HKMThP.png"
+            url: "https://i.imgur.com/UjkDuYN.jpg"
         },
         {
             //St Charles Place
@@ -128,7 +128,7 @@ module.exports = {
             position: 12,
             group: "utility",
             type: "utility",
-            url: "https://i.imgur.com/HT6H2Qr.png"
+            url: "https://i.imgur.com/lMbhkCW.png"
         },
         {
             //States Avenue
@@ -141,7 +141,7 @@ module.exports = {
                 10, 50, 150, 450, 625, 750,
             ],
             type: "property",
-            url: "https://i.imgur.com/9rBmGif.png"
+            url: "https://i.imgur.com/24T8C2W.png"
         },
         {
             //Virginia Avenue
@@ -154,7 +154,7 @@ module.exports = {
                 12, 60, 180, 500, 700, 900,
             ],
             type: "property",
-            url: "https://i.imgur.com/zbuGzlf.png"
+            url: "https://i.imgur.com/0sLIAPw.png"
         },
         {
             //Pennsylvania Railroad
@@ -164,26 +164,6 @@ module.exports = {
             position: 15,
             type: "rr",
             url: "https://i.imgur.com/Gahoxm2.png"
-        },
-        {
-            //St James Place
-            name: "Twitch",
-            cost: 180,
-            upgrade: 100,
-            position: 16,
-            group: "orange",
-            rent: [
-                14, 70, 200, 550, 750, 950,
-            ],
-            type: "property",
-            url: "https://i.imgur.com/gCSqbRz.png"
-        },
-        {
-            //Community Chest
-            name: "Stock Options",
-            position: 17,
-            type: "chest",
-            url: "https://i.pinimg.com/originals/83/fd/36/83fd36a3daab3596a29973ff2e55ce9a.png"
         },
         {
             //Tennessee Avenue
@@ -196,7 +176,29 @@ module.exports = {
                 14, 70, 200, 550, 750, 950,
             ],
             type: "property",
-            url: "https://i.imgur.com/oMFn1fb.png"
+            url: "https://i.imgur.com/vYQZRaG.png",
+            color:"#FBAA1B",
+        },
+        {
+            //Community Chest
+            name: "Stock Options",
+            position: 17,
+            type: "chest",
+            url: "https://i.imgur.com/AC8HcoD.jpg"
+        },
+        {
+            //St James Place
+            name: "Twitch",
+            cost: 180,
+            upgrade: 100,
+            position: 16,
+            group: "orange",
+            rent: [
+                14, 70, 200, 550, 750, 950,
+            ],
+            type: "property",
+            url: "https://i.imgur.com/Bexjmxs.png",
+            color:"#FBAA1B",
         },
         {
             //New York Avenue
@@ -209,14 +211,15 @@ module.exports = {
                 16, 80, 220, 600, 800, 1000,
             ],
             type: "property",
-            url: "https://i.imgur.com/jAJ2TYp.png"
+            url: "https://i.imgur.com/5jhWhOw.jpg",
+            color:"#FBAA1B",
         },
         {
             //Free Parking
             name: "PTO",
             position: 20,
             type: "parking",
-            url: "http://static1.squarespace.com/static/55d0f3d2e4b02774e522e30f/t/595d9f8fe3df28e874cf2f2b/1499307921391/PTO.png?format=1500w"
+            url: "https://i.imgur.com/fztIAxy.png"
         },
         {
             //Kentucky Avenue
@@ -229,14 +232,15 @@ module.exports = {
                 18, 90, 250, 700, 875, 1050,
             ],
             type: "property",
-            url: "https://seeklogo.net/wp-content/uploads/2012/12/square-logo-vector.png"
+            url: "https://i.imgur.com/r5SJs2y.jpg",
+            color:"#E73B27"
         },
         {
             //Chance
             name: "Equity",
             position: 22,
             type: "chance",
-            url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBtMbapWlc932J1u4m_6pQLl3sItQp4XrUIIfJE6QCq782tDtE5A"
+            url: "https://i.imgur.com/tXYApWB.png"
         },
         {
             //Indiana Avenue
@@ -249,7 +253,8 @@ module.exports = {
                 18, 90, 250, 700, 875, 1050,
             ],
             type: "property",
-            url: "http://cdn.zencloudtech.com/wp-content/uploads/atlassian.png"
+            url: "https://i.imgur.com/z1A2ds5.png",
+            color:"#E73B27"
         },
         {
             //Illinois Avenue
@@ -262,7 +267,8 @@ module.exports = {
                 20, 100, 300, 750, 925, 1100,
             ],
             type: "property",
-            url: "https://www.twilio.com/marketing/bundles/company/img/logos/red/twilio-mark-red.png"
+            url: "https://i.imgur.com/YYMNfE9.png",
+            color:"#E73B27"
         },
         {
             //B&0 Railroad
@@ -271,24 +277,24 @@ module.exports = {
             base_rent: 25,
             position: 25,
             type: "rr",
-            url: "http://stovetecstore.net/wp-content/uploads/2016/09/amazon-transparent-logo-a.png"
+            url: "https://i.imgur.com/0NjxZUM.png"
         },
-        {
-            //Atlantic Avenue
-            name: "LinkedIn",
-            cost: 260,
-            upgrade: 150,
-            position: 26,
-            group: "yellow",
-            rent: [
-                22, 110, 330, 800, 975, 1150,
-            ],
-            type: "property",
-            url: "https://icons-for-free.com/free-icons/png/512/272550.png",
-        },
+        // {
+        //     //Atlantic Avenue
+        //     name: "LinkedIn",
+        //     cost: 260,
+        //     upgrade: 150,
+        //     position: 26,
+        //     group: "yellow",
+        //     rent: [
+        //         22, 110, 330, 800, 975, 1150,
+        //     ],
+        //     type: "property",
+        //     url: "https://icons-for-free.com/free-icons/png/512/272550.png",
+        // },
         {
             //Ventnor Avenue
-            name: "Pinterest",
+            name: "Instagram",
             cost: 260,
             upgrade: 150,
             position: 27,
@@ -297,7 +303,20 @@ module.exports = {
                 22, 110, 330, 800, 975, 1150,
             ],
             type: "property",
-            url: "https://fcmod.org/wp-content/uploads/2018/06/pinterest.png"
+            url: "https://i.imgur.com/Hx9qvk6.png?1"
+        },
+        {
+            //Marvin Gardens
+            name: "Snapchat",
+            cost: 280,
+            upgrade: 150,
+            position: 29,
+            group: "yellow",
+            rent: [
+                22, 110, 330, 800, 975, 1150,
+            ],
+            type: "property",
+            url: "https://i.imgur.com/fweXMJx.jpg"
         },
         {
             //Water Works
@@ -306,20 +325,20 @@ module.exports = {
             position: 28,
             group: "utility",
             type: "utility",
-            url: "https://media.glassdoor.com/sqll/43129/tesla-squarelogo-1512420729170.png"
+            url: "https://i.imgur.com/kVnhd7V.png"
         },
         {
-            //Marvin Gardens
-            name: "Snap",
-            cost: 280,
+            //Atlantic Avenue
+            name: "TikTok",
+            cost: 260,
             upgrade: 150,
-            position: 29,
+            position: 26,
             group: "yellow",
             rent: [
                 24, 120, 360, 850, 1025, 1200,
             ],
             type: "property",
-            url: "https://www.clipartmax.com/png/small/165-1653237_pumpkin-outline-clip-art-free-for-kids-snapchat-icon-png.png"
+            url: "https://i.imgur.com/eodeQiK.jpg?1",
         },
         {
             name: "Go to Jail",
@@ -338,7 +357,7 @@ module.exports = {
                 26, 130, 390, 900, 1100, 1275,
             ],
             type: "property",
-            url: "https://img.stackshare.io/stack/178/gOAVGplp.png",
+            url: "https://i.imgur.com/QOSHwjX.png",
         },
         {
             //North Carolina Avenue
@@ -351,14 +370,14 @@ module.exports = {
                 26, 130, 390, 900, 1100, 1275,
             ],
             type: "property",
-            url: "https://fastly.4sqi.net/img/general/200x200/87388367_2mcqNoV4ifgXnHQ8fxr_IMpjbOTXUL0BKDtxuaMfjGg.png",
+            url: "https://i.imgur.com/ul8swcl.png",
         },
         {
             //Community Chest
             name: "Stock Options",
             position: 33,
             type: "chest",
-            url: "https://i.pinimg.com/originals/83/fd/36/83fd36a3daab3596a29973ff2e55ce9a.png"
+            url: "https://i.imgur.com/AC8HcoD.jpg"
         },
         {
             //Pennsylvania Avenue
@@ -371,23 +390,23 @@ module.exports = {
                 28, 150, 450, 1000, 1200, 1400,
             ],
             type: "property",
-            url: "https://media.glassdoor.com/sqll/391850/airbnb-squarelogo-1459271200583.png",
+            url: "https://i.imgur.com/25096o5.png",
         },
         {
             //Short Line
-            name: "Google",
+            name: "Apple",
             cost: 200,
             base_rent: 25,
             position: 35,
             type: "rr",
-            url: "https://i.stack.imgur.com/QHsnY.png",
+            url: "https://i.imgur.com/NTi8ViD.png",
         },
         {
             //Chance
             name: "Equity",
             position: 36,
             type: "chance",
-            url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBtMbapWlc932J1u4m_6pQLl3sItQp4XrUIIfJE6QCq782tDtE5A"
+            url: "https://i.imgur.com/tXYApWB.png"
         },
         {
             //Park Place
@@ -400,14 +419,14 @@ module.exports = {
                 35, 175, 500, 1100, 1300, 1500,
             ],
             type: "property",
-            url: "https://media.glassdoor.com/sqll/197851/workday-squarelogo-1485303092465.png",
+            url: "https://i.imgur.com/f4X4kns.png",
         },
         {
             //Luxury Tax
             name: "Tax Evasion",
             position: 38,
             type: "lux-tax",
-            url: "https://cdn4.iconfinder.com/data/icons/tax-taxpayer/244/tax-burden-002-512.png"
+            url: "https://i.imgur.com/332sOlL.jpg"
         },
         {
             //Boardwalk
@@ -420,7 +439,7 @@ module.exports = {
                 50, 200, 600, 1400, 1700, 2000,
             ],
             type: "property",
-            url: "http://www.logospng.com/images/148/technology-percolator-consulting-148098.png",
+            url: "https://i.imgur.com/fJ7V1CC.png",
         },
     ],
     chance: [
