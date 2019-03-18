@@ -9,7 +9,7 @@ class Board extends Component {
     componentDidMount() {
         let gameInfo = localStorage.getItem("previous_game");
         if (!gameInfo) {
-            this.props.history.push("/newgame");
+            this.props.history.push("/start");
             return;
         }
         gameInfo = JSON.parse(gameInfo);
@@ -19,12 +19,16 @@ class Board extends Component {
 
     render() {
         return (
-            this.props.store.inGame ? <div className="d-flex flex-column main-box">
+            this.props.store.inGame ? <div
+                    style={{outline: `2px solid ${this.props.store.getPlayer.state !== "NOT_TURN" ? "#61c86a" : "#c8464b"}`}}
+                    className="d-flex flex-column main-box">
                     <MainView/>
                     <div className="d-flex flex-row">
                         <Card position={20}/>
                         <Card bottom={true} position={21}/>
+                        <div/>
                         <Card bottom={true} position={22}/>
+                        <div/>
                         <Card bottom={true} position={23}/>
                         <Card bottom={true} position={24}/>
                         <Card bottom={true} position={25}/>
@@ -85,7 +89,8 @@ class Board extends Component {
                     </div>
                 </div>
                 :
-                <div>Loading</div>
+                <div style={{margin: "auto", textAlign: "center", fontSize: 80}}><i
+                    className="fas fa-spinner  fa-spin"/></div>
         );
     }
 }

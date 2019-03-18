@@ -29,7 +29,8 @@ class Actions extends Component {
                     </button>
                 )}
                 {this.props.store.playerState === "NOT_TURN" && (
-                    <div>Not your turn.</div>
+                    <div>{this.props.store.currentPlayerTurn.username} is
+                        taking their turn.</div>
                 )}
                 {this.props.store.playerState === "UTILITY_CHANCE_CARD" && (
                     <button type="button" onClick={this.props.store.utilityChanceCardPayment}

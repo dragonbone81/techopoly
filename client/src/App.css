@@ -1,6 +1,24 @@
 .main {
     /*margin: auto;*/
     /*min-width: 1300px;*/
+    height: inherit;
+    min-height: 765px;
+    background-image: url("https://i.imgur.com/IdeileL.png");
+    background-size: cover;
+    /*background-repeat: no-repeat;*/
+    background-position: 50%;
+
+}
+
+#root {
+    height: 100vh;
+    /*max-height: 1000vh;*/
+    background-size: cover;
+}
+
+.main-nav-tabs {
+    /*margin-bottom: 10px;*/
+    /*padding-bottom: 10px;*/
 }
 
 .main-view {
@@ -16,6 +34,8 @@
     left: 70px;
     width: 630px;
     max-height: 630px;
+    min-height: 630px;
+    background-color: rgba(255, 255, 255, 0.93);
     /*background-color: aqua;*/
 }
 
@@ -112,7 +132,10 @@
     top: 0px;
     left: 0px;
     width: 70px;
-    height: 3px;
+    height: 5px;
+    /*outline: 1px solid black;*/
+    /*outline-offset: -1px;*/
+    /*border: 1px solid black;*/
 }
 
 .top-tiles-upgrade-bar {
@@ -386,6 +409,11 @@
 }
 
 .main-box {
+    /*padding-top: 10px;*/
+    /*border: 10px solid black;*/
+    /*outline: 2px solid #61c86a;*/
+    outline: 2px solid #c8464b;
+    border-radius: 10px;
     margin: auto;
     position: relative;
     width: 770px;
@@ -425,4 +453,12 @@
 
 .new-game-main {
     padding: 20px;
+}
+
+.tile-identifier {
+    position: absolute;
+    width: 50px;
+    height: 10px;
+    background-color: orange;
+    z-index: 1000;
 }

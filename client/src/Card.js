@@ -66,7 +66,7 @@ class Card extends Component {
                         }
                     </div>
                 )}
-                {/*{this.props.bottom && (*/}
+                {/*{this.props.bottom && this.props.store.game.board[this.props.position].color && (*/}
                     {/*<div style={{backgroundColor: this.props.store.game.board[this.props.position].color}}*/}
                          {/*className="d-flex flex-row top-tiles-color"/>*/}
                 {/*)}*/}

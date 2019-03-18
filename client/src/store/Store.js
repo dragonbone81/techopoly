@@ -562,6 +562,7 @@ class Store {
         this.setPlayerState("NOT_TURN");
         const playerIndex = this.playerIndex;
         const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.filter(player => player.state !== "OUT").length - 1);
+        this.game.player_info[newCurrentPlayer].state = "START_TURN";
         this.socket.emit('end_turn', {
             game_id: this.gameAuthInfo.game_id,
             next_player: newCurrentPlayer,
@@ -1040,6 +1041,11 @@ class Store {
         let ownsAll = this.game.board.filter(el => el.group === this.game.board[propertyIndex].group && el.player !== this.game.board[propertyIndex].player).length === 0;
         let noneMortgaged = this.game.board.filter(el => el.group === this.game.board[propertyIndex].group).every(el => !el.mortgaged);
         return ownsAll && noneMortgaged && this.game.board[propertyIndex].upgrades < 3 && this.getPlayer.money >= this.game.board[propertyIndex].upgrade;
+    };
+
+    get currentPlayerTurn() {
+        const player = this.game.player_info.find(player => player.state !== "NOT_TURN");
+        return player || {};
     }
 }
 
@@ -1059,6 +1065,7 @@ decorate(Store, {
     netWorth: computed,
     liquidWorth: computed,
     playerIndex: computed,
+    currentPlayerTurn: computed,
     rollDice: action,
     setPlayerState: action,
     movePlayerToTile: action,

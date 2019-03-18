@@ -344,7 +344,7 @@ module.exports = {
             name: "Go to Jail",
             position: 30,
             type: "go-to-jail",
-            url: "https://i.imgur.com/c6lFnjv.jpg"
+            url: "https://i.imgur.com/B4pTwgp.jpg"
         },
         {
             //Pacific Avenue
