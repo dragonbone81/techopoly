@@ -136,24 +136,6 @@ class NewGame extends Component {
         return (
             <div className="new-game-main">
                 <ToastContainer/>
-                {/*<input onChange={({target}) => this.setState({name: target.value})} value={this.state.name}*/}
-                {/*placeholder="Game Name"/>*/}
-                {/*<input onChange={({target}) => this.setState({username: target.value})} value={this.state.username}*/}
-                {/*placeholder="username"/>*/}
-                {/*<input onChange={({target}) => this.setState({password: target.value})} value={this.state.password}*/}
-                {/*placeholder="password"/>*/}
-                {/*<button onClick={() => {*/}
-                {/*this.props.store.connectedFromNew();*/}
-                {/*this.props.store.newGame(this.state.name, this.state.username, this.state.password);*/}
-                {/*this.props.history.push(`/game/${this.state.name}`);*/}
-                {/*}}>New Game*/}
-                {/*</button>*/}
-                {/*<button onClick={() => {*/}
-                {/*this.props.store.connectedFromNew();*/}
-                {/*this.props.store.connectToGame(this.state.name, this.state.username, this.state.password);*/}
-                {/*this.props.history.push(`/game/${this.state.name}`);*/}
-                {/*}}>Join*/}
-                {/*</button>*/}
                 <ul className="nav nav-tabs">
                     <li className="nav-item cursor" onClick={() => this.setState({selectedTab: "create_game"})}>
                         <div className={`nav-link ${this.state.selectedTab === "create_game" ? "active" : ""}`}>
@@ -233,7 +215,10 @@ class NewGame extends Component {
                                                 className="cursor list-group-item">
                                                 {this.state.gamesFoundSelected !== index && (
                                                     <div className="d-flex justify-content-between align-items-center">
-                                                        {game.auth.game_name}
+                                                        <div className="d-flex flex-column">
+                                                            <div>{game.auth.game_name}</div>
+                                                            <small>Created by: {game.player_info[0].username}</small>
+                                                        </div>
                                                         <i className="fas fa-arrow-circle-right"/>
                                                     </div>
                                                 )}
