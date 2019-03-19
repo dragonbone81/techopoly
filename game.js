@@ -53,11 +53,8 @@ const game = (socket, io) => {
         respond(game.ops[0]);
     });
     socket.on('join_game', async (input) => {
-        console.log('join_request', input);
         socket.username = input.username;
-        socket.join(`game_${input.game_id}`, () => {
-            console.log(Object.keys(io.sockets.sockets));
-        });
+        socket.join(`game_${input.game_id}`);
 
 
         let game = await (await client).findOne(
