@@ -3,8 +3,6 @@ import {inject, observer} from "mobx-react";
 
 class PlayersTab extends Component {
     render() {
-        const netWorth = this.props.store.netWorthOfPlayer(this.props.player);
-        const liquidWorth = this.props.store.liquidWorthofPlayer(this.props.player);
         return (
             <div>
                 <div className="d-flex flex-row justify-content-around">
