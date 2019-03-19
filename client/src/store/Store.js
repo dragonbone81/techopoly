@@ -632,6 +632,10 @@ class Store {
                 this.setGameInfo(data);
             }
         });
+        this.socket.on('reconnect', () => {
+            console.log("reconnecting");
+            this.connectToGame();
+        });
         this.socketActions();
 
     }
