@@ -6,13 +6,37 @@ class MousedOverTileTab extends Component {
 
     render() {
         const tile = this.props.store.game.board[this.props.store.mousedOverTile];
+        let relatedTiles = [];
+        if (tile.type === "rr" || tile.type === "utility") {
+            relatedTiles = this.props.store.game.board.filter((tile, i) => tile.type === this.props.store.game.board[this.props.store.mousedOverTile].type && i !== this.props.store.mousedOverTile);
+        } else if (tile.type === "property") {
+            relatedTiles = this.props.store.game.board.filter((tile, i) => tile.group === this.props.store.game.board[this.props.store.mousedOverTile].group && i !== this.props.store.mousedOverTile);
+        }
         return (
             <div className="d-flex flex-column align-items-center justify-content-center tile-info-container">
-                <div className="tile-info-image-div" style={{
-                    backgroundImage: `url(${tile.url})`,
-                }}/>
-                <div className="tile-info-name">
-                    {tile.name}
+                <div className="d-flex flex-row">
+                    <div className="d-flex flex-column align-items-center justify-content-center">
+                        <div className="tile-info-image-div" style={{
+                            backgroundImage: `url(${tile.url})`,
+                        }}/>
+                        <div className="tile-info-name">
+                            {tile.name}
+                        </div>
+                    </div>
+                    {(tile.type === "property" || tile.type === "rr" || tile.type === "utility") && (
+                        <div className="d-flex flex-row align-items-center justify-content-center">
+                            {relatedTiles.map((relTile, i) => {
+                                return (
+                                    <div key={i}
+                                         className="d-flex flex-column align-items-center justify-content-center">
+                                        <div className="rel-tile-info-image-div" style={{
+                                            backgroundImage: `url(${relTile.url})`,
+                                        }}/>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
                 </div>
                 {(tile.type === "chance" || tile.type === "chest") && (
                     <div>
