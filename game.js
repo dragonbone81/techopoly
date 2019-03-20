@@ -53,18 +53,21 @@ const game = (socket, io) => {
         respond(game.ops[0]);
     });
     socket.on('join_game', async (input) => {
-        socket.username = input.username;
-        socket.join(`game_${input.game_id}`);
+        try {
+            socket.username = input.username;
+            socket.join(`game_${input.game_id}`);
 
 
-        let game = await (await client).findOne(
-            {_id: new ObjectId(input.game_id)},
-            {}
-        );
-        if (game.game_state === "INVITING_PLAYERS") {
-            io.in(`game_${input.game_id}`).emit("game_info", game);
-        } else {
-            socket.emit("game_info", game);
+            let game = await (await client).findOne(
+                {_id: new ObjectId(input.game_id)},
+                {}
+            );
+            if (game.game_state === "INVITING_PLAYERS") {
+                io.in(`game_${input.game_id}`).emit("game_info", game);
+            } else {
+                socket.emit("game_info", game);
+            }
+        } catch (e) {
         }
     });
     socket.on("move", async (input) => {

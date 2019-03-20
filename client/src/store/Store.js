@@ -665,6 +665,9 @@ class Store {
             runInAction(() => {
                 this.game.player_info[data.next_player].state = "START_TURN";
                 this.game.player_info[data.old_player].state = "NOT_TURN";
+                if (data.next_player === this.playerIndex) {
+                    new Notification("Your turn!");
+                }
             });
         });
         this.socket.on("sync_player_jail_state_synced", data => {

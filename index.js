@@ -11,7 +11,6 @@ const client = require("./db_connection");
 const {board, colors, chest, chance} = require("./monopoly");
 const ObjectId = require('mongodb').ObjectID;
 
-
 app.use(morgan('short'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
