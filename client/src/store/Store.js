@@ -663,12 +663,12 @@ class Store {
         this.socket.on("turn_ended", data => {
             console.log("turn_ended", data);
             runInAction(() => {
-                this.game.player_info[data.next_player].state = "START_TURN";
-                this.game.player_info[data.old_player].state = "NOT_TURN";
                 if (data.next_player === this.playerIndex) {
                     if (this.game.player_info[this.playerIndex].state === "OUT") {
                         this.endTurn();
                     } else {
+                        this.game.player_info[data.next_player].state = "START_TURN";
+                        this.game.player_info[data.old_player].state = "NOT_TURN";
                         new Notification("Your turn!");
                     }
                 }
