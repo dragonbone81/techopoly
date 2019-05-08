@@ -1051,7 +1051,7 @@ class Store {
     };
 
     get currentPlayerTurn() {
-        const player = this.game.player_info.find(player => player.state !== "NOT_TURN");
+        const player = this.game.player_info.find(player => (player.state !== "NOT_TURN" && player.state !== "OUT"));
         return player || {};
     }
 }
