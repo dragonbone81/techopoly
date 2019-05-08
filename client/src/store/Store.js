@@ -666,7 +666,11 @@ class Store {
                 this.game.player_info[data.next_player].state = "START_TURN";
                 this.game.player_info[data.old_player].state = "NOT_TURN";
                 if (data.next_player === this.playerIndex) {
-                    new Notification("Your turn!");
+                    if (this.game.player_info[this.playerIndex].state === "OUT") {
+                        this.endTurn();
+                    } else {
+                        new Notification("Your turn!");
+                    }
                 }
             });
         });
