@@ -561,7 +561,10 @@ class Store {
     endTurn = () => {
         this.setPlayerState("NOT_TURN");
         const playerIndex = this.playerIndex;
-        const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.filter(player => player.state !== "OUT").length - 1);
+        let newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
+        if (this.game.player_info[newCurrentPlayer].state === "OUT") {
+            newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
+        }
         this.game.player_info[newCurrentPlayer].state = "START_TURN";
         this.socket.emit('end_turn', {
             game_id: this.gameAuthInfo.game_id,
