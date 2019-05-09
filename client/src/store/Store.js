@@ -672,7 +672,10 @@ class Store {
                     } else {
                         this.game.player_info[data.next_player].state = "START_TURN";
                         this.game.player_info[data.old_player].state = "NOT_TURN";
-                        new Notification("Your turn!");
+                        const notification = new Notification("Your turn!");
+                        notification.onclick = () => {
+                            window.focus();
+                        };
                     }
                 }
             });
