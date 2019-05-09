@@ -10,7 +10,8 @@ class MyInfoTab extends Component {
                     <div className="d-flex flex-column">
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Username: </span>
-                            <span className="flex-fill">{this.props.store.getPlayer.username}</span>
+                            <span
+                                className="flex-fill">{this.props.store.getPlayer.username} - ({this.props.store.playerIndex + 1})</span>
                         </div>
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Current Tile: </span>

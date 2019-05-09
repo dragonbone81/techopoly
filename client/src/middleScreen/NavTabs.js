@@ -37,9 +37,9 @@ class NavTabs extends Component {
                         })).filter(player => player.username !== this.props.store.gameAuthInfo.username).map(player =>
                             <div onClick={() => this.props.selectTab({
                                 selectedTab: "player_info",
-                                selectedPlayer: player.index,
+                                selectedPlayer: player.id,
                                 dropdownExpanded: false,
-                            })} key={player.index} className="dropdown-item">{player.username}</div>
+                            })} key={player.id} className="dropdown-item">{player.username} - ({player.id + 1})</div>
                         )}
                     </div>
                 </li>

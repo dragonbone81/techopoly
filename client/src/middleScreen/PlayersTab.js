@@ -10,7 +10,7 @@ class PlayersTab extends Component {
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Username: </span>
                             <span
-                                className="flex-fill">{this.props.store.game.player_info[this.props.player].username}</span>
+                                className="flex-fill">{this.props.store.game.player_info[this.props.player].username} - ({this.props.player + 1})</span>
                         </div>
                         <div className="d-flex flex-row info-tab-row">
                             <span className="info-tab-label">Current Tile: </span>
