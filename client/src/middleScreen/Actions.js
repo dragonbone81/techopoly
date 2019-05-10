@@ -23,7 +23,7 @@ class Actions extends Component {
         }
         return (
             <div className="actions-tab d-flex flex-row justify-content-center align-items-center">
-                {this.props.store.playerState === "START_TURN" && this.props.store.getPlayer.jail_turns < 3 && (
+                {this.props.store.playerState !== "OUT" && this.props.store.playerState === "START_TURN" && this.props.store.getPlayer.jail_turns < 3 && (
                     <button type="button" onClick={this.props.store.startTurn}
                             className="btn btn-primary">Roll Dice
                     </button>

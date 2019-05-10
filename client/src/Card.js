@@ -17,7 +17,7 @@ class Card extends Component {
                 onMouseLeave={this.props.store.clearMousedOverTile}
                 onMouseEnter={() => this.props.store.setMousedOverTile(this.props.position)}
             >
-                {this.props.store.game.player_info.filter(player => player.position === this.props.position).map((player, i) => {
+                {this.props.store.game.player_info.filter(player => player.state !== "OUT").filter(player => player.position === this.props.position).map((player, i) => {
                     return <Player playerNumber={player.id} key={i}/>
                 })}
                 {this.props.store.game.animated_players_move.moves.filter(tileIndex => tileIndex === this.props.position).map((tileIndex, i) => {
@@ -67,8 +67,8 @@ class Card extends Component {
                     </div>
                 )}
                 {/*{this.props.bottom && this.props.store.game.board[this.props.position].color && (*/}
-                    {/*<div style={{backgroundColor: this.props.store.game.board[this.props.position].color}}*/}
-                         {/*className="d-flex flex-row top-tiles-color"/>*/}
+                {/*<div style={{backgroundColor: this.props.store.game.board[this.props.position].color}}*/}
+                {/*className="d-flex flex-row top-tiles-color"/>*/}
                 {/*)}*/}
                 {this.props.bottom && this.props.store.game.board[this.props.position].owned && <div
                     style={{backgroundColor: this.props.store.game.player_info[this.props.store.game.board[this.props.position].player].color}}
