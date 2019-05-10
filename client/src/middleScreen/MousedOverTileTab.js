@@ -6,7 +6,10 @@ class MousedOverTileTab extends Component {
 
     render() {
         const tile = this.props.store.game.board[this.props.store.mousedOverTile];
-        const playersOnTile = this.props.store.game.player_info.filter(player => player.state !== "OUT").filter(player => player.position === this.props.store.mousedOverTile);
+        const playersOnTile = this.props.store.game.player_info.map((player, i) => ({
+            ...player,
+            index: i
+        })).filter(player => player.state !== "OUT").filter(player => player.position === this.props.store.mousedOverTile);
         let relatedTiles = [];
         if (tile.type === "rr" || tile.type === "utility") {
             relatedTiles = this.props.store.game.board.filter((tile, i) => tile.type === this.props.store.game.board[this.props.store.mousedOverTile].type && i !== this.props.store.mousedOverTile);
@@ -147,7 +150,7 @@ class MousedOverTileTab extends Component {
                             <span>Players on tile:</span>
                             <ul>
                                 {playersOnTile.map((player, i) => {
-                                    return <li key={i}>{player.username}</li>
+                                    return <li key={i}>{player.username} - ({player.index})</li>
                                 })}
                             </ul>
                         </div>
