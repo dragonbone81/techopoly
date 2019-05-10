@@ -437,6 +437,10 @@ body, html {
     min-width: 770px;
 }
 
+.players-on-tile {
+    font-size: larger;
+}
+
 .tile-info-container {
     padding: 10px;
 }
