@@ -563,7 +563,7 @@ class Store {
         const playerIndex = this.playerIndex;
         let newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
         if (this.game.player_info[newCurrentPlayer].state === "OUT") {
-            newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
+            newCurrentPlayer = this.circularAdd(newCurrentPlayer, 1, this.game.player_info.length - 1);
         }
         this.game.player_info[newCurrentPlayer].state = "START_TURN";
         this.socket.emit('end_turn', {
