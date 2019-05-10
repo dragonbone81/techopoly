@@ -150,7 +150,7 @@ class MousedOverTileTab extends Component {
                             <span>Players on tile:</span>
                             <ul>
                                 {playersOnTile.map((player, i) => {
-                                    return <li key={i}>{player.username} - ({player.index})</li>
+                                    return <li key={i}>{player.username} - ({player.index + 1})</li>
                                 })}
                             </ul>
                         </div>
