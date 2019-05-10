@@ -145,7 +145,7 @@ class MousedOverTileTab extends Component {
                     </div>
                 )}
                 <div className="d-flex flex-row mt-3 players-on-tile">
-                    {playersOnTile ?
+                    {playersOnTile.length > 0 ?
                         <div>
                             <span>Players on tile:</span>
                             <ul>
