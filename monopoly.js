@@ -18,7 +18,8 @@ module.exports = {
                 2, 10, 30, 90, 160, 250,
             ],
             type: "property",
-            url: "https://i.imgur.com/TBCSxks.png"
+            url: "https://i.imgur.com/TBCSxks.png",
+            color: "#5E3C9F",
         },
         {
             //Community Chest
@@ -38,7 +39,8 @@ module.exports = {
                 4, 20, 60, 180, 320, 450,
             ],
             type: "property",
-            url: "https://i.imgur.com/1bII4bF.jpg"
+            url: "https://i.imgur.com/1bII4bF.jpg",
+            color: "#5E3C9F",
         },
         {
             //Income Tax
@@ -54,7 +56,8 @@ module.exports = {
             base_rent: 25,
             position: 5,
             type: "rr",
-            url: "https://i.imgur.com/9k7grnv.png"
+            url: "https://i.imgur.com/9k7grnv.png",
+            color: "#8B4513",
         },
         {
             //Connecticut Avenue
@@ -67,7 +70,8 @@ module.exports = {
                 6, 30, 90, 270, 400, 550,
             ],
             type: "property",
-            url: "https://i.imgur.com/x1zQhTY.png"
+            url: "https://i.imgur.com/x1zQhTY.png",
+            color: "#9eeafb"
         },
         {
             //Chance
@@ -87,7 +91,8 @@ module.exports = {
                 6, 30, 90, 270, 400, 550,
             ],
             type: "property",
-            url: "https://i.imgur.com/ry3ru3l.png"
+            url: "https://i.imgur.com/ry3ru3l.png",
+            color: "#9eeafb"
         },
         {
             //Oriental Ave
@@ -100,7 +105,8 @@ module.exports = {
                 8, 40, 100, 300, 450, 600,
             ],
             type: "property",
-            url: "https://i.imgur.com/FO48Ffj.jpg"
+            url: "https://i.imgur.com/FO48Ffj.jpg",
+            color: "#9eeafb"
         },
         {
             name: "Jail",
@@ -119,7 +125,8 @@ module.exports = {
                 10, 50, 150, 450, 625, 750,
             ],
             type: "property",
-            url: "https://i.imgur.com/Lckj4pJ.jpg"
+            url: "https://i.imgur.com/Lckj4pJ.jpg",
+            color: "#D13F9B",
         },
         {
             //Electric Company
@@ -128,7 +135,8 @@ module.exports = {
             position: 12,
             group: "utility",
             type: "utility",
-            url: "https://i.imgur.com/lMbhkCW.png"
+            url: "https://i.imgur.com/lMbhkCW.png",
+            color: "#FBB677"
         },
         {
             //States Avenue
@@ -141,7 +149,8 @@ module.exports = {
                 10, 50, 150, 450, 625, 750,
             ],
             type: "property",
-            url: "https://i.imgur.com/24T8C2W.png"
+            url: "https://i.imgur.com/24T8C2W.png",
+            color: "#D13F9B",
         },
         {
             //Virginia Avenue
@@ -154,7 +163,8 @@ module.exports = {
                 12, 60, 180, 500, 700, 900,
             ],
             type: "property",
-            url: "https://i.imgur.com/0sLIAPw.png"
+            url: "https://i.imgur.com/0sLIAPw.png",
+            color: "#D13F9B",
         },
         {
             //Pennsylvania Railroad
@@ -163,7 +173,8 @@ module.exports = {
             base_rent: 25,
             position: 15,
             type: "rr",
-            url: "https://i.imgur.com/Gahoxm2.png"
+            url: "https://i.imgur.com/Gahoxm2.png",
+            color: "#8B4513",
         },
         {
             //Tennessee Avenue
@@ -177,7 +188,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/vYQZRaG.png",
-            color:"#FBAA1B",
+            color: "#FFA500",
         },
         {
             //Community Chest
@@ -198,7 +209,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/Bexjmxs.png",
-            color:"#FBAA1B",
+            color: "#FFA500",
         },
         {
             //New York Avenue
@@ -212,7 +223,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/5jhWhOw.jpg",
-            color:"#FBAA1B",
+            color: "#FFA500",
         },
         {
             //Free Parking
@@ -233,7 +244,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/r5SJs2y.jpg",
-            color:"#E73B27"
+            color: "#ff3f3f"
         },
         {
             //Chance
@@ -254,7 +265,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/z1A2ds5.png",
-            color:"#E73B27"
+            color: "#ff3f3f"
         },
         {
             //Illinois Avenue
@@ -268,7 +279,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/YYMNfE9.png",
-            color:"#E73B27"
+            color: "#ff3f3f"
         },
         {
             //B&0 Railroad
@@ -277,7 +288,8 @@ module.exports = {
             base_rent: 25,
             position: 25,
             type: "rr",
-            url: "https://i.imgur.com/0NjxZUM.png"
+            url: "https://i.imgur.com/0NjxZUM.png",
+            color: "#8B4513",
         },
         // {
         //     //Atlantic Avenue
@@ -303,7 +315,8 @@ module.exports = {
                 22, 110, 330, 800, 975, 1150,
             ],
             type: "property",
-            url: "https://i.imgur.com/Hx9qvk6.png?1"
+            url: "https://i.imgur.com/Hx9qvk6.png?1",
+            color: "#fff852"
         },
         {
             //Marvin Gardens
@@ -316,7 +329,8 @@ module.exports = {
                 22, 110, 330, 800, 975, 1150,
             ],
             type: "property",
-            url: "https://i.imgur.com/fweXMJx.jpg"
+            url: "https://i.imgur.com/fweXMJx.jpg",
+            color: "#fff852"
         },
         {
             //Water Works
@@ -325,7 +339,8 @@ module.exports = {
             position: 28,
             group: "utility",
             type: "utility",
-            url: "https://i.imgur.com/kVnhd7V.png"
+            url: "https://i.imgur.com/kVnhd7V.png",
+            color: "#FBB677"
         },
         {
             //Atlantic Avenue
@@ -339,6 +354,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/eodeQiK.jpg?1",
+            color: "#fff852"
         },
         {
             name: "Go to Jail",
@@ -358,6 +374,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/QOSHwjX.png",
+            color: "#008000",
         },
         {
             //North Carolina Avenue
@@ -371,6 +388,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/ul8swcl.png",
+            color: "#008000",
         },
         {
             //Community Chest
@@ -391,6 +409,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/25096o5.png",
+            color: "#008000",
         },
         {
             //Short Line
@@ -400,6 +419,7 @@ module.exports = {
             position: 35,
             type: "rr",
             url: "https://i.imgur.com/NTi8ViD.png",
+            color: "#8B4513",
         },
         {
             //Chance
@@ -420,6 +440,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/f4X4kns.png",
+            color: "#2148ff",
         },
         {
             //Luxury Tax
@@ -440,6 +461,7 @@ module.exports = {
             ],
             type: "property",
             url: "https://i.imgur.com/fJ7V1CC.png",
+            color: "#2148ff",
         },
     ],
     chance: [

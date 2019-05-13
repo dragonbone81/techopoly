@@ -144,7 +144,7 @@ class MousedOverTileTab extends Component {
                         </div>
                     </div>
                 )}
-                <div className="d-flex flex-row mt-3 players-on-tile">
+                <div className="d-flex flex-column mt-3 players-on-tile">
                     {playersOnTile.length > 0 ?
                         <div>
                             <span>Players on tile:</span>
@@ -156,6 +156,13 @@ class MousedOverTileTab extends Component {
                         </div>
                         :
                         <span>No Players on tile.</span>
+                    }
+                    {tile.owned ?
+                        <div>
+                            <span>Owned By: {this.props.store.game.player_info[tile.player].username}</span>
+                        </div>
+                        :
+                        null
                     }
                 </div>
             </div>

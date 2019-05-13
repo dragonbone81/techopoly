@@ -6,12 +6,25 @@ import Player from './Player';
 
 class Card extends Component {
     render() {
+        const boxShadow = {};
+        if (this.props.right) {
+            boxShadow.boxShadow = `-5px 0px 0px 0px ${this.props.store.game.board[this.props.position].color}`
+        }
+        if (this.props.left) {
+            boxShadow.boxShadow = `5px 0px 0px 0px ${this.props.store.game.board[this.props.position].color}`
+        }
+        if (this.props.top) {
+            boxShadow.boxShadow = `0px 5px 0px 0px ${this.props.store.game.board[this.props.position].color}`
+        }
+        if (this.props.bottom) {
+            boxShadow.boxShadow = `0px -5px 0px 0px ${this.props.store.game.board[this.props.position].color}`
+        }
         return (
             <div
                 // onClick={() => this.props.store.devMoveHere(this.props.position)}
                 style={{
                     backgroundImage: `url(${this.props.store.game.board[this.props.position].url})`,
-                    // border: `2px solid ${this.props.store.game.board[this.props.position].color}`
+                    ...boxShadow,
                 }}
                 className={`game-tile d-flex flex-wrap align-content-between justify-content-between ${this.props.store.game.board[this.props.position].mortgaged ? "grey-card" : ""}`}
                 onMouseLeave={this.props.store.clearMousedOverTile}
