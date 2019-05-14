@@ -169,7 +169,7 @@ class Store {
     giveUp = () => {
         const playerIndex = this.playerIndex;
         this.addToLog(`${this.game.player_info[playerIndex].username} gave up.`);
-        const newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.filter(player => player.state !== "OUT").length - 1);
+        let newCurrentPlayer = this.findNextPlayerInGame(playerIndex);
         this.game.player_info[playerIndex].state = "OUT";
         if (this.game.player_info.filter(player => player.state !== "OUT").length === 1) {
             const winningPlayer = this.game.player_info.find(player => player.state !== "OUT");
@@ -561,10 +561,7 @@ class Store {
     endTurn = () => {
         this.setPlayerState("NOT_TURN");
         const playerIndex = this.playerIndex;
-        let newCurrentPlayer = this.circularAdd(playerIndex, 1, this.game.player_info.length - 1);
-        if (this.game.player_info[newCurrentPlayer].state === "OUT") {
-            newCurrentPlayer = this.circularAdd(newCurrentPlayer, 1, this.game.player_info.length - 1);
-        }
+        let newCurrentPlayer = this.findNextPlayerInGame(playerIndex);
         this.game.player_info[newCurrentPlayer].state = "START_TURN";
         this.socket.emit('end_turn', {
             game_id: this.gameAuthInfo.game_id,
@@ -1064,6 +1061,14 @@ class Store {
         const player = this.game.player_info.find(player => (player.state !== "NOT_TURN" && player.state !== "OUT"));
         return player || {};
     }
+    findNextPlayerInGame = (playerIndex) => {
+        for (let i = playerIndex; i < this.game.player_info.length * 3; i++) {
+            const player = this.game.player_info[(i % this.game.player_info.length + this.game.player_info.length) % this.game.player_info.length];
+            if (player.state !== "OUT" && player.id !== playerIndex) {
+                return player.id
+            }
+        }
+    };
 }
 
 decorate(Store, {
