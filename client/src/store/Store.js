@@ -559,6 +559,7 @@ class Store {
         this.syncPlayerState();
     };
     endTurn = () => {
+        this.refreshCurrentProposingTrade();
         this.setPlayerState("NOT_TURN");
         const playerIndex = this.playerIndex;
         let newCurrentPlayer = this.findNextPlayerInGame(playerIndex);
@@ -1061,6 +1062,7 @@ class Store {
         const player = this.game.player_info.find(player => (player.state !== "NOT_TURN" && player.state !== "OUT"));
         return player || {};
     }
+
     findNextPlayerInGame = (playerIndex) => {
         for (let i = playerIndex; i < this.game.player_info.length * 3; i++) {
             const player = this.game.player_info[(i % this.game.player_info.length + this.game.player_info.length) % this.game.player_info.length];
@@ -1069,11 +1071,29 @@ class Store {
             }
         }
     };
+    refreshCurrentProposingTrade = () => {
+        this.currentProposingTrade = {
+            moneyGiven: 0,
+            moneyTaken: 0,
+            givenProperties: [],
+            takenProperties: [],
+        }
+    };
+    setCurrentProposingTrade = (key, val) => {
+        this.currentProposingTrade[key] = val;
+    };
+    currentProposingTrade = {
+        moneyGiven: 0,
+        moneyTaken: 0,
+        givenProperties: [],
+        takenProperties: [],
+    }
 }
 
 decorate(Store, {
     players: observable,
     game: observable,
+    currentProposingTrade: observable,
     // gameState: observable,
     mousedOverTile: observable,
     selectedTab: observable,
@@ -1089,6 +1109,8 @@ decorate(Store, {
     playerIndex: computed,
     currentPlayerTurn: computed,
     rollDice: action,
+    refreshCurrentProposingTrade: action,
+    setCurrentProposingTrade: action,
     setPlayerState: action,
     movePlayerToTile: action,
     checkTile: action,
